@@ -3226,6 +3226,9 @@ html.lenis body {
   .wg-card {
     transition: opacity 0.4s ease;
   }
+  .wg-card__media video {
+    transition: opacity 0.4s ease !important;
+  }
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
@@ -3264,4 +3267,28 @@ main {
 }
 .js.split-hero.has-gsap .is-loaded .hero__line > span {
   animation: none !important;
+}
+
+/* Shown only when the browser blocks autoplay */
+.wg-card__tap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: none;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border-radius: 50%;
+  color: #1a0b00;
+  background: linear-gradient(135deg, #ffad5c, #ff7a1a);
+  box-shadow: 0 10px 30px -8px rgba(255, 122, 26, 0.7);
+}
+.wg-card__tap svg {
+  width: 30px;
+  height: 30px;
+  margin-left: 4px;
+}
+.wg-card.is-active.needs-tap .wg-card__tap {
+  display: grid;
 }

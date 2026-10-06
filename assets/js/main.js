@@ -486,24 +486,69 @@
     };
     const pad = (v) => String(v).padStart(2, '0');
 
-    // Attach sources lazily; the browser picks WebM (VP9) or MP4 (H.264).
+    // Clips are downloaded whole and played from a blob: URL. This plays
+    // smoothly (no buffering mid-loop) and works on hosts without HTTP range
+    // support, which Safari otherwise refuses to stream from.
+    const probe = document.createElement('video');
+    // Check the actual codec (a bare 'video/mp4' answers "maybe" even without H.264).
+    const formats = probe.canPlayType('video/mp4; codecs="avc1.4D401F"') ? ['mp4', 'webm'] : ['webm', 'mp4'];
+    const blobs = new Map();
+    const fetchClip = (url) => {
+      if (!blobs.has(url)) {
+        blobs.set(
+          url,
+          fetch(url)
+            .then((r) => (r.ok ? r.blob() : Promise.reject(r.status)))
+            .then((b) => URL.createObjectURL(b))
+            .catch(() => url), // fall back to streaming the file directly
+        );
+      }
+      return blobs.get(url);
+    };
+    const loading = new WeakMap();
     const load = (v) => {
-      if (!v || v.dataset.loaded) return;
-      v.dataset.loaded = '1';
-      v.innerHTML = `<source src="${v.dataset.webm}" type="video/webm"><source src="${v.dataset.mp4}" type="video/mp4">`;
-      v.load();
+      if (!v) return Promise.resolve();
+      if (loading.has(v)) return loading.get(v); // every caller waits for the same load
+      const ready = startLoad(v);
+      loading.set(v, ready);
+      return ready;
+    };
+    const startLoad = (v) => {
+      v.muted = true;
+      v.defaultMuted = true;
+      v.playsInline = true;
+      v.addEventListener('playing', () => {
+        v.classList.add('is-playing');
+        v.closest('[data-wg-card]')?.classList.remove('needs-tap');
+      });
+      let attempt = 0;
+      const tryFormat = () =>
+        fetchClip(v.dataset[formats[attempt]]).then((src) => {
+          v.src = src;
+          v.load();
+        });
+      // If this browser can't decode the file, retry with the other format.
+      v.addEventListener('error', () => {
+        if (++attempt < formats.length) {
+          tryFormat().then(() => v.closest('.is-active') && v.play()?.catch(() => {}));
+        }
+      });
+      return tryFormat();
     };
     const playVideo = (card, on) => {
       const v = $('video', card);
       if (!v) return;
-      if (on) {
-        load(v);
-        const p = v.play();
-        p?.then(() => v.classList.add('is-playing')).catch(() => {});
-      } else {
-        v.pause();
-        v.classList.remove('is-playing');
+      if (!on) {
+        if (!v.paused) v.pause();
+        return;
       }
+      load(v).then(() => {
+        if (!card.classList.contains('is-active')) return;
+        v.play()?.catch((err) => {
+          // Autoplay blocked (e.g. battery saver): show a tap-to-play button.
+          if (err?.name === 'NotAllowedError') card.classList.add('needs-tap');
+        });
+      });
     };
 
     const updateDetail = () => {
@@ -538,8 +583,9 @@
         card.setAttribute('aria-hidden', String(d !== 0));
         // Preload neighbours' clips; play only the active one.
         const v = $('video', card);
-        if (ad === 1 && inView && !reduceMotion) load(v);
-        playVideo(card, d === 0 && inView && !reduceMotion);
+        // Clips are content, so they play even with reduced motion (muted).
+        if (ad <= 2 && inView) load(v);
+        playVideo(card, d === 0 && inView);
       });
       rail.forEach((b, i) => (i === active ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current')));
       const current = cards[active];
@@ -593,6 +639,7 @@
       card.addEventListener('click', () => {
         if (dragged) return;
         if (i !== active) return go(i);
+        if (card.classList.contains('needs-tap')) return $('video', card)?.play();
         const url = data[i]?.url;
         if (url) window.open(url, '_blank', 'noopener');
       }),

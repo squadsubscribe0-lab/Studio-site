@@ -437,6 +437,7 @@ function webGamesCarousel() {
           <span class="wg-card__title">${esc(g.title)}</span>
           <span class="wg-card__tags">${g.tags.map(esc).join(' / ')}</span>
         </div>
+        <span class="wg-card__tap" aria-hidden="true">${icons.play}</span>
         <span class="wg-card__progress" aria-hidden="true"><span></span></span>
       </article>`,
         )
