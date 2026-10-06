@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://squadsubscribe0-lab.github.io/Studio-site/sitemap.xml

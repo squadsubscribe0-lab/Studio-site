@@ -1,0 +1,17 @@
+{
+  "name": "indie-dev-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio website for a solo indie game developer (casual, hypercasual & idle games).",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "images": "node scripts/images.mjs",
+    "dev": "node build.mjs && npx --yes serve -l 5173 .",
+    "check": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.1",
+    "sharp": "^0.34.4"
+  }
+}
