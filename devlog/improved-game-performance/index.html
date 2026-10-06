@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="en" class="no-js" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,7 +7,7 @@
 <meta name="description" content="Profiling, pooling and fewer allocations — making busy waves run smoothly on lower-end phones and in the browser.">
 <link rel="canonical" href="https://squadsubscribe0-lab.github.io/Studio-site/devlog/improved-game-performance/">
 <meta name="theme-color" content="#05070d">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <meta name="author" content="Indie Dev">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Indie Dev">
@@ -23,9 +23,13 @@
 <link rel="manifest" href="../../site.webmanifest">
 <link rel="preload" href="../../assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../../assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="../../assets/css/main.css?v=0b90617a">
-<script>document.documentElement.classList.replace('no-js','js')</script>
-<script src="../../assets/js/main.js?v=4c93a154" defer></script>
+<link rel="stylesheet" href="../../assets/css/main.css?v=a65a4d9c">
+<script>(function(d){d.classList.replace('no-js','js');var t;try{t=localStorage.getItem('theme')}catch(e){}d.setAttribute('data-theme',t==='light'||t==='dark'?t:'dark');if(innerWidth>=760&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('split-hero')})(document.documentElement)</script>
+<script src="../../assets/vendor/gsap.min.js?v=9396f256" defer></script>
+<script src="../../assets/vendor/ScrollTrigger.min.js?v=05ca5ad8" defer></script>
+<script src="../../assets/vendor/SplitText.min.js?v=6c4c7716" defer></script>
+<script src="../../assets/vendor/lenis.min.js?v=b5cf15f0" defer></script>
+<script src="../../assets/js/main.js?v=bedaabf1" defer></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Improved Game Performance","description":"Profiling, pooling and fewer allocations — making busy waves run smoothly on lower-end phones and in the browser.","datePublished":"2026-08-21","image":"https://squadsubscribe0-lab.github.io/Studio-site/assets/img/devlog/performance-1280.webp","url":"https://squadsubscribe0-lab.github.io/Studio-site/devlog/improved-game-performance/","author":{"@id":"https://squadsubscribe0-lab.github.io/Studio-site/#person","@type":"Person","name":"Indie Dev"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://squadsubscribe0-lab.github.io/Studio-site/"},{"@type":"ListItem","position":2,"name":"Devlog","item":"https://squadsubscribe0-lab.github.io/Studio-site/devlog/"},{"@type":"ListItem","position":3,"name":"Improved Game Performance","item":"https://squadsubscribe0-lab.github.io/Studio-site/devlog/improved-game-performance/"}]}</script>
 </head>
@@ -48,6 +52,14 @@
       </ul>
       <a class="btn btn--primary btn--sm nav__cta" href="../../#contact">Let’s talk</a>
     </div>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to day mode" title="Switch theme">
+      <span class="theme-toggle__track" aria-hidden="true">
+        <span class="theme-toggle__thumb">
+          <svg class="theme-toggle__moon" viewBox="0 0 24 24"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+        </span>
+      </span>
+    </button>
     <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" data-menu-toggle>
       <span class="visually-hidden">Menu</span><span class="nav__bars" aria-hidden="true"></span>
     </button>
@@ -102,5 +114,6 @@
   <svg class="to-top__ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
 </button>
+<script>document.body.classList.add('is-loaded')</script>
 </body>
 </html>

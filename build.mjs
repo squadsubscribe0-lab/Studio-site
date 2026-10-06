@@ -125,6 +125,14 @@ function header(r, isHome) {
       </ul>
       <a class="btn btn--primary btn--sm nav__cta" href="${href('contact')}">Let’s talk</a>
     </div>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to day mode" title="Switch theme">
+      <span class="theme-toggle__track" aria-hidden="true">
+        <span class="theme-toggle__thumb">
+          <svg class="theme-toggle__moon" viewBox="0 0 24 24"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+        </span>
+      </span>
+    </button>
     <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" data-menu-toggle>
       <span class="visually-hidden">Menu</span><span class="nav__bars" aria-hidden="true"></span>
     </button>
@@ -165,7 +173,7 @@ function layout({ r, path, title, description, image, body, isHome = false, json
   const ogImage = abs(image || config.seo.ogImage);
   const url = abs(path);
   return `<!doctype html>
-<html lang="${config.lang}" class="no-js">
+<html lang="${config.lang}" class="no-js" data-theme="${config.defaultTheme === 'light' ? 'light' : 'dark'}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -173,7 +181,7 @@ function layout({ r, path, title, description, image, body, isHome = false, json
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${url}">
 <meta name="theme-color" content="#05070d">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <meta name="author" content="${esc(DEV.name)}">
 <meta property="og:type" content="${type}">
 <meta property="og:site_name" content="${esc(DEV.name)}">
@@ -192,7 +200,8 @@ function layout({ r, path, title, description, image, body, isHome = false, json
 <link rel="preload" href="${r}assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${r}assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${asset(r, 'assets/css/main.css')}">
-<script>document.documentElement.classList.replace('no-js','js')</script>
+<script>(function(d){d.classList.replace('no-js','js');var t;try{t=localStorage.getItem('theme')}catch(e){}d.setAttribute('data-theme',t==='light'||t==='dark'?t:'${config.defaultTheme === 'light' ? 'light' : 'dark'}');if(innerWidth>=760&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('split-hero')})(document.documentElement)</script>
+${['gsap.min.js', 'ScrollTrigger.min.js', 'SplitText.min.js', 'lenis.min.js'].map((f) => `<script src="${asset(r, `assets/vendor/${f}`)}" defer></script>`).join('\n')}
 <script src="${asset(r, 'assets/js/main.js')}" defer></script>
 ${jsonLd.map((d) => `<script type="application/ld+json">${JSON.stringify(d)}</script>`).join('\n')}
 </head>
@@ -202,6 +211,7 @@ ${header(r, isHome)}
 ${body}
 </main>
 ${footer(r, isHome)}
+<script>document.body.classList.add('is-loaded')</script>
 </body>
 </html>
 `;
@@ -216,7 +226,7 @@ const personLd = {
   name: DEV.name,
   jobTitle: DEV.role,
   url: `${SITE}/`,
-  knowsAbout: ['Game development', 'Unity', 'C#', 'Casual games', 'Hypercasual games', 'Idle games'],
+  knowsAbout: ['Game development', 'HTML5 games', 'JavaScript', 'Unity', 'C#', 'Casual games', 'Hypercasual games', 'Idle games'],
   ...(socials.length ? { sameAs: socials.map((s) => s.url) } : {}),
 };
 
@@ -264,15 +274,15 @@ function heroScene() {
     <svg class="hero__layer hero__world" data-depth="0.14" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
       <defs>
         <radialGradient id="hz-sun" cx="50%" cy="100%" r="60%">
-          <stop offset="0" stop-color="#ff8a2a" stop-opacity=".55"/>
-          <stop offset=".35" stop-color="#ff6a00" stop-opacity=".16"/>
-          <stop offset="1" stop-color="#ff6a00" stop-opacity="0"/>
+          <stop offset="0" style="stop-color:var(--hz-sun)" stop-opacity=".55"/>
+          <stop offset=".35" style="stop-color:var(--hz-sun)" stop-opacity=".16"/>
+          <stop offset="1" style="stop-color:var(--hz-sun)" stop-opacity="0"/>
         </radialGradient>
         <linearGradient id="hz-far" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#1b2645"/><stop offset="1" stop-color="#0b1122"/>
+          <stop offset="0" style="stop-color:var(--hz-far-a)"/><stop offset="1" style="stop-color:var(--hz-far-b)"/>
         </linearGradient>
         <linearGradient id="hz-near" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#101934"/><stop offset="1" stop-color="#05070d"/>
+          <stop offset="0" style="stop-color:var(--hz-near-a)"/><stop offset="1" style="stop-color:var(--hz-near-b)"/>
         </linearGradient>
         <linearGradient id="hz-edge" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#ff9a40" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a40" stop-opacity="0"/>
@@ -282,7 +292,7 @@ function heroScene() {
         </linearGradient>
       </defs>
       <ellipse cx="800" cy="700" rx="900" ry="420" fill="url(#hz-sun)"/>
-      <circle cx="800" cy="640" r="250" fill="none" stroke="#ff8a2a" stroke-opacity=".22" stroke-width="1.5"/>
+      <circle cx="800" cy="640" r="250" fill="none" style="stroke:var(--hz-ring)" stroke-opacity=".3" stroke-width="1.5"/>
       <circle cx="800" cy="640" r="300" fill="none" stroke="#ffffff" stroke-opacity=".05" stroke-width="1"/>
       <path d="M0 690 L120 600 L180 640 L300 520 L360 580 L470 470 L540 560 L620 610 L980 610 L1060 540 L1130 470 L1250 560 L1320 520 L1430 610 L1520 570 L1600 640 L1600 900 L0 900Z" fill="url(#hz-far)" opacity=".85"/>
       <path d="M300 520 L360 580 M1130 470 L1250 560 M470 470 L540 560" stroke="url(#hz-edge)" stroke-width="1.5" opacity=".55"/>
@@ -335,7 +345,7 @@ function hero() {
       <a class="btn btn--ghost btn--lg" href="#about" data-magnetic>About Me</a>
     </div>
     <ul class="hero__genres">
-      <li>Casual</li><li>Hypercasual</li><li>Idle</li><li>Made with Unity</li>
+      <li>Casual</li><li>Hypercasual</li><li>Idle</li><li>HTML5 &amp; Unity</li>
     </ul>
   </div>
   ${
@@ -377,6 +387,68 @@ function gameCard(g, r = '') {
 </article>`;
 }
 
+function marquee() {
+  const words = ['Casual', 'Hypercasual', 'Idle', 'HTML5', 'Unity', 'Web games'];
+  const row = words.map((w, i) => `<span class="marquee__word${i % 2 ? ' marquee__word--outline' : ''}">${w}</span><span class="marquee__star">✦</span>`).join('');
+  return `<div class="marquee" aria-hidden="true"><div class="marquee__track" data-marquee>${row}${row}</div></div>`;
+}
+
+function webGamesCarousel() {
+  const list = config.webGames || [];
+  if (!list.length) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  const first = list[0];
+  const data = list.map((g) => ({ title: g.title, tags: g.tags, description: g.description, url: g.url || '' }));
+  // Both buttons are rendered; JS shows the right one for the selected game.
+  const playBtn = (g) =>
+    `<a class="btn btn--primary btn--lg" data-wg-play href="${esc(g.url || '#play')}" target="_blank" rel="noopener" data-magnetic${g.url ? '' : ' hidden'}>${icons.play}<span>Play now</span></a>` +
+    `<button class="btn btn--primary btn--lg is-disabled" type="button" data-wg-play disabled${g.url ? ' hidden' : ''}>${icons.play}<span>Play link coming soon</span></button>`;
+  return `<div class="play" id="play">
+  <div class="play__info">
+    <h3 class="play__heading reveal">Play in your browser</h3>
+    <p class="play__intro reveal">${list.length} HTML5 games that load instantly on phone or desktop — no download needed.</p>
+    <div class="play__detail reveal" data-wg-detail aria-live="polite">
+      <p class="play__count"><span data-wg-index>01</span><span class="play__total"> / ${pad(list.length)}</span></p>
+      <h4 class="play__title" data-wg-title>${esc(first.title)}</h4>
+      <ul class="tags" data-wg-tags>${first.tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
+      <p class="play__desc" data-wg-desc>${esc(first.description)}</p>
+      <div class="play__actions">
+        ${playBtn(first)}
+        <div class="play__arrows">
+          <button class="icon-btn" type="button" data-wg-prev aria-label="Previous game">${icons.chevronUp}</button>
+          <button class="icon-btn" type="button" data-wg-next aria-label="Next game">${icons.chevronDown}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <section class="wg reveal" data-wg aria-roledescription="carousel" aria-label="Web games" tabindex="0">
+    <div class="wg__glow" aria-hidden="true"></div>
+    <div class="wg__stage" data-wg-stage>
+      ${list
+        .map(
+          (g, i) => `<article class="wg-card${i === 0 ? ' is-active' : ''}" data-wg-card aria-roledescription="slide" aria-label="${i + 1} of ${list.length}: ${esc(g.title)}">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/${g.slug}.avif"><img src="assets/img/web-games/${g.slug}.webp" alt="" width="432" height="768" loading="${i < 3 || i === list.length - 1 ? 'eager' : 'lazy'}" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/${g.slug}.webm" data-mp4="assets/video/${g.slug}.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">${esc(g.title)}</span>
+          <span class="wg-card__tags">${g.tags.map(esc).join(' / ')}</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>`,
+        )
+        .join('\n      ')}
+    </div>
+    <ol class="wg__rail">
+      ${list.map((g, i) => `<li><button type="button" data-wg-go="${i}" aria-label="Show ${esc(g.title)}"${i === 0 ? ' aria-current="true"' : ''}></button></li>`).join('')}
+    </ol>
+  </section>
+  <script type="application/json" id="wg-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>
+</div>`;
+}
+
 function gamesSection() {
   const sorted = [...games].sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
   return `<section class="section games" id="games" aria-labelledby="games-title">
@@ -386,6 +458,8 @@ function gamesSection() {
       <h2 id="games-title">My Games</h2>
       <p class="section-head__lead">A collection of casual, hypercasual and idle games built with a focus on fun, simplicity and replayability.</p>
     </header>
+    ${webGamesCarousel()}
+    <h3 class="games__sub reveal">Featured &amp; in development</h3>
     <div class="games-grid" data-stagger>
       ${sorted.map((g) => gameCard(g)).join('\n      ')}
     </div>
@@ -395,6 +469,7 @@ function gamesSection() {
 
 const DISCIPLINES = [
   ['design', 'Game design', 'Core loops, progression and balancing'],
+  ['html5', 'HTML5 development', 'Browser games that load instantly on any device'],
   ['engine', 'Unity development', 'Gameplay systems, scenes and builds'],
   ['code', 'Programming', 'Clean, maintainable C#'],
   ['ui', 'UI', 'Clear menus and satisfying feedback'],
@@ -419,13 +494,13 @@ function aboutSection() {
           ? `<div class="about__chip about__chip--top glass"><span class="about__chip-label">Currently building</span><strong>${esc(building.title)}</strong></div>`
           : ''
       }
-      <div class="about__chip about__chip--bottom glass">${icons.unity}<span>Made with Unity &amp; C#</span></div>
+      <div class="about__chip about__chip--bottom glass">${icons.html5}<span>HTML5 &amp; Unity games</span></div>
     </div>
     <div class="about__copy">
       <p class="eyebrow reveal">About</p>
       <h2 id="about-title" class="reveal">Hi, I’m an <span class="text-accent">Indie Developer</span></h2>
       <div class="about__text reveal">
-        <p>I make games on my own — from the first rough idea to the build that ends up in players’ hands. Every step is mine: designing the core loop, building it in Unity, writing the code, crafting the UI, optimising performance and preparing the game for release.</p>
+        <p>I make games on my own — from the first rough idea to the build that ends up in players’ hands. Every step is mine: designing the core loop, building it — mostly as HTML5 games that run instantly in any browser, and in Unity — writing the code, crafting the UI, optimising performance and preparing the game for release.</p>
         <p>I focus on casual, hypercasual and idle games because they reward clarity. A good one is understood in seconds, feels great to play right away and always gives you a reason to come back. That’s the bar I aim for with every project.</p>
         <p>Launch isn’t the finish line. I watch how people actually play, listen to feedback and keep iterating — small, deliberate changes that make each game better over time.</p>
       </div>
@@ -596,7 +671,7 @@ function contactSection() {
 /* ── Pages ───────────────────────────────────────────────────────────────── */
 
 function homePage() {
-  const body = [hero(), gamesSection(), aboutSection(), philosophySection(), statsSection(), skillsSection(), devlogSection(), contactSection()].join('\n');
+  const body = [hero(), marquee(), gamesSection(), aboutSection(), philosophySection(), statsSection(), skillsSection(), devlogSection(), contactSection()].join('\n');
   return layout({
     r: '',
     path: '',

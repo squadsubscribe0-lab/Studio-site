@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="en" class="no-js" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,7 +7,7 @@
 <meta name="description" content="Portfolio of a solo indie game developer creating fun, polished casual, hypercasual and idle games in Unity — from first idea to release.">
 <link rel="canonical" href="https://squadsubscribe0-lab.github.io/Studio-site/">
 <meta name="theme-color" content="#05070d">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <meta name="author" content="Indie Dev">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Indie Dev">
@@ -23,10 +23,14 @@
 <link rel="manifest" href="site.webmanifest">
 <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/main.css?v=0b90617a">
-<script>document.documentElement.classList.replace('no-js','js')</script>
-<script src="assets/js/main.js?v=4c93a154" defer></script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","@id":"https://squadsubscribe0-lab.github.io/Studio-site/#person","name":"Indie Dev","jobTitle":"Solo Indie Game Developer","url":"https://squadsubscribe0-lab.github.io/Studio-site/","knowsAbout":["Game development","Unity","C#","Casual games","Hypercasual games","Idle games"]}</script>
+<link rel="stylesheet" href="assets/css/main.css?v=a65a4d9c">
+<script>(function(d){d.classList.replace('no-js','js');var t;try{t=localStorage.getItem('theme')}catch(e){}d.setAttribute('data-theme',t==='light'||t==='dark'?t:'dark');if(innerWidth>=760&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('split-hero')})(document.documentElement)</script>
+<script src="assets/vendor/gsap.min.js?v=9396f256" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js?v=05ca5ad8" defer></script>
+<script src="assets/vendor/SplitText.min.js?v=6c4c7716" defer></script>
+<script src="assets/vendor/lenis.min.js?v=b5cf15f0" defer></script>
+<script src="assets/js/main.js?v=bedaabf1" defer></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","@id":"https://squadsubscribe0-lab.github.io/Studio-site/#person","name":"Indie Dev","jobTitle":"Solo Indie Game Developer","url":"https://squadsubscribe0-lab.github.io/Studio-site/","knowsAbout":["Game development","HTML5 games","JavaScript","Unity","C#","Casual games","Hypercasual games","Idle games"]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://squadsubscribe0-lab.github.io/Studio-site/#website","name":"Indie Dev","url":"https://squadsubscribe0-lab.github.io/Studio-site/","description":"Portfolio of a solo indie game developer creating fun, polished casual, hypercasual and idle games in Unity — from first idea to release.","publisher":{"@id":"https://squadsubscribe0-lab.github.io/Studio-site/#person"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"Games","itemListElement":[{"@type":"ListItem","position":1,"url":"https://squadsubscribe0-lab.github.io/Studio-site/games/idle-shape-shooter/","name":"Idle Shape Shooter"},{"@type":"ListItem","position":2,"url":"https://squadsubscribe0-lab.github.io/Studio-site/games/casual-project/","name":"Casual Project"},{"@type":"ListItem","position":3,"url":"https://squadsubscribe0-lab.github.io/Studio-site/games/hypercasual-project/","name":"Hypercasual Project"}]}</script>
 </head>
@@ -49,6 +53,14 @@
       </ul>
       <a class="btn btn--primary btn--sm nav__cta" href="#contact">Let’s talk</a>
     </div>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to day mode" title="Switch theme">
+      <span class="theme-toggle__track" aria-hidden="true">
+        <span class="theme-toggle__thumb">
+          <svg class="theme-toggle__moon" viewBox="0 0 24 24"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+        </span>
+      </span>
+    </button>
     <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" data-menu-toggle>
       <span class="visually-hidden">Menu</span><span class="nav__bars" aria-hidden="true"></span>
     </button>
@@ -61,15 +73,15 @@
     <svg class="hero__layer hero__world" data-depth="0.14" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
       <defs>
         <radialGradient id="hz-sun" cx="50%" cy="100%" r="60%">
-          <stop offset="0" stop-color="#ff8a2a" stop-opacity=".55"/>
-          <stop offset=".35" stop-color="#ff6a00" stop-opacity=".16"/>
-          <stop offset="1" stop-color="#ff6a00" stop-opacity="0"/>
+          <stop offset="0" style="stop-color:var(--hz-sun)" stop-opacity=".55"/>
+          <stop offset=".35" style="stop-color:var(--hz-sun)" stop-opacity=".16"/>
+          <stop offset="1" style="stop-color:var(--hz-sun)" stop-opacity="0"/>
         </radialGradient>
         <linearGradient id="hz-far" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#1b2645"/><stop offset="1" stop-color="#0b1122"/>
+          <stop offset="0" style="stop-color:var(--hz-far-a)"/><stop offset="1" style="stop-color:var(--hz-far-b)"/>
         </linearGradient>
         <linearGradient id="hz-near" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#101934"/><stop offset="1" stop-color="#05070d"/>
+          <stop offset="0" style="stop-color:var(--hz-near-a)"/><stop offset="1" style="stop-color:var(--hz-near-b)"/>
         </linearGradient>
         <linearGradient id="hz-edge" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#ff9a40" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a40" stop-opacity="0"/>
@@ -79,7 +91,7 @@
         </linearGradient>
       </defs>
       <ellipse cx="800" cy="700" rx="900" ry="420" fill="url(#hz-sun)"/>
-      <circle cx="800" cy="640" r="250" fill="none" stroke="#ff8a2a" stroke-opacity=".22" stroke-width="1.5"/>
+      <circle cx="800" cy="640" r="250" fill="none" style="stroke:var(--hz-ring)" stroke-opacity=".3" stroke-width="1.5"/>
       <circle cx="800" cy="640" r="300" fill="none" stroke="#ffffff" stroke-opacity=".05" stroke-width="1"/>
       <path d="M0 690 L120 600 L180 640 L300 520 L360 580 L470 470 L540 560 L620 610 L980 610 L1060 540 L1130 470 L1250 560 L1320 520 L1430 610 L1520 570 L1600 640 L1600 900 L0 900Z" fill="url(#hz-far)" opacity=".85"/>
       <path d="M300 520 L360 580 M1130 470 L1250 560 M470 470 L540 560" stroke="url(#hz-edge)" stroke-width="1.5" opacity=".55"/>
@@ -115,7 +127,7 @@
       <a class="btn btn--ghost btn--lg" href="#about" data-magnetic>About Me</a>
     </div>
     <ul class="hero__genres">
-      <li>Casual</li><li>Hypercasual</li><li>Idle</li><li>Made with Unity</li>
+      <li>Casual</li><li>Hypercasual</li><li>Idle</li><li>HTML5 &amp; Unity</li>
     </ul>
   </div>
   <a class="hero__spotlight glass" href="games/idle-shape-shooter/">
@@ -129,6 +141,7 @@
     <span class="scroll-cue__text" aria-hidden="true">Scroll</span>
   </a>
 </section>
+<div class="marquee" aria-hidden="true"><div class="marquee__track" data-marquee><span class="marquee__word">Casual</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Hypercasual</span><span class="marquee__star">✦</span><span class="marquee__word">Idle</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">HTML5</span><span class="marquee__star">✦</span><span class="marquee__word">Unity</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Web games</span><span class="marquee__star">✦</span><span class="marquee__word">Casual</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Hypercasual</span><span class="marquee__star">✦</span><span class="marquee__word">Idle</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">HTML5</span><span class="marquee__star">✦</span><span class="marquee__word">Unity</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Web games</span><span class="marquee__star">✦</span></div></div>
 <section class="section games" id="games" aria-labelledby="games-title">
   <div class="container">
     <header class="section-head reveal">
@@ -136,6 +149,179 @@
       <h2 id="games-title">My Games</h2>
       <p class="section-head__lead">A collection of casual, hypercasual and idle games built with a focus on fun, simplicity and replayability.</p>
     </header>
+    <div class="play" id="play">
+  <div class="play__info">
+    <h3 class="play__heading reveal">Play in your browser</h3>
+    <p class="play__intro reveal">12 HTML5 games that load instantly on phone or desktop — no download needed.</p>
+    <div class="play__detail reveal" data-wg-detail aria-live="polite">
+      <p class="play__count"><span data-wg-index>01</span><span class="play__total"> / 12</span></p>
+      <h4 class="play__title" data-wg-title>Idle Shape Shooter</h4>
+      <ul class="tags" data-wg-tags><li>Idle</li><li>Shooter</li></ul>
+      <p class="play__desc" data-wg-desc>Blast waves of geometric enemies and upgrade your turret — progress keeps climbing even while you’re away.</p>
+      <div class="play__actions">
+        <a class="btn btn--primary btn--lg" data-wg-play href="#play" target="_blank" rel="noopener" data-magnetic hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg><span>Play now</span></a><button class="btn btn--primary btn--lg is-disabled" type="button" data-wg-play disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg><span>Play link coming soon</span></button>
+        <div class="play__arrows">
+          <button class="icon-btn" type="button" data-wg-prev aria-label="Previous game"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg></button>
+          <button class="icon-btn" type="button" data-wg-next aria-label="Next game"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <section class="wg reveal" data-wg aria-roledescription="carousel" aria-label="Web games" tabindex="0">
+    <div class="wg__glow" aria-hidden="true"></div>
+    <div class="wg__stage" data-wg-stage>
+      <article class="wg-card is-active" data-wg-card aria-roledescription="slide" aria-label="1 of 12: Idle Shape Shooter">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/idle-shape-shooter.avif"><img src="assets/img/web-games/idle-shape-shooter.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/idle-shape-shooter.webm" data-mp4="assets/video/idle-shape-shooter.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Idle Shape Shooter</span>
+          <span class="wg-card__tags">Idle / Shooter</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="2 of 12: Web Game 02">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-02.avif"><img src="assets/img/web-games/web-game-02.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-02.webm" data-mp4="assets/video/web-game-02.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 02</span>
+          <span class="wg-card__tags">Hypercasual / Runner</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="3 of 12: Web Game 03">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-03.avif"><img src="assets/img/web-games/web-game-03.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-03.webm" data-mp4="assets/video/web-game-03.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 03</span>
+          <span class="wg-card__tags">Casual / Stacking</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="4 of 12: Web Game 04">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-04.avif"><img src="assets/img/web-games/web-game-04.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-04.webm" data-mp4="assets/video/web-game-04.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 04</span>
+          <span class="wg-card__tags">Puzzle / Merge</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="5 of 12: Web Game 05">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-05.avif"><img src="assets/img/web-games/web-game-05.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-05.webm" data-mp4="assets/video/web-game-05.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 05</span>
+          <span class="wg-card__tags">Arcade / Timing</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="6 of 12: Web Game 06">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-06.avif"><img src="assets/img/web-games/web-game-06.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-06.webm" data-mp4="assets/video/web-game-06.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 06</span>
+          <span class="wg-card__tags">Hypercasual / Reflex</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="7 of 12: Web Game 07">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-07.avif"><img src="assets/img/web-games/web-game-07.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-07.webm" data-mp4="assets/video/web-game-07.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 07</span>
+          <span class="wg-card__tags">Idle / Arcade</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="8 of 12: Web Game 08">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-08.avif"><img src="assets/img/web-games/web-game-08.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-08.webm" data-mp4="assets/video/web-game-08.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 08</span>
+          <span class="wg-card__tags">Casual / Runner</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="9 of 12: Web Game 09">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-09.avif"><img src="assets/img/web-games/web-game-09.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-09.webm" data-mp4="assets/video/web-game-09.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 09</span>
+          <span class="wg-card__tags">Hypercasual / Stack</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="10 of 12: Web Game 10">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-10.avif"><img src="assets/img/web-games/web-game-10.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-10.webm" data-mp4="assets/video/web-game-10.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 10</span>
+          <span class="wg-card__tags">Puzzle / Casual</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="11 of 12: Web Game 11">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-11.avif"><img src="assets/img/web-games/web-game-11.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-11.webm" data-mp4="assets/video/web-game-11.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 11</span>
+          <span class="wg-card__tags">Arcade / Space</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="12 of 12: Web Game 12">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/web-game-12.avif"><img src="assets/img/web-games/web-game-12.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/web-game-12.webm" data-mp4="assets/video/web-game-12.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Web Game 12</span>
+          <span class="wg-card__tags">Hypercasual / Colour</span>
+        </div>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+    </div>
+    <ol class="wg__rail">
+      <li><button type="button" data-wg-go="0" aria-label="Show Idle Shape Shooter" aria-current="true"></button></li><li><button type="button" data-wg-go="1" aria-label="Show Web Game 02"></button></li><li><button type="button" data-wg-go="2" aria-label="Show Web Game 03"></button></li><li><button type="button" data-wg-go="3" aria-label="Show Web Game 04"></button></li><li><button type="button" data-wg-go="4" aria-label="Show Web Game 05"></button></li><li><button type="button" data-wg-go="5" aria-label="Show Web Game 06"></button></li><li><button type="button" data-wg-go="6" aria-label="Show Web Game 07"></button></li><li><button type="button" data-wg-go="7" aria-label="Show Web Game 08"></button></li><li><button type="button" data-wg-go="8" aria-label="Show Web Game 09"></button></li><li><button type="button" data-wg-go="9" aria-label="Show Web Game 10"></button></li><li><button type="button" data-wg-go="10" aria-label="Show Web Game 11"></button></li><li><button type="button" data-wg-go="11" aria-label="Show Web Game 12"></button></li>
+    </ol>
+  </section>
+  <script type="application/json" id="wg-data">[{"title":"Idle Shape Shooter","tags":["Idle","Shooter"],"description":"Blast waves of geometric enemies and upgrade your turret — progress keeps climbing even while you’re away.","url":""},{"title":"Web Game 02","tags":["Hypercasual","Runner"],"description":"One-tap runner: time your jumps across floating platforms and chase a new best score.","url":""},{"title":"Web Game 03","tags":["Casual","Stacking"],"description":"Stack sliding blocks as high as you can. Perfect drops keep the tower wide.","url":""},{"title":"Web Game 04","tags":["Puzzle","Merge"],"description":"Slide and merge number tiles to reach the highest value on the board.","url":""},{"title":"Web Game 05","tags":["Arcade","Timing"],"description":"Jump between orbiting rings and dodge the shapes circling the planet.","url":""},{"title":"Web Game 06","tags":["Hypercasual","Reflex"],"description":"Tap to bounce through spinning rings — only pass through the matching colour.","url":""},{"title":"Web Game 07","tags":["Idle","Arcade"],"description":"Short, satisfying rounds with upgrades that make every run a little stronger.","url":""},{"title":"Web Game 08","tags":["Casual","Runner"],"description":"A relaxed endless hopper with collectibles and gentle difficulty ramps.","url":""},{"title":"Web Game 09","tags":["Hypercasual","Stack"],"description":"Precision stacking with combo streaks for perfect placements.","url":""},{"title":"Web Game 10","tags":["Puzzle","Casual"],"description":"Bite-sized puzzle boards that are easy to start and hard to put down.","url":""},{"title":"Web Game 11","tags":["Arcade","Space"],"description":"Hop between orbits, collect stars and survive the asteroid belt.","url":""},{"title":"Web Game 12","tags":["Hypercasual","Colour"],"description":"Fast colour-matching reflex game built for quick sessions on any device.","url":""}]</script>
+</div>
+    <h3 class="games__sub reveal">Featured &amp; in development</h3>
     <div class="games-grid" data-stagger>
       <article class="game-card game-card--featured reveal" data-tilt>
   <div class="game-card__media">
@@ -195,18 +381,19 @@
         <picture><source type="image/avif" srcset="assets/img/about/developer-desk-640.avif 640w, assets/img/about/developer-desk-960.avif 960w, assets/img/about/developer-desk-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="assets/img/about/developer-desk-640.webp 640w, assets/img/about/developer-desk-960.webp 960w, assets/img/about/developer-desk-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img src="assets/img/about/developer-desk-960.webp" alt="An indie developer working late at a desk with a gaming PC, two monitors showing a game in progress" width="320" height="400" loading="lazy" decoding="async"></picture>
       </div>
       <div class="about__chip about__chip--top glass"><span class="about__chip-label">Currently building</span><strong>Casual Project</strong></div>
-      <div class="about__chip about__chip--bottom glass"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m12.9288 4.2939 3.7997 2.1929c.1366.077.1415.2905 0 .3675l-4.515 2.6076a.4192.4192 0 0 1-.4246 0L7.274 6.8543c-.139-.0745-.1415-.293 0-.3675l3.7972-2.193V0L1.3758 5.5977V16.793l3.7177-2.1456v-4.3858c-.0025-.1565.1813-.2682.318-.1838l4.5148 2.6076a.4252.4252 0 0 1 .2136.3676v5.2127c.0025.1565-.1813.2682-.3179.1838l-3.7996-2.1929-3.7178 2.1457L12 24l9.6954-5.5977-3.7178-2.1457-3.7996 2.1929c-.1341.082-.3229-.0248-.3179-.1838V13.053c0-.1565.087-.2956.2136-.3676l4.5149-2.6076c.134-.082.3228.0224.3179.1838v4.3858l3.7177 2.1456V5.5977L12.9288 0Z"/></svg><span>Made with Unity &amp; C#</span></div>
+      <div class="about__chip about__chip--bottom glass"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg><span>HTML5 &amp; Unity games</span></div>
     </div>
     <div class="about__copy">
       <p class="eyebrow reveal">About</p>
       <h2 id="about-title" class="reveal">Hi, I’m an <span class="text-accent">Indie Developer</span></h2>
       <div class="about__text reveal">
-        <p>I make games on my own — from the first rough idea to the build that ends up in players’ hands. Every step is mine: designing the core loop, building it in Unity, writing the code, crafting the UI, optimising performance and preparing the game for release.</p>
+        <p>I make games on my own — from the first rough idea to the build that ends up in players’ hands. Every step is mine: designing the core loop, building it — mostly as HTML5 games that run instantly in any browser, and in Unity — writing the code, crafting the UI, optimising performance and preparing the game for release.</p>
         <p>I focus on casual, hypercasual and idle games because they reward clarity. A good one is understood in seconds, feels great to play right away and always gives you a reason to come back. That’s the bar I aim for with every project.</p>
         <p>Launch isn’t the finish line. I watch how people actually play, listen to feedback and keep iterating — small, deliberate changes that make each game better over time.</p>
       </div>
       <ul class="disciplines" data-stagger>
         <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="1.5"/></svg></span><span><strong>Game design</strong><span>Core loops, progression and balancing</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg></span><span><strong>HTML5 development</strong><span>Browser games that load instantly on any device</span></span></li>
         <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 20.5 7.3v9.4L12 21.5l-8.5-4.8V7.3z"/><path d="M12 12 20.5 7.3M12 12v9.5M12 12 3.5 7.3"/></svg></span><span><strong>Unity development</strong><span>Gameplay systems, scenes and builds</span></span></li>
         <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span><span><strong>Programming</strong><span>Clean, maintainable C#</span></span></li>
         <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 13h8M8 16h5"/></svg></span><span><strong>UI</strong><span>Clear menus and satisfying feedback</span></span></li>
@@ -269,6 +456,16 @@
       <p class="section-head__lead">The tools I use every day to take a game from sketch to store.</p>
     </header>
     <ul class="skills__grid" data-stagger>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg></span>
+        <span class="skill__name">HTML5</span>
+        <span class="skill__note">Web games</span>
+      </li>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z"/></svg></span>
+        <span class="skill__name">JavaScript</span>
+        <span class="skill__note">Game logic</span>
+      </li>
       <li class="skill reveal" data-tilt>
         <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m12.9288 4.2939 3.7997 2.1929c.1366.077.1415.2905 0 .3675l-4.515 2.6076a.4192.4192 0 0 1-.4246 0L7.274 6.8543c-.139-.0745-.1415-.293 0-.3675l3.7972-2.193V0L1.3758 5.5977V16.793l3.7177-2.1456v-4.3858c-.0025-.1565.1813-.2682.318-.1838l4.5148 2.6076a.4252.4252 0 0 1 .2136.3676v5.2127c.0025.1565-.1813.2682-.3179.1838l-3.7996-2.1929-3.7178 2.1457L12 24l9.6954-5.5977-3.7178-2.1457-3.7996 2.1929c-.1341.082-.3229-.0248-.3179-.1838V13.053c0-.1565.087-.2956.2136-.3676l4.5149-2.6076c.134-.082.3228.0224.3179.1838v4.3858l3.7177 2.1456V5.5977L12.9288 0Z"/></svg></span>
         <span class="skill__name">Unity</span>
@@ -408,5 +605,6 @@
   <svg class="to-top__ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
 </button>
+<script>document.body.classList.add('is-loaded')</script>
 </body>
 </html>

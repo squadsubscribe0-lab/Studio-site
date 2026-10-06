@@ -21,6 +21,8 @@ export default {
   // Open Graph tags, structured data and the sitemap.
   siteUrl: 'https://squadsubscribe0-lab.github.io/Studio-site',
   lang: 'en',
+  // 'dark' or 'light' — the starting theme before a visitor picks one.
+  defaultTheme: 'dark',
 
   /* ── You ──────────────────────────────────────────────────────────────── */
 
@@ -82,6 +84,8 @@ export default {
   // monogram built from `short` (or the first two letters of the name), so a
   // new tool can be added with just a name.
   skills: [
+    { name: 'HTML5', icon: 'html5', note: 'Web games' },
+    { name: 'JavaScript', icon: 'javascript', note: 'Game logic' },
     { name: 'Unity', icon: 'unity', note: 'Engine' },
     { name: 'C#', icon: 'csharp', note: 'Gameplay code' },
     { name: 'Blender', icon: 'blender', note: '3D assets' },
@@ -114,10 +118,10 @@ export default {
         'Simple one-touch upgrades with clear, satisfying feedback',
         'Idle progression that keeps earning while you’re away',
         'Clean geometric art style that stays readable on any screen',
-        'Built in Unity and optimised for smooth play on mobile and web',
+        'Runs instantly in the browser and is optimised for smooth play on mobile',
       ],
-      platforms: ['Android', 'Web'],
-      engine: 'Unity',
+      platforms: ['Web', 'Android'],
+      engine: 'HTML5',
       // Store / play links — leave '' to hide the button.
       links: { play: '', googlePlay: '' },
     },
@@ -157,6 +161,34 @@ export default {
       engine: 'Unity',
       links: {},
     },
+  ],
+
+  /* ── Web games carousel ──────────────────────────────────────────────── */
+  // Portrait (9:16) video carousel of browser games.
+  //  url:    where "Play now" goes (Poki, CrazyGames, itch.io, your own host…)
+  //  video:  assets/video/<slug>.mp4 — put your raw capture in src/video/<slug>.mp4
+  //          and run `npm run videos` to compress it and make a poster frame.
+  // The entries below are PLACEHOLDERS: replace titles, text, links and clips.
+  webGames: [
+    {
+      slug: 'idle-shape-shooter',
+      title: 'Idle Shape Shooter',
+      tags: ['Idle', 'Shooter'],
+      description: 'Blast waves of geometric enemies and upgrade your turret — progress keeps climbing even while you’re away.',
+      url: '',
+      motif: 'shooter',
+    },
+    { slug: 'web-game-02', title: 'Web Game 02', tags: ['Hypercasual', 'Runner'], description: 'One-tap runner: time your jumps across floating platforms and chase a new best score.', url: '', motif: 'runner' },
+    { slug: 'web-game-03', title: 'Web Game 03', tags: ['Casual', 'Stacking'], description: 'Stack sliding blocks as high as you can. Perfect drops keep the tower wide.', url: '', motif: 'stack' },
+    { slug: 'web-game-04', title: 'Web Game 04', tags: ['Puzzle', 'Merge'], description: 'Slide and merge number tiles to reach the highest value on the board.', url: '', motif: 'tiles' },
+    { slug: 'web-game-05', title: 'Web Game 05', tags: ['Arcade', 'Timing'], description: 'Jump between orbiting rings and dodge the shapes circling the planet.', url: '', motif: 'orbit' },
+    { slug: 'web-game-06', title: 'Web Game 06', tags: ['Hypercasual', 'Reflex'], description: 'Tap to bounce through spinning rings — only pass through the matching colour.', url: '', motif: 'rings' },
+    { slug: 'web-game-07', title: 'Web Game 07', tags: ['Idle', 'Arcade'], description: 'Short, satisfying rounds with upgrades that make every run a little stronger.', url: '', motif: 'shooter' },
+    { slug: 'web-game-08', title: 'Web Game 08', tags: ['Casual', 'Runner'], description: 'A relaxed endless hopper with collectibles and gentle difficulty ramps.', url: '', motif: 'runner' },
+    { slug: 'web-game-09', title: 'Web Game 09', tags: ['Hypercasual', 'Stack'], description: 'Precision stacking with combo streaks for perfect placements.', url: '', motif: 'stack' },
+    { slug: 'web-game-10', title: 'Web Game 10', tags: ['Puzzle', 'Casual'], description: 'Bite-sized puzzle boards that are easy to start and hard to put down.', url: '', motif: 'tiles' },
+    { slug: 'web-game-11', title: 'Web Game 11', tags: ['Arcade', 'Space'], description: 'Hop between orbits, collect stars and survive the asteroid belt.', url: '', motif: 'orbit' },
+    { slug: 'web-game-12', title: 'Web Game 12', tags: ['Hypercasual', 'Colour'], description: 'Fast colour-matching reflex game built for quick sessions on any device.', url: '', motif: 'rings' },
   ],
 
   /* ── Devlog ──────────────────────────────────────────────────────────── */

@@ -123,7 +123,7 @@ const ogHtml = `
     <div style="margin-top:34px;font:700 70px/0.98 'Space Grotesk';letter-spacing:-.035em;color:#f3f5f9;text-transform:uppercase">
       I build simple games<br><span style="background:linear-gradient(100deg,#ffd0a1,#ffad5c 30%,#ff7a1a 70%);-webkit-background-clip:text;color:transparent">people can’t put down.</span>
     </div>
-    <div style="margin-top:30px;font:500 22px 'Inter';color:#c4cada">Casual · Hypercasual · Idle — made with Unity</div>
+    <div style="margin-top:30px;font:500 22px 'Inter';color:#c4cada">Casual, hypercasual &amp; idle — HTML5 and Unity</div>
   </div>
   <div style="position:absolute;left:72px;bottom:56px;display:flex;align-items:center;gap:14px;font:700 22px 'Space Grotesk';color:#f3f5f9">
     <span style="display:grid;place-items:center;width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#ffad5c,#ff7a1a);color:#1a0b00;font-size:18px">${dev.monogram}</span>${dev.name}

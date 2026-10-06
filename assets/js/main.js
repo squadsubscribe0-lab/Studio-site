@@ -1,4 +1,4 @@
-/* Portfolio interactions — vanilla JS, no dependencies. */
+/* Portfolio interactions. Vanilla JS; uses GSAP + ScrollTrigger + SplitText + Lenis when loaded. */
 (() => {
   'use strict';
 
@@ -15,6 +15,17 @@
 
   const lerp = (a, b, t) => a + (b - a) * t;
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+  // Fallbacks in case the inline bootstrap in <head> was blocked.
+  doc.classList.remove('no-js');
+  doc.classList.add('js');
+  if (!doc.dataset.theme) doc.dataset.theme = 'dark';
+
+  const gsap = window.gsap;
+  const useGsap = !!(gsap && window.ScrollTrigger) && !reduceMotion;
+  if (useGsap) doc.classList.add('has-gsap');
+  else doc.classList.remove('split-hero');
+  let lenis = null;
 
   requestAnimationFrame(() => body.classList.add('is-loaded'));
 
@@ -54,7 +65,8 @@
   onScroll();
 
   toTop?.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    if (lenis) lenis.scrollTo(0, { duration: 1.6 });
+    else window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
     $('.brand')?.focus({ preventScroll: true });
   });
 
@@ -67,6 +79,7 @@
     toggle.setAttribute('aria-expanded', String(open));
     menu.classList.toggle('is-open', open);
     body.classList.toggle('menu-open', open);
+    if (lenis) open ? lenis.stop() : lenis.start();
     if (open) $('a', menu)?.focus();
   }
   toggle?.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
@@ -110,7 +123,9 @@
   });
 
   const reveals = $$('.reveal');
-  if ('IntersectionObserver' in window) {
+  if (useGsap) {
+    // Handled by the GSAP motion layer further down.
+  } else if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -414,6 +429,353 @@
       ring.classList.remove('is-active');
       dot.classList.remove('is-active');
     });
+  }
+
+  /* ── Day / night theme ─────────────────────────────────────────────────── */
+
+  const themeBtn = $('[data-theme-toggle]');
+  const themeMeta = $('meta[name="theme-color"]');
+  const syncTheme = () => {
+    const light = doc.dataset.theme === 'light';
+    themeBtn?.setAttribute('aria-label', light ? 'Switch to night mode' : 'Switch to day mode');
+    themeBtn?.setAttribute('aria-pressed', String(light));
+    themeMeta?.setAttribute('content', light ? '#eef1f6' : '#05070d');
+  };
+  syncTheme();
+  themeBtn?.addEventListener('click', () => {
+    const next = doc.dataset.theme === 'light' ? 'dark' : 'light';
+    const apply = () => {
+      doc.dataset.theme = next;
+      syncTheme();
+      try {
+        localStorage.setItem('theme', next);
+      } catch {}
+    };
+    if (!document.startViewTransition || reduceMotion) return apply();
+    const r = themeBtn.getBoundingClientRect();
+    doc.style.setProperty('--vt-x', `${r.left + r.width / 2}px`);
+    doc.style.setProperty('--vt-y', `${r.top + r.height / 2}px`);
+    doc.classList.add('theme-vt');
+    document.startViewTransition(apply).finished.finally(() => doc.classList.remove('theme-vt'));
+  });
+
+  /* ── Web games: vertical video carousel ───────────────────────────────── */
+
+  const wg = $('[data-wg]');
+  if (wg) {
+    const cards = $$('[data-wg-card]', wg);
+    const stage = $('[data-wg-stage]', wg);
+    const rail = $$('[data-wg-go]', wg);
+    const detail = $('[data-wg-detail]');
+    let data = [];
+    try {
+      data = JSON.parse($('#wg-data')?.textContent || '[]');
+    } catch {}
+    const n = cards.length;
+    const INTERVAL = 7;
+    let active = 0;
+    let inView = false;
+    let hovering = false;
+    wg.style.setProperty('--wg-interval', `${INTERVAL}s`);
+
+    const offset = (i) => {
+      let d = i - active;
+      if (d > n / 2) d -= n;
+      if (d < -n / 2) d += n;
+      return d;
+    };
+    const pad = (v) => String(v).padStart(2, '0');
+
+    // Attach sources lazily; the browser picks WebM (VP9) or MP4 (H.264).
+    const load = (v) => {
+      if (!v || v.dataset.loaded) return;
+      v.dataset.loaded = '1';
+      v.innerHTML = `<source src="${v.dataset.webm}" type="video/webm"><source src="${v.dataset.mp4}" type="video/mp4">`;
+      v.load();
+    };
+    const playVideo = (card, on) => {
+      const v = $('video', card);
+      if (!v) return;
+      if (on) {
+        load(v);
+        const p = v.play();
+        p?.then(() => v.classList.add('is-playing')).catch(() => {});
+      } else {
+        v.pause();
+        v.classList.remove('is-playing');
+      }
+    };
+
+    const updateDetail = () => {
+      const g = data[active];
+      if (!g || !detail) return;
+      const swap = () => {
+        $('[data-wg-index]', detail).textContent = pad(active + 1);
+        $('[data-wg-title]', detail).textContent = g.title;
+        $('[data-wg-tags]', detail).innerHTML = g.tags.map((t) => `<li>${t.replace(/</g, '&lt;')}</li>`).join('');
+        $('[data-wg-desc]', detail).textContent = g.description;
+        const link = $('a[data-wg-play]', detail);
+        const soon = $('button[data-wg-play]', detail);
+        link.hidden = !g.url;
+        soon.hidden = !!g.url;
+        if (g.url) link.href = g.url;
+        detail.classList.remove('is-swapping');
+      };
+      if (reduceMotion) return swap();
+      detail.classList.add('is-swapping');
+      setTimeout(swap, 260);
+    };
+
+    const render = () => {
+      cards.forEach((card, i) => {
+        const d = offset(i);
+        const ad = Math.abs(d);
+        card.style.setProperty('--d', d);
+        card.style.setProperty('--ad', ad);
+        card.classList.toggle('is-active', d === 0);
+        card.classList.toggle('is-far', ad > 2);
+        card.classList.remove('is-timing');
+        card.setAttribute('aria-hidden', String(d !== 0));
+        // Preload neighbours' clips; play only the active one.
+        const v = $('video', card);
+        if (ad === 1 && inView && !reduceMotion) load(v);
+        playVideo(card, d === 0 && inView && !reduceMotion);
+      });
+      rail.forEach((b, i) => (i === active ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current')));
+      const current = cards[active];
+      if (!reduceMotion && inView) {
+        void current.offsetWidth; // restart the progress animation
+        current.classList.add('is-timing');
+      }
+    };
+
+    const go = (i, announce = true) => {
+      active = (i + n) % n;
+      render();
+      if (announce) updateDetail();
+    };
+    const next = () => go(active + 1);
+    const prev = () => go(active - 1);
+
+    $('[data-wg-next]')?.addEventListener('click', next);
+    $('[data-wg-prev]')?.addEventListener('click', prev);
+    rail.forEach((b) => b.addEventListener('click', () => go(Number(b.dataset.wgGo))));
+
+    // Auto-advance when the progress bar finishes.
+    wg.addEventListener('animationend', (e) => {
+      if (e.animationName === 'wg-progress') next();
+    });
+    const setPaused = () => wg.classList.toggle('is-paused', hovering || !inView || document.hidden);
+    wg.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'mouse') {
+        hovering = true;
+        setPaused();
+      }
+    });
+    wg.addEventListener('pointerleave', () => {
+      hovering = false;
+      setPaused();
+    });
+    document.addEventListener('visibilitychange', setPaused);
+
+    wg.addEventListener('keydown', (e) => {
+      if (['ArrowDown', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        next();
+      } else if (['ArrowUp', 'ArrowLeft'].includes(e.key)) {
+        e.preventDefault();
+        prev();
+      }
+    });
+
+    // Click a side card to bring it forward; click the active one to play.
+    cards.forEach((card, i) =>
+      card.addEventListener('click', () => {
+        if (dragged) return;
+        if (i !== active) return go(i);
+        const url = data[i]?.url;
+        if (url) window.open(url, '_blank', 'noopener');
+      }),
+    );
+
+    // Swipe / drag: vertical on mouse, either axis on touch.
+    let startX = 0;
+    let startY = 0;
+    let dragging = false;
+    let dragged = false;
+    stage.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      dragged = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      stage.classList.add('is-dragging');
+    });
+    window.addEventListener('pointerup', (e) => {
+      if (!dragging) return;
+      dragging = false;
+      stage.classList.remove('is-dragging');
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const delta = Math.abs(dy) >= Math.abs(dx) ? dy : e.pointerType === 'mouse' ? 0 : dx;
+      if (Math.abs(delta) > 40) {
+        dragged = true;
+        delta < 0 ? next() : prev();
+        setTimeout(() => (dragged = false), 50);
+      }
+    });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        ([entry]) => {
+          inView = entry.isIntersecting;
+          setPaused();
+          render();
+        },
+        { threshold: 0.35 },
+      ).observe(wg);
+    }
+    go(0, false);
+  }
+
+  /* ── Motion layer: GSAP + ScrollTrigger + SplitText + Lenis ───────────── */
+
+  if (useGsap) {
+    const { ScrollTrigger, SplitText } = window;
+    gsap.registerPlugin(ScrollTrigger);
+    if (SplitText) gsap.registerPlugin(SplitText);
+
+    // Smooth, inertial scrolling (keeps native scroll position & a11y).
+    if (window.Lenis) {
+      lenis = new window.Lenis({ lerp: 0.09, anchors: { offset: -72 }, autoRaf: false });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((t) => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    // Hero headline: characters rise in with a 3D flip.
+    // (Desktop only — phones get the lighter CSS intro so text paints sooner.)
+    const heroLines = $$('.hero__line > span');
+    const heroTitle = $('.hero__title');
+    if (SplitText && heroLines.length && doc.classList.contains('split-hero')) {
+      heroTitle.setAttribute('aria-label', heroTitle.textContent.replace(/\s+/g, ' ').trim());
+      heroLines.forEach((l) => l.setAttribute('aria-hidden', 'true'));
+      const split = new SplitText(heroLines, { type: 'words,chars', aria: 'none' });
+      gsap.set(heroLines, { opacity: 1 });
+      gsap.from(split.chars, {
+        yPercent: 115,
+        rotateX: -90,
+        opacity: 0,
+        transformOrigin: '50% 100% -20px',
+        duration: 1.1,
+        ease: 'expo.out',
+        stagger: 0.022,
+        delay: 0.25,
+      });
+    }
+
+    // Hero scene drifts and zooms as you scroll away.
+    const scene = $('[data-hero-scene]');
+    if (scene) {
+      gsap.to(scene, {
+        scale: 1.14,
+        yPercent: 8,
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
+      });
+    }
+
+    // Marquee: endless loop that speeds up and flips with scroll velocity.
+    const track = $('[data-marquee]');
+    if (track) {
+      const loop = gsap.to(track, { xPercent: -50, duration: 38, ease: 'none', repeat: -1 });
+      let dir = 1;
+      ScrollTrigger.create({
+        onUpdate(self) {
+          dir = self.direction;
+          const boost = clamp(Math.abs(self.getVelocity()) / 250, 0, 6);
+          gsap.to(loop, { timeScale: dir * (1 + boost), duration: 0.25, overwrite: true });
+          gsap.to(loop, { timeScale: dir, duration: 1.2, delay: 0.25, ease: 'power2.out' });
+        },
+      });
+    }
+
+    // Section headings: words slide up from a mask.
+    if (SplitText) {
+      $$('main h2').forEach((h) => {
+        if (h.closest('.hero')) return;
+        const split = new SplitText(h, { type: 'lines,words', linesClass: 'split-line', aria: 'auto' });
+        gsap.from(split.words, {
+          yPercent: 110,
+          opacity: 0,
+          duration: 1,
+          ease: 'expo.out',
+          stagger: 0.06,
+          scrollTrigger: { trigger: h, start: 'top 88%' },
+        });
+      });
+    }
+
+    // Everything marked .reveal enters in staggered batches.
+    gsap.set(reveals, { autoAlpha: 0, y: 60 });
+    ScrollTrigger.batch(reveals, {
+      start: 'top 90%',
+      onEnter: (batch) =>
+        gsap.to(batch, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 1.1,
+          ease: 'expo.out',
+          stagger: 0.12,
+          onComplete() {
+            batch.forEach((el) => el.classList.add('is-visible', 'is-done'));
+            gsap.set(batch, { clearProps: 'transform,opacity,visibility' });
+          },
+        }),
+    });
+
+    // Artwork drifts inside its frame (parallax) while scrolling.
+    $$('.game-card__media picture, .post-card__media picture, .about__frame picture').forEach((pic) => {
+      gsap.fromTo(
+        pic,
+        { yPercent: -6, scale: 1.14 },
+        {
+          yPercent: 6,
+          ease: 'none',
+          scrollTrigger: { trigger: pic.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
+        },
+      );
+    });
+
+    // About photo opens like a shutter.
+    const frame = $('.about__frame');
+    if (frame) {
+      gsap.from(frame, {
+        clipPath: 'inset(18% 18% 18% 18% round 24px)',
+        duration: 1.6,
+        ease: 'expo.inOut',
+        scrollTrigger: { trigger: frame, start: 'top 80%' },
+      });
+    }
+
+    // Devlog timeline draws itself.
+    $$('.timeline:not(.timeline--full)').forEach((tl) => {
+      gsap.fromTo(tl, { '--line': 0 }, { '--line': 1, ease: 'none', scrollTrigger: { trigger: tl, start: 'top 85%', end: 'bottom 60%', scrub: true } });
+    });
+
+    // Carousel stage tilts in as it arrives.
+    const stageEl = $('[data-wg-stage]');
+    if (stageEl) {
+      gsap.from(stageEl, {
+        rotateX: 18,
+        y: 120,
+        opacity: 0,
+        duration: 1.4,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: stageEl, start: 'top 85%' },
+      });
+    }
+
+    window.addEventListener('load', () => ScrollTrigger.refresh());
   }
 
   /* ── Contact form ─────────────────────────────────────────────────────── */

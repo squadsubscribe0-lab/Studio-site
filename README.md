@@ -22,6 +22,14 @@ This writes `index.html`, `games/<slug>/`, `devlog/`, `devlog/<slug>/`, `404.htm
 - [ ] Check the Idle Shape Shooter description, platforms and store links (`links.play`, `links.googlePlay`).
 - [ ] Re-run `npm run images` so the share image (`og-image.jpg`) uses your name.
 
+### Web games carousel (portrait videos + Play now)
+The vertical carousel in **My Games** comes from `webGames` in the config. For each game set:
+- `title`, `tags`, `description`
+- `url`: where **Play now** goes (Poki, CrazyGames, itch.io, your own host…). Leave it empty and the button shows "Play link coming soon".
+- a portrait gameplay clip: save it as `src/video/<slug>.mp4` (9:16, 5–10 s, no audio needed), then run `npm run videos`. It's compressed to MP4 and WebM, and a poster frame is extracted.
+
+The 12 entries that ship now are **placeholders** with generated preview loops.
+
 ### Adding a game or devlog post
 Copy an existing entry in `games` or `devlog`, change the `slug` and the text, then run `node build.mjs`. Posts are sorted by date automatically. The home page shows the latest three, and every post gets its own page.
 
@@ -47,6 +55,9 @@ node build.mjs
 
 For a new game or post, add a matching job to `JOBS` in `scripts/images.mjs`. If Chromium isn't found, set `CHROME_PATH`.
 
+## Claude Code skills
+`.claude/skills/` contains `frontend-design` and `webapp-testing` from [anthropics/skills](https://github.com/anthropics/skills) (Apache-2.0). They're used when this repo is edited with Claude Code.
+
 ## Local preview
 
 ```bash
@@ -57,6 +68,9 @@ npm run dev      # builds, then serves on http://localhost:5173
 - **Performance:** self-hosted variable fonts (preloaded), responsive AVIF/WebP with lazy loading, about 20 KB of hand-written JS, and animations only on `transform`/`opacity`. Animation loops pause when off-screen or idle. Lighthouse (mobile): Performance 93, Accessibility 100, Best Practices 100, SEO 100 on a plain local server, before any host compression.
 - **SEO:** unique titles and descriptions, canonical URLs, Open Graph/Twitter cards, a JSON-LD graph (Person, WebSite, VideoGame, BlogPosting, Breadcrumbs), sitemap, robots.txt and web manifest.
 - **Accessibility:** semantic landmarks, skip link, visible focus states, a labelled form with inline errors, and full `prefers-reduced-motion` support (no parallax, particles or reveal motion).
+- **Day / night mode:** toggle in the header. The visitor's choice is remembered, and switching plays a circular reveal. Set the starting theme with `defaultTheme` in the config.
+- **Motion libraries:** [GSAP](https://gsap.com) (ScrollTrigger, SplitText) and [Lenis](https://lenis.darkroom.engineering) smooth scrolling, vendored in `assets/vendor/`. To update them: `npm install` then copy from `node_modules/gsap/dist` and `node_modules/lenis/dist`.
+- **Reduced motion:** visitors with *Reduce motion* turned on in their OS get gentle fades only, with no parallax, scrolling effects or autoplaying clips.
 - **Motion:** cinematic hero with parallax layers, mouse depth, floating shapes and particles; scroll reveals with stagger; 3D card tilt; magnetic buttons; desktop cursor ring; scroll progress; back-to-top progress ring; animated counters; page transitions through the View Transitions API.
 
 ## Deploying on GitHub Pages
