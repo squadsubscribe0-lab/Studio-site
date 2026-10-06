@@ -1,0 +1,285 @@
+Create a premium, highly polished personal portfolio website for a SOLO INDIE GAME DEVELOPER.
+
+IMPORTANT:
+This is NOT a gaming studio website.
+There is NO team.
+Do NOT mention 4Plays Studio.
+Do NOT mention Throne Spire.
+Do NOT show team members.
+The developer works independently and currently focuses on CASUAL, HYPERCASUAL and IDLE games.
+
+The website should feel like a professional international indie game developer portfolio, suitable for showing to game publishers such as Poki, CrazyGames, Homa Games, Voodoo and potential business partners.
+
+DESIGN STYLE:
+- Dark cinematic gaming aesthetic
+- Premium AAA-inspired presentation but appropriate for an indie developer
+- Deep navy/black backgrounds
+- Orange as the primary accent color
+- White/light-gray typography
+- Subtle glowing elements
+- Glassmorphism cards where appropriate
+- High-quality game artwork
+- Strong visual hierarchy
+- Clean modern UI
+- Do NOT make it look like a generic template
+- Avoid excessive neon
+- Keep it professional and believable
+
+WEBSITE NAVIGATION:
+Home
+Games
+About
+Devlog
+Contact
+
+Sticky transparent navigation that becomes slightly blurred/darker when scrolling.
+
+HERO SECTION:
+Large cinematic full-screen hero section.
+
+Main headline:
+"I BUILD SIMPLE GAMES
+PEOPLE CAN'T PUT DOWN."
+
+Supporting text:
+"I'm an indie game developer focused on creating fun, addictive and polished casual, hypercasual and idle games."
+
+Small badge:
+"SOLO INDIE DEVELOPER"
+
+Buttons:
+"View My Games"
+"About Me"
+
+Add a cinematic abstract gaming environment in the background, NOT a specific existing game.
+Use floating geometric objects, subtle particles, atmospheric lighting and depth.
+
+HERO ANIMATIONS:
+- Slow parallax background movement
+- Floating objects moving at different speeds
+- Text fade/slide-in
+- Buttons scale subtly on hover
+- Mouse-based subtle 3D movement
+- Scroll indicator
+- Smooth transition into the next section
+
+GAMES SECTION:
+Title:
+"My Games"
+
+Subtitle:
+"A collection of casual, hypercasual and idle games built with a focus on fun, simplicity and replayability."
+
+Create beautiful game cards.
+
+Featured game:
+"Idle Shape Shooter"
+Category:
+"Idle • Shooter • Casual"
+
+Status:
+"Live"
+
+Use the actual game artwork when provided.
+
+Add additional placeholders for future games:
+"Casual Project"
+"Hypercasual Project"
+
+Each game card should contain:
+- Large artwork
+- Game title
+- Genre tags
+- Status badge
+- Short description
+- "View Details" button
+
+GAME CARD INTERACTIONS:
+- Hover image zoom
+- Card slightly lifts upward
+- Orange glow appears
+- Arrow animation
+- Smooth transition
+- Optional 3D tilt effect
+
+ABOUT SECTION:
+Title:
+"Hi, I'm an Indie Developer"
+
+Write professional copy explaining that I create games independently from idea to release, including:
+- Game design
+- Unity development
+- Programming
+- UI
+- Game optimization
+- Publishing
+- Iteration based on player feedback
+
+Do not exaggerate achievements.
+
+Include a cinematic image of an indie developer working at a desk with a gaming PC/laptop.
+
+MY PHILOSOPHY:
+Create three cards:
+
+1. KEEP IT SIMPLE
+"Easy to understand. Hard to master."
+
+2. FOCUS ON FUN
+"If it's not fun, it doesn't work."
+
+3. ITERATE & IMPROVE
+"Small changes, big results."
+
+SKILLS & TECHNOLOGIES:
+Display attractive technology cards/icons for:
+
+Unity
+C#
+Blender
+Photoshop
+Figma
+
+Also allow future technologies to be added easily.
+
+STATS SECTION:
+Use animated counters.
+
+Possible stats:
+Games Created
+Genres Explored
+Self Developed
+Still Learning
+
+Do NOT invent large fake numbers.
+Keep values editable from one configuration file.
+
+DEVLOG SECTION:
+Title:
+"Devlog"
+
+Show development updates as timeline/cards.
+
+Examples:
+"New Game Idea – Idle Shooter"
+"Improved Game Performance"
+"UI Polish & Small Fixes"
+
+Each post should have:
+- Date
+- Thumbnail
+- Title
+- Short description
+- Read More
+
+Make the devlog easy to update.
+
+CONTACT SECTION:
+Title:
+"Let's Create Something Fun."
+
+Text:
+"Have a game idea, feedback, publishing opportunity or business inquiry? Feel free to reach out."
+
+Include:
+Name
+Email
+Message
+
+Button:
+"Send Message"
+
+Also provide social links:
+YouTube
+Instagram
+LinkedIn
+X/Twitter
+Discord
+Google Play
+
+Only show icons for platforms whose links are actually provided.
+
+FOOTER:
+Minimal premium footer.
+
+Include:
+Developer logo/name
+Short tagline:
+"Better games. Brighter days."
+
+Navigation links
+Social icons
+Copyright
+
+ANIMATIONS & MOTION:
+Use professional motion throughout the website:
+
+- Smooth page transitions
+- Scroll-triggered reveal animations
+- Fade + slide animations
+- Staggered card animations
+- Parallax backgrounds
+- Floating particles
+- Subtle image zoom
+- Magnetic buttons
+- Hover micro-interactions
+- Smooth section transitions
+- Scroll progress indicator
+- Back-to-top animation
+- Cursor interaction on desktop
+- 3D card tilt where appropriate
+
+IMPORTANT:
+Animations must feel premium and smooth, NOT distracting.
+Respect prefers-reduced-motion accessibility settings.
+
+RESPONSIVE DESIGN:
+The website must be fully responsive.
+
+Desktop:
+- Cinematic wide layouts
+- Large artwork
+- Multi-column sections
+
+Tablet:
+- Reorganize sections naturally
+
+Mobile:
+- Hamburger navigation
+- Touch-friendly buttons
+- Vertical game cards
+- Optimized images
+- No horizontal overflow
+- Smooth mobile animations
+- Fast loading
+
+PERFORMANCE:
+This is extremely important.
+
+Optimize the website for:
+- Fast loading
+- Mobile performance
+- SEO
+- Accessibility
+- Core Web Vitals
+- Lazy-loaded images
+- Optimized WebP/AVIF images
+- Minimal unnecessary JavaScript
+- Responsive images
+
+SEO:
+Create proper:
+- Title
+- Meta description
+- Open Graph image
+- Favicon
+- Semantic HTML
+- Sitemap
+- Robots.txt
+- Structured data where appropriate
+
+The website should communicate immediately:
+
+"I am a serious solo indie game developer who creates and publishes casual, hypercasual and idle games."
+
+The final result should look like a real professional indie developer portfolio that could be shown to publishers, players and potential collaborators—not like an AI-generated template.
