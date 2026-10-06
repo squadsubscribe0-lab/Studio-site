@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en" class="no-js" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Loopkind — Casual, Hypercasual &amp; Idle HTML5 Games</title>
+<meta name="description" content="Loopkind is a one-person indie game studio making fun, polished casual, hypercasual and idle games — mostly HTML5 games you can play instantly in your browser.">
+<link rel="canonical" href="https://squadsubscribe0-lab.github.io/Studio-site/">
+<meta name="theme-color" content="#05070d">
+<meta name="color-scheme" content="dark light">
+<meta name="author" content="Loopkind">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Loopkind">
+<meta property="og:title" content="Loopkind — Casual, Hypercasual &amp; Idle HTML5 Games">
+<meta property="og:description" content="Loopkind is a one-person indie game studio making fun, polished casual, hypercasual and idle games — mostly HTML5 games you can play instantly in your browser.">
+<meta property="og:url" content="https://squadsubscribe0-lab.github.io/Studio-site/">
+<meta property="og:image" content="https://squadsubscribe0-lab.github.io/Studio-site/assets/img/og-image.jpg">
+<meta property="og:image:alt" content="Loopkind — Solo Indie Game Developer">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/main.css?v=e553b253">
+<script>(function(d){d.classList.replace('no-js','js');var t;try{t=localStorage.getItem('theme')}catch(e){}d.setAttribute('data-theme',t==='light'||t==='dark'?t:'dark');if(innerWidth>=760&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('split-hero')})(document.documentElement)</script>
+<script src="assets/vendor/gsap.min.js?v=9396f256" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js?v=05ca5ad8" defer></script>
+<script src="assets/vendor/SplitText.min.js?v=6c4c7716" defer></script>
+<script src="assets/vendor/lenis.min.js?v=b5cf15f0" defer></script>
+<script src="assets/js/main.js?v=1ff2680e" defer></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","@id":"https://squadsubscribe0-lab.github.io/Studio-site/#person","name":"Loopkind","jobTitle":"Solo Indie Game Developer","url":"https://squadsubscribe0-lab.github.io/Studio-site/","knowsAbout":["Game development","HTML5 games","JavaScript","Unity","C#","Casual games","Hypercasual games","Idle games"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://squadsubscribe0-lab.github.io/Studio-site/#website","name":"Loopkind","url":"https://squadsubscribe0-lab.github.io/Studio-site/","description":"Loopkind is a one-person indie game studio making fun, polished casual, hypercasual and idle games — mostly HTML5 games you can play instantly in your browser.","publisher":{"@id":"https://squadsubscribe0-lab.github.io/Studio-site/#person"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"Games","itemListElement":[{"@type":"ListItem","position":1,"url":"https://squadsubscribe0-lab.github.io/Studio-site/games/idle-shape-shooter/","name":"Idle Shape Shooter"},{"@type":"ListItem","position":2,"url":"https://squadsubscribe0-lab.github.io/Studio-site/games/casual-project/","name":"Casual Project"},{"@type":"ListItem","position":3,"url":"https://squadsubscribe0-lab.github.io/Studio-site/games/hypercasual-project/","name":"Hypercasual Project"}]}</script>
+</head>
+<body class="is-home">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="scroll-progress" aria-hidden="true"><span></span></div>
+<header class="site-header" data-header>
+  <nav class="nav container" aria-label="Primary">
+    <a class="brand" href="#top">
+      <span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7.2 8.2c-2.1 0-3.7 1.7-3.7 3.8s1.6 3.8 3.7 3.8c3.3 0 6.3-7.6 9.6-7.6 2.1 0 3.7 1.7 3.7 3.8s-1.6 3.8-3.7 3.8c-3.3 0-6.3-7.6-9.6-7.6z"/></svg></span>
+      <span class="brand__name">Loopkind</span>
+    </a>
+    <div class="nav__menu" id="nav-menu" data-menu>
+      <ul class="nav__links">
+        <li><a href="#top" data-nav="top">Home</a></li>
+        <li><a href="#games" data-nav="games">Games</a></li>
+        <li><a href="#about" data-nav="about">About</a></li>
+        <li><a href="#devlog" data-nav="devlog">Devlog</a></li>
+        <li><a href="#contact" data-nav="contact">Contact</a></li>
+      </ul>
+      <a class="btn btn--primary btn--sm nav__cta" href="#contact">Let’s talk</a>
+    </div>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to day mode" title="Switch theme">
+      <span class="theme-toggle__track" aria-hidden="true">
+        <span class="theme-toggle__thumb">
+          <svg class="theme-toggle__moon" viewBox="0 0 24 24"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+        </span>
+      </span>
+    </button>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" data-menu-toggle>
+      <span class="visually-hidden">Menu</span><span class="nav__bars" aria-hidden="true"></span>
+    </button>
+  </nav>
+</header>
+<main id="main">
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero__scene" aria-hidden="true" data-hero-scene>
+    <div class="hero__layer hero__sky" data-depth="0.06"></div>
+    <svg class="hero__layer hero__world" data-depth="0.14" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <radialGradient id="hz-sun" cx="50%" cy="100%" r="60%">
+          <stop offset="0" style="stop-color:var(--hz-sun)" stop-opacity=".55"/>
+          <stop offset=".35" style="stop-color:var(--hz-sun)" stop-opacity=".16"/>
+          <stop offset="1" style="stop-color:var(--hz-sun)" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="hz-far" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style="stop-color:var(--hz-far-a)"/><stop offset="1" style="stop-color:var(--hz-far-b)"/>
+        </linearGradient>
+        <linearGradient id="hz-near" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style="stop-color:var(--hz-near-a)"/><stop offset="1" style="stop-color:var(--hz-near-b)"/>
+        </linearGradient>
+        <linearGradient id="hz-edge" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ff9a40" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a40" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="hz-grid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ff8a2a" stop-opacity="0"/><stop offset=".25" stop-color="#ff8a2a" stop-opacity=".16"/><stop offset="1" stop-color="#ff8a2a" stop-opacity=".04"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="800" cy="700" rx="900" ry="420" fill="url(#hz-sun)"/>
+      <circle cx="800" cy="640" r="250" fill="none" style="stroke:var(--hz-ring)" stroke-opacity=".3" stroke-width="1.5"/>
+      <circle cx="800" cy="640" r="300" fill="none" stroke="#ffffff" stroke-opacity=".05" stroke-width="1"/>
+      <path d="M0 690 L120 600 L180 640 L300 520 L360 580 L470 470 L540 560 L620 610 L980 610 L1060 540 L1130 470 L1250 560 L1320 520 L1430 610 L1520 570 L1600 640 L1600 900 L0 900Z" fill="url(#hz-far)" opacity=".85"/>
+      <path d="M300 520 L360 580 M1130 470 L1250 560 M470 470 L540 560" stroke="url(#hz-edge)" stroke-width="1.5" opacity=".55"/>
+      <g stroke="url(#hz-grid)" stroke-width="1">
+        <path d="M0 700H1600M0 728H1600M0 766H1600M0 818H1600M0 890H1600"/>
+        <path d="M800 690 L-400 900 M800 690 L0 900 M800 690 L300 900 M800 690 L560 900 M800 690 L800 900 M800 690 L1040 900 M800 690 L1300 900 M800 690 L1600 900 M800 690 L2000 900"/>
+      </g>
+      <path d="M0 760 L140 700 L260 740 L380 690 L520 760 L0 900Z M1600 760 L1470 690 L1340 730 L1220 680 L1080 770 L1600 900Z" fill="url(#hz-near)"/>
+    </svg>
+    <canvas class="hero__particles" data-particles></canvas>
+    <div class="hero__layer hero__floaters">
+      <div class="floater floater--f1" data-depth="0.55"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><linearGradient id="f1-t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a4a78"/><stop offset="1" stop-color="#1a2444"/></linearGradient><linearGradient id="f1-l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18223f"/><stop offset="1" stop-color="#0b1022"/></linearGradient><linearGradient id="f1-r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a2a"/><stop offset="1" stop-color="#b8430a"/></linearGradient></defs><path d="M50 8 88 29 50 50 12 29Z" fill="url(#f1-t)"/><path d="M12 29 50 50v42L12 71Z" fill="url(#f1-l)"/><path d="M88 29 50 50v42l38-21Z" fill="url(#f1-r)" opacity=".9"/><path d="M50 8 88 29 50 50 12 29Z M50 50v42" fill="none" stroke="#ffd2a6" stroke-opacity=".35" stroke-width=".8"/></svg></div></div>
+      <div class="floater floater--f2" data-depth="0.35"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><linearGradient id="f2-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb36b"/><stop offset=".5" stop-color="#ff7a1a" stop-opacity=".5"/><stop offset="1" stop-color="#3a4a78" stop-opacity=".4"/></linearGradient></defs><ellipse cx="50" cy="50" rx="40" ry="40" fill="none" stroke="url(#f2-g)" stroke-width="7"/><ellipse cx="50" cy="50" rx="40" ry="40" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1" transform="translate(-1.5 -1.5)"/></svg></div></div>
+      <div class="floater floater--f3" data-depth="0.8"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><radialGradient id="f3-g" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#ffe0bf"/><stop offset=".3" stop-color="#ff9a40"/><stop offset=".75" stop-color="#c2450a"/><stop offset="1" stop-color="#3a1404"/></radialGradient></defs><circle cx="50" cy="50" r="44" fill="url(#f3-g)"/></svg></div></div>
+      <div class="floater floater--f4" data-depth="0.45"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><linearGradient id="f4-a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e3c66"/><stop offset="1" stop-color="#0f162d"/></linearGradient><linearGradient id="f4-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa057"/><stop offset="1" stop-color="#a63d0a"/></linearGradient></defs><path d="M50 6 10 84 50 94Z" fill="url(#f4-a)"/><path d="M50 6 90 84 50 94Z" fill="url(#f4-b)" opacity=".85"/><path d="M50 6 50 94" stroke="#ffd9b3" stroke-opacity=".45" stroke-width=".8"/></svg></div></div>
+      <div class="floater floater--f5" data-depth="0.25"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><linearGradient id="f5-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9eefc" stop-opacity=".55"/><stop offset="1" stop-color="#6d7fb3" stop-opacity=".15"/></linearGradient></defs><path d="M50 4 86 50 50 96 14 50Z" fill="url(#f5-a)" stroke="#fff" stroke-opacity=".35" stroke-width="1"/><path d="M14 50h72M50 4 40 50 50 96 60 50Z" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width=".8"/></svg></div></div>
+      <div class="floater floater--f6" data-depth="0.2"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><linearGradient id="f6-t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a4a78"/><stop offset="1" stop-color="#1a2444"/></linearGradient><linearGradient id="f6-l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18223f"/><stop offset="1" stop-color="#0b1022"/></linearGradient><linearGradient id="f6-r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a2a"/><stop offset="1" stop-color="#b8430a"/></linearGradient></defs><path d="M50 8 88 29 50 50 12 29Z" fill="url(#f6-t)"/><path d="M12 29 50 50v42L12 71Z" fill="url(#f6-l)"/><path d="M88 29 50 50v42l38-21Z" fill="url(#f6-r)" opacity=".9"/><path d="M50 8 88 29 50 50 12 29Z M50 50v42" fill="none" stroke="#ffd2a6" stroke-opacity=".35" stroke-width=".8"/></svg></div></div>
+      <div class="floater floater--f7" data-depth="0.3"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><radialGradient id="f7-g" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#ffe0bf"/><stop offset=".3" stop-color="#ff9a40"/><stop offset=".75" stop-color="#c2450a"/><stop offset="1" stop-color="#3a1404"/></radialGradient></defs><circle cx="50" cy="50" r="44" fill="url(#f7-g)"/></svg></div></div>
+      <div class="floater floater--f8" data-depth="0.65"><div class="floater__bob"><svg viewBox="0 0 100 100"><defs><linearGradient id="f8-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb36b"/><stop offset=".5" stop-color="#ff7a1a" stop-opacity=".5"/><stop offset="1" stop-color="#3a4a78" stop-opacity=".4"/></linearGradient></defs><ellipse cx="50" cy="50" rx="40" ry="40" fill="none" stroke="url(#f8-g)" stroke-width="7"/><ellipse cx="50" cy="50" rx="40" ry="40" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1" transform="translate(-1.5 -1.5)"/></svg></div></div>
+    </div>
+    <div class="hero__fog"></div>
+    <div class="hero__vignette"></div>
+  </div>
+  <div class="container hero__content" data-hero-content>
+    <p class="badge hero__badge"><span class="badge__dot" aria-hidden="true"></span>Solo Indie Developer</p>
+    <h1 class="hero__title" id="hero-title">
+      <span class="hero__line"><span>I build simple games</span></span>
+      <span class="hero__line"><span>people <em>can’t put down.</em></span></span>
+    </h1>
+    <p class="hero__lead">I’m an indie game developer focused on creating fun, addictive and polished casual, hypercasual and idle games.</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary btn--lg" href="#games" data-magnetic>View My Games <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn--ghost btn--lg" href="#about" data-magnetic>About Me</a>
+    </div>
+    <ul class="hero__genres">
+      <li>Casual</li><li>Hypercasual</li><li>Idle</li><li>HTML5 &amp; Unity</li>
+    </ul>
+  </div>
+  <a class="hero__spotlight glass" href="games/idle-shape-shooter/">
+    <span class="hero__spotlight-label">Latest release</span>
+    <span class="hero__spotlight-title">Idle Shape Shooter</span>
+    <span class="status status--live"><span class="status__dot" aria-hidden="true"></span>Live</span>
+    <span class="hero__spotlight-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  </a>
+  <a class="scroll-cue" href="#games" aria-label="Scroll to games">
+    <span class="scroll-cue__mouse" aria-hidden="true"><span></span></span>
+    <span class="scroll-cue__text" aria-hidden="true">Scroll</span>
+  </a>
+</section>
+<div class="marquee" aria-hidden="true"><div class="marquee__track" data-marquee><span class="marquee__word">Casual</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Hypercasual</span><span class="marquee__star">✦</span><span class="marquee__word">Idle</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">HTML5</span><span class="marquee__star">✦</span><span class="marquee__word">Unity</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Web games</span><span class="marquee__star">✦</span><span class="marquee__word">Casual</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Hypercasual</span><span class="marquee__star">✦</span><span class="marquee__word">Idle</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">HTML5</span><span class="marquee__star">✦</span><span class="marquee__word">Unity</span><span class="marquee__star">✦</span><span class="marquee__word marquee__word--outline">Web games</span><span class="marquee__star">✦</span></div></div>
+<section class="section games" id="games" aria-labelledby="games-title">
+  <div class="container">
+    <header class="section-head reveal">
+      <p class="eyebrow">Portfolio</p>
+      <h2 id="games-title">My Games</h2>
+      <p class="section-head__lead">A collection of casual, hypercasual and idle games built with a focus on fun, simplicity and replayability.</p>
+    </header>
+    <div class="play" id="play">
+  <div class="play__info">
+    <h3 class="play__heading reveal">Play in your browser</h3>
+    <p class="play__intro reveal">11 HTML5 games that load instantly on phone or desktop — no download needed.</p>
+    <div class="play__detail reveal" data-wg-detail aria-live="polite">
+      <p class="play__count"><span data-wg-index>01</span><span class="play__total"> / 11</span></p>
+      <h4 class="play__title" data-wg-title>Arrow Out</h4>
+      <ul class="tags" data-wg-tags><li>Puzzle</li><li>Casual</li></ul>
+      <p class="play__desc" data-wg-desc>Slide the glowing arrows off the board — plan the right order so none of them get stuck.</p>
+      <div class="play__actions">
+        <a class="btn btn--primary btn--lg" data-wg-play href="#play" target="_blank" rel="noopener" data-magnetic hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg><span>Play now</span></a><button class="btn btn--primary btn--lg is-disabled" type="button" data-wg-play disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg><span>Play link coming soon</span></button>
+        <div class="play__arrows">
+          <button class="icon-btn" type="button" data-wg-prev aria-label="Previous game"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg></button>
+          <button class="icon-btn" type="button" data-wg-next aria-label="Next game"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <section class="wg reveal" data-wg aria-roledescription="carousel" aria-label="Web games" tabindex="0">
+    <div class="wg__glow" aria-hidden="true"></div>
+    <div class="wg__stage" data-wg-stage>
+      <article class="wg-card is-active" data-wg-card aria-roledescription="slide" aria-label="1 of 11: Arrow Out">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/arrow-out.avif"><img src="assets/img/web-games/arrow-out.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/arrow-out.webm" data-mp4="assets/video/arrow-out.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Arrow Out</span>
+          <span class="wg-card__tags">Puzzle / Casual</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="2 of 11: Beach Volley Clash">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/beach-volley-clash.avif"><img src="assets/img/web-games/beach-volley-clash.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/beach-volley-clash.webm" data-mp4="assets/video/beach-volley-clash.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Beach Volley Clash</span>
+          <span class="wg-card__tags">Sports / Arcade</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="3 of 11: Birddoku">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/birddoku.avif"><img src="assets/img/web-games/birddoku.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/birddoku.webm" data-mp4="assets/video/birddoku.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Birddoku</span>
+          <span class="wg-card__tags">Puzzle / Logic</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="4 of 11: Endless Puncher">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/endless-puncher.avif"><img src="assets/img/web-games/endless-puncher.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/endless-puncher.webm" data-mp4="assets/video/endless-puncher.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Endless Puncher</span>
+          <span class="wg-card__tags">Action / Arcade</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="5 of 11: Idle Scoop Empire">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/idle-scoop-empire.avif"><img src="assets/img/web-games/idle-scoop-empire.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/idle-scoop-empire.webm" data-mp4="assets/video/idle-scoop-empire.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Idle Scoop Empire</span>
+          <span class="wg-card__tags">Idle / Tycoon</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="6 of 11: Jungle Ladder">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/jungle-ladder.avif"><img src="assets/img/web-games/jungle-ladder.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/jungle-ladder.webm" data-mp4="assets/video/jungle-ladder.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Jungle Ladder</span>
+          <span class="wg-card__tags">Hypercasual / Arcade</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="7 of 11: Meow Bag Cat Mafia">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/meow-bag-cat-mafia.avif"><img src="assets/img/web-games/meow-bag-cat-mafia.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/meow-bag-cat-mafia.webm" data-mp4="assets/video/meow-bag-cat-mafia.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Meow Bag Cat Mafia</span>
+          <span class="wg-card__tags">Merge / Strategy</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="8 of 11: Paddle Royal">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/paddle-royal.avif"><img src="assets/img/web-games/paddle-royal.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/paddle-royal.webm" data-mp4="assets/video/paddle-royal.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Paddle Royal</span>
+          <span class="wg-card__tags">Multiplayer / Arcade</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="9 of 11: Piniata Payday">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/piniata-payday.avif"><img src="assets/img/web-games/piniata-payday.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/piniata-payday.webm" data-mp4="assets/video/piniata-payday.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Piniata Payday</span>
+          <span class="wg-card__tags">Casual / Arcade</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="10 of 11: Tiny Tandem">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/tiny-tandem.avif"><img src="assets/img/web-games/tiny-tandem.webp" alt="" width="432" height="768" loading="lazy" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/tiny-tandem.webm" data-mp4="assets/video/tiny-tandem.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Tiny Tandem</span>
+          <span class="wg-card__tags">Co-op / Platformer</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+      <article class="wg-card" data-wg-card aria-roledescription="slide" aria-label="11 of 11: Wild Gambit">
+        <div class="wg-card__media">
+          <picture><source type="image/avif" srcset="assets/img/web-games/wild-gambit.avif"><img src="assets/img/web-games/wild-gambit.webp" alt="" width="432" height="768" loading="eager" decoding="async"></picture>
+          <video muted loop playsinline preload="none" data-webm="assets/video/wild-gambit.webm" data-mp4="assets/video/wild-gambit.mp4" aria-hidden="true"></video>
+        </div>
+        <div class="wg-card__shade" aria-hidden="true"></div>
+        <div class="wg-card__meta">
+          <span class="wg-card__title">Wild Gambit</span>
+          <span class="wg-card__tags">Strategy / Board</span>
+        </div>
+        <span class="wg-card__tap" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <span class="wg-card__progress" aria-hidden="true"><span></span></span>
+      </article>
+    </div>
+    <ol class="wg__rail">
+      <li><button type="button" data-wg-go="0" aria-label="Show Arrow Out" aria-current="true"></button></li><li><button type="button" data-wg-go="1" aria-label="Show Beach Volley Clash"></button></li><li><button type="button" data-wg-go="2" aria-label="Show Birddoku"></button></li><li><button type="button" data-wg-go="3" aria-label="Show Endless Puncher"></button></li><li><button type="button" data-wg-go="4" aria-label="Show Idle Scoop Empire"></button></li><li><button type="button" data-wg-go="5" aria-label="Show Jungle Ladder"></button></li><li><button type="button" data-wg-go="6" aria-label="Show Meow Bag Cat Mafia"></button></li><li><button type="button" data-wg-go="7" aria-label="Show Paddle Royal"></button></li><li><button type="button" data-wg-go="8" aria-label="Show Piniata Payday"></button></li><li><button type="button" data-wg-go="9" aria-label="Show Tiny Tandem"></button></li><li><button type="button" data-wg-go="10" aria-label="Show Wild Gambit"></button></li>
+    </ol>
+  </section>
+  <script type="application/json" id="wg-data">[{"title":"Arrow Out","tags":["Puzzle","Casual"],"description":"Slide the glowing arrows off the board — plan the right order so none of them get stuck.","url":""},{"title":"Beach Volley Clash","tags":["Sports","Arcade"],"description":"Fast beach-volleyball duels: time your jumps and smash the ball past your rival.","url":""},{"title":"Birddoku","tags":["Puzzle","Logic"],"description":"A colourful logic puzzle — place one bird in every colour patch so no two share a row, a column or a corner.","url":""},{"title":"Endless Puncher","tags":["Action","Arcade"],"description":"Punch through endless crowds and grow stronger with every wave you knock down.","url":""},{"title":"Idle Scoop Empire","tags":["Idle","Tycoon"],"description":"Serve customers, upgrade your stations and grow a tiny ice-cream stand into a scoop empire.","url":""},{"title":"Jungle Ladder","tags":["Hypercasual","Arcade"],"description":"Climb the jungle tower as high as you can — one tap at a time, without hitting a branch.","url":""},{"title":"Meow Bag Cat Mafia","tags":["Merge","Strategy"],"description":"Pack your bag, merge your weapons and lead the cat mafia into battle.","url":""},{"title":"Paddle Royal","tags":["Multiplayer","Arcade"],"description":"A paddle battle royale for up to 8 players — open a private room and invite your friends.","url":""},{"title":"Piniata Payday","tags":["Casual","Arcade"],"description":"Smash colourful piñatas and grab every reward that bursts out.","url":""},{"title":"Tiny Tandem","tags":["Co-op","Platformer"],"description":"A two-player co-op platformer: work together to get both tiny heroes to the goal.","url":""},{"title":"Wild Gambit","tags":["Strategy","Board"],"description":"Chess with a wild twist — play cards that bend the rules of the board.","url":""}]</script>
+</div>
+    <h3 class="games__sub reveal">Featured &amp; in development</h3>
+    <div class="games-grid" data-stagger>
+      <article class="game-card game-card--featured reveal" data-tilt>
+  <div class="game-card__media">
+    <picture><source type="image/avif" srcset="assets/img/games/idle-shape-shooter-640.avif 640w, assets/img/games/idle-shape-shooter-960.avif 960w, assets/img/games/idle-shape-shooter-1280.avif 1280w" sizes="(min-width: 1024px) 60vw, 100vw"><source type="image/webp" srcset="assets/img/games/idle-shape-shooter-640.webp 640w, assets/img/games/idle-shape-shooter-960.webp 960w, assets/img/games/idle-shape-shooter-1280.webp 1280w" sizes="(min-width: 1024px) 60vw, 100vw"><img src="assets/img/games/idle-shape-shooter-960.webp" alt="Idle Shape Shooter key art: a glowing turret firing at waves of geometric shapes" width="1280" height="800" loading="lazy" decoding="async"></picture>
+    <div class="game-card__shade" aria-hidden="true"></div>
+    <span class="status status--live"><span class="status__dot" aria-hidden="true"></span>Live</span>
+  </div>
+  <div class="game-card__body">
+    <p class="game-card__kicker">Featured game</p>
+    <h3 class="game-card__title">Idle Shape Shooter</h3>
+    <ul class="tags"><li>Idle</li><li>Shooter</li><li>Casual</li></ul>
+    <p class="game-card__desc">Blast through endless waves of geometric enemies, upgrade your firepower and watch the numbers climb — even while you’re away.</p>
+    <a class="game-card__link" href="games/idle-shape-shooter/">
+      <span>View Details<span class="visually-hidden">: Idle Shape Shooter</span></span><span class="game-card__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
+  </div>
+</article>
+      <article class="game-card reveal" data-tilt>
+  <div class="game-card__media">
+    <picture><source type="image/avif" srcset="assets/img/games/casual-project-640.avif 640w, assets/img/games/casual-project-960.avif 960w, assets/img/games/casual-project-1280.avif 1280w" sizes="(min-width: 760px) 50vw, 100vw"><source type="image/webp" srcset="assets/img/games/casual-project-640.webp 640w, assets/img/games/casual-project-960.webp 960w, assets/img/games/casual-project-1280.webp 1280w" sizes="(min-width: 760px) 50vw, 100vw"><img src="assets/img/games/casual-project-960.webp" alt="Teaser art for an unannounced casual game" width="1280" height="800" loading="lazy" decoding="async"></picture>
+    <div class="game-card__shade" aria-hidden="true"></div>
+    <span class="status status--development"><span class="status__dot" aria-hidden="true"></span>In Development</span>
+  </div>
+  <div class="game-card__body">
+    
+    <h3 class="game-card__title">Casual Project</h3>
+    <ul class="tags"><li>Casual</li><li>Puzzle</li></ul>
+    <p class="game-card__desc">A cosy, easy-to-learn casual game currently in development. More details soon.</p>
+    <a class="game-card__link" href="games/casual-project/">
+      <span>View Details<span class="visually-hidden">: Casual Project</span></span><span class="game-card__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
+  </div>
+</article>
+      <article class="game-card reveal" data-tilt>
+  <div class="game-card__media">
+    <picture><source type="image/avif" srcset="assets/img/games/hypercasual-project-640.avif 640w, assets/img/games/hypercasual-project-960.avif 960w, assets/img/games/hypercasual-project-1280.avif 1280w" sizes="(min-width: 760px) 50vw, 100vw"><source type="image/webp" srcset="assets/img/games/hypercasual-project-640.webp 640w, assets/img/games/hypercasual-project-960.webp 960w, assets/img/games/hypercasual-project-1280.webp 1280w" sizes="(min-width: 760px) 50vw, 100vw"><img src="assets/img/games/hypercasual-project-960.webp" alt="Teaser art for an unannounced hypercasual game" width="1280" height="800" loading="lazy" decoding="async"></picture>
+    <div class="game-card__shade" aria-hidden="true"></div>
+    <span class="status status--prototype"><span class="status__dot" aria-hidden="true"></span>Prototype</span>
+  </div>
+  <div class="game-card__body">
+    
+    <h3 class="game-card__title">Hypercasual Project</h3>
+    <ul class="tags"><li>Hypercasual</li><li>Arcade</li></ul>
+    <p class="game-card__desc">A one-tap hypercasual prototype built around a single, satisfying mechanic. Currently being tested and iterated.</p>
+    <a class="game-card__link" href="games/hypercasual-project/">
+      <span>View Details<span class="visually-hidden">: Hypercasual Project</span></span><span class="game-card__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
+  </div>
+</article>
+    </div>
+  </div>
+</section>
+<section class="section about" id="about" aria-labelledby="about-title">
+  <div class="container about__grid">
+    <div class="about__visual reveal reveal--left">
+      <div class="about__frame" data-parallax="0.06">
+        <picture><source type="image/avif" srcset="assets/img/about/developer-desk-640.avif 640w, assets/img/about/developer-desk-960.avif 960w, assets/img/about/developer-desk-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="assets/img/about/developer-desk-640.webp 640w, assets/img/about/developer-desk-960.webp 960w, assets/img/about/developer-desk-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img src="assets/img/about/developer-desk-960.webp" alt="An indie developer working late at a desk with a gaming PC, two monitors showing a game in progress" width="320" height="400" loading="lazy" decoding="async"></picture>
+      </div>
+      <div class="about__chip about__chip--top glass"><span class="about__chip-label">Currently building</span><strong>Casual Project</strong></div>
+      <div class="about__chip about__chip--bottom glass"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg><span>HTML5 &amp; Unity games</span></div>
+    </div>
+    <div class="about__copy">
+      <p class="eyebrow reveal">About</p>
+      <h2 id="about-title" class="reveal">Hi, I’m an <span class="text-accent">Indie Developer</span></h2>
+      <div class="about__text reveal">
+        <p>I make games on my own — from the first rough idea to the build that ends up in players’ hands. Every step is mine: designing the core loop, building it — mostly as HTML5 games that run instantly in any browser, and in Unity — writing the code, crafting the UI, optimising performance and preparing the game for release.</p>
+        <p>I focus on casual, hypercasual and idle games because they reward clarity. A good one is understood in seconds, feels great to play right away and always gives you a reason to come back. That’s the bar I aim for with every project.</p>
+        <p>Launch isn’t the finish line. I watch how people actually play, listen to feedback and keep iterating — small, deliberate changes that make each game better over time.</p>
+      </div>
+      <ul class="disciplines" data-stagger>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="1.5"/></svg></span><span><strong>Game design</strong><span>Core loops, progression and balancing</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg></span><span><strong>HTML5 development</strong><span>Browser games that load instantly on any device</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 20.5 7.3v9.4L12 21.5l-8.5-4.8V7.3z"/><path d="M12 12 20.5 7.3M12 12v9.5M12 12 3.5 7.3"/></svg></span><span><strong>Unity development</strong><span>Gameplay systems, scenes and builds</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span><span><strong>Programming</strong><span>Clean, maintainable C#</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 13h8M8 16h5"/></svg></span><span><strong>UI</strong><span>Clear menus and satisfying feedback</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16a8 8 0 1 1 15 0"/><path d="m12 13 4-5"/><circle cx="12" cy="13.5" r="1.2"/></svg></span><span><strong>Optimization</strong><span>Smooth on mobile and the web</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14"/></svg></span><span><strong>Publishing</strong><span>Store and web-portal releases</span></span></li>
+        <li class="discipline reveal"><span class="discipline__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z"/><path d="M8.5 8.5h7M8.5 11.5h4"/></svg></span><span><strong>Player feedback</strong><span>Iterating on what players actually do</span></span></li>
+      </ul>
+      <div class="about__actions reveal">
+        <a class="btn btn--primary" href="#contact" data-magnetic>Get in touch <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn--ghost" href="#devlog" data-magnetic>Read the devlog</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section philosophy" aria-labelledby="philosophy-title">
+  <div class="container">
+    <header class="section-head section-head--center reveal">
+      <p class="eyebrow">How I work</p>
+      <h2 id="philosophy-title">My Philosophy</h2>
+    </header>
+    <div class="philosophy__grid" data-stagger>
+      <article class="principle glass reveal" data-tilt>
+        <div class="principle__top"><span class="principle__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/></svg></span><span class="principle__num" aria-hidden="true">01</span></div>
+        <h3>Keep it simple</h3>
+        <p class="principle__quote">“Easy to understand. Hard to master.”</p>
+        <p class="principle__text">If a player needs a tutorial to start having fun, the design isn’t done yet.</p>
+      </article>
+      <article class="principle glass reveal" data-tilt>
+        <div class="principle__top"><span class="principle__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="5.5"/><path d="M7 10.5v4M5 12.5h4"/><circle cx="15.5" cy="11.2" r=".6" fill="currentColor"/><circle cx="17.6" cy="13.6" r=".6" fill="currentColor"/></svg></span><span class="principle__num" aria-hidden="true">02</span></div>
+        <h3>Focus on fun</h3>
+        <p class="principle__quote">“If it’s not fun, it doesn’t work.”</p>
+        <p class="principle__text">Every feature has to earn its place by making the moment-to-moment play feel better.</p>
+      </article>
+      <article class="principle glass reveal" data-tilt>
+        <div class="principle__top"><span class="principle__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.9M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.9M20 20v-4h-4"/></svg></span><span class="principle__num" aria-hidden="true">03</span></div>
+        <h3>Iterate & improve</h3>
+        <p class="principle__quote">“Small changes, big results.”</p>
+        <p class="principle__text">Playtest, measure, adjust, repeat. Steady polish beats big rewrites.</p>
+      </article>
+    </div>
+  </div>
+</section>
+<section class="stats" aria-label="At a glance">
+  <div class="container">
+    <dl class="stats__grid glass reveal" data-stagger>
+      <div class="stat"><dt>Games Created</dt><dd><span class="stat__value"><span data-count="12">12</span></span></dd></div>
+      <div class="stat"><dt>Genres Explored</dt><dd><span class="stat__value"><span data-count="3">3</span></span></dd></div>
+      <div class="stat"><dt>Self Developed</dt><dd><span class="stat__value"><span data-count="100">100</span>%</span></dd></div>
+      <div class="stat"><dt>Still Learning</dt><dd><span class="stat__value">∞</span></dd></div>
+    </dl>
+  </div>
+</section>
+<section class="section skills" aria-labelledby="skills-title">
+  <div class="container">
+    <header class="section-head section-head--split reveal">
+      <div>
+        <p class="eyebrow">Toolkit</p>
+        <h2 id="skills-title">Skills &amp; Technologies</h2>
+      </div>
+      <p class="section-head__lead">The tools I use every day to take a game from sketch to store.</p>
+    </header>
+    <ul class="skills__grid" data-stagger>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg></span>
+        <span class="skill__name">HTML5</span>
+        <span class="skill__note">Web games</span>
+      </li>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z"/></svg></span>
+        <span class="skill__name">JavaScript</span>
+        <span class="skill__note">Game logic</span>
+      </li>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m12.9288 4.2939 3.7997 2.1929c.1366.077.1415.2905 0 .3675l-4.515 2.6076a.4192.4192 0 0 1-.4246 0L7.274 6.8543c-.139-.0745-.1415-.293 0-.3675l3.7972-2.193V0L1.3758 5.5977V16.793l3.7177-2.1456v-4.3858c-.0025-.1565.1813-.2682.318-.1838l4.5148 2.6076a.4252.4252 0 0 1 .2136.3676v5.2127c.0025.1565-.1813.2682-.3179.1838l-3.7996-2.1929-3.7178 2.1457L12 24l9.6954-5.5977-3.7178-2.1457-3.7996 2.1929c-.1341.082-.3229-.0248-.3179-.1838V13.053c0-.1565.087-.2956.2136-.3676l4.5149-2.6076c.134-.082.3228.0224.3179.1838v4.3858l3.7177 2.1456V5.5977L12.9288 0Z"/></svg></span>
+        <span class="skill__name">Unity</span>
+        <span class="skill__note">Engine</span>
+      </li>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1.5 21.1 6.75v10.5L12 22.5 2.9 17.25V6.75Z" fill="none" stroke="currentColor" stroke-width="1.6"/><text x="12" y="15.6" text-anchor="middle" font-family="Space Grotesk, Inter, sans-serif" font-weight="700" font-size="9.5" fill="currentColor">C#</text></svg></span>
+        <span class="skill__name">C#</span>
+        <span class="skill__note">Gameplay code</span>
+      </li>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.51 13.214c.046-.8.438-1.506 1.03-2.006a3.424 3.424 0 0 1 2.212-.79c.85 0 1.631.3 2.211.79.592.5.983 1.206 1.028 2.005.045.823-.285 1.586-.865 2.153a3.389 3.389 0 0 1-2.374.938 3.393 3.393 0 0 1-2.376-.938c-.58-.567-.91-1.33-.865-2.152M7.35 14.831c.006.314.106.922.256 1.398a7.372 7.372 0 0 0 1.593 2.757 8.227 8.227 0 0 0 2.787 2.001 8.947 8.947 0 0 0 3.66.76 8.964 8.964 0 0 0 3.657-.772 8.285 8.285 0 0 0 2.785-2.01 7.428 7.428 0 0 0 1.592-2.762 6.964 6.964 0 0 0 .25-3.074 7.123 7.123 0 0 0-1.016-2.779 7.764 7.764 0 0 0-1.852-2.043h.002L13.566 2.55l-.02-.015c-.492-.378-1.319-.376-1.86.002-.547.382-.609 1.015-.123 1.415l-.001.001 3.126 2.543-9.53.01h-.013c-.788.001-1.545.518-1.695 1.172-.154.665.38 1.217 1.2 1.22V8.9l4.83-.01-8.62 6.617-.034.025c-.813.622-1.075 1.658-.563 2.313.52.667 1.625.668 2.447.004L7.414 14s-.069.52-.063.831zm12.09 1.741c-.97.988-2.326 1.548-3.795 1.55-1.47.004-2.827-.552-3.797-1.538a4.51 4.51 0 0 1-1.036-1.622 4.282 4.282 0 0 1 .282-3.519 4.702 4.702 0 0 1 1.153-1.371c.942-.768 2.141-1.183 3.396-1.185 1.256-.002 2.455.41 3.398 1.175.48.391.87.854 1.152 1.367a4.28 4.28 0 0 1 .522 1.706 4.236 4.236 0 0 1-.239 1.811 4.54 4.54 0 0 1-1.035 1.626"/></svg></span>
+        <span class="skill__name">Blender</span>
+        <span class="skill__note">3D assets</span>
+      </li>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="2" width="20" height="20" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><text x="12" y="15.6" text-anchor="middle" font-family="Space Grotesk, Inter, sans-serif" font-weight="700" font-size="9.5" fill="currentColor">Ps</text></svg></span>
+        <span class="skill__name">Photoshop</span>
+        <span class="skill__note">2D art &amp; UI</span>
+      </li>
+      <li class="skill reveal" data-tilt>
+        <span class="skill__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M15.852 8.981h-4.588V0h4.588c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.491-4.49 4.491zM12.735 7.51h3.117c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-3.117V7.51zm0 1.471H8.148c-2.476 0-4.49-2.014-4.49-4.49S5.672 0 8.148 0h4.588v8.981zm-4.587-7.51c-1.665 0-3.019 1.355-3.019 3.019s1.354 3.02 3.019 3.02h3.117V1.471H8.148zm4.587 15.019H8.148c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h4.588v8.98zM8.148 8.981c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h3.117V8.981H8.148zM8.172 24c-2.489 0-4.515-2.014-4.515-4.49s2.014-4.49 4.49-4.49h4.588v4.441c0 2.503-2.047 4.539-4.563 4.539zm-.024-7.51a3.023 3.023 0 0 0-3.019 3.019c0 1.665 1.365 3.019 3.044 3.019 1.705 0 3.093-1.376 3.093-3.068v-2.97H8.148zm7.704 0h-.098c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h.098c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.49-4.49 4.49zm-.097-7.509c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h.098c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-.098z"/></svg></span>
+        <span class="skill__name">Figma</span>
+        <span class="skill__note">UI / UX design</span>
+      </li>
+    </ul>
+  </div>
+</section>
+<section class="section devlog" id="devlog" aria-labelledby="devlog-title">
+  <div class="container">
+    <header class="section-head section-head--split reveal">
+      <div>
+        <p class="eyebrow">Behind the scenes</p>
+        <h2 id="devlog-title">Devlog</h2>
+      </div>
+      <p class="section-head__lead">Progress notes, experiments and lessons learned while building games solo.</p>
+    </header>
+    <ol class="timeline" data-stagger>
+      <li class="timeline__item"><span class="timeline__dot" aria-hidden="true"></span><article class="post-card reveal">
+  <div class="post-card__media">
+    <picture><source type="image/avif" srcset="assets/img/devlog/ui-polish-640.avif 640w, assets/img/devlog/ui-polish-960.avif 960w, assets/img/devlog/ui-polish-1280.avif 1280w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"><source type="image/webp" srcset="assets/img/devlog/ui-polish-640.webp 640w, assets/img/devlog/ui-polish-960.webp 960w, assets/img/devlog/ui-polish-1280.webp 1280w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"><img src="assets/img/devlog/ui-polish-960.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></picture>
+  </div>
+  <div class="post-card__body">
+    <time class="post-card__date" datetime="2026-09-18">18 Sept 2026</time>
+    <h3 class="post-card__title">UI Polish &amp; Small Fixes</h3>
+    <p class="post-card__excerpt">A round of small but noticeable improvements: clearer buttons, smoother transitions and a handful of bug fixes.</p>
+    <a class="post-card__link" href="devlog/ui-polish-and-small-fixes/">Read More<span class="visually-hidden"> about “UI Polish &amp; Small Fixes”</span> <span aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</article></li>
+      <li class="timeline__item"><span class="timeline__dot" aria-hidden="true"></span><article class="post-card reveal">
+  <div class="post-card__media">
+    <picture><source type="image/avif" srcset="assets/img/devlog/performance-640.avif 640w, assets/img/devlog/performance-960.avif 960w, assets/img/devlog/performance-1280.avif 1280w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"><source type="image/webp" srcset="assets/img/devlog/performance-640.webp 640w, assets/img/devlog/performance-960.webp 960w, assets/img/devlog/performance-1280.webp 1280w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"><img src="assets/img/devlog/performance-960.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></picture>
+  </div>
+  <div class="post-card__body">
+    <time class="post-card__date" datetime="2026-08-21">21 Aug 2026</time>
+    <h3 class="post-card__title">Improved Game Performance</h3>
+    <p class="post-card__excerpt">Profiling, pooling and fewer allocations — making busy waves run smoothly on lower-end phones and in the browser.</p>
+    <a class="post-card__link" href="devlog/improved-game-performance/">Read More<span class="visually-hidden"> about “Improved Game Performance”</span> <span aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</article></li>
+      <li class="timeline__item"><span class="timeline__dot" aria-hidden="true"></span><article class="post-card reveal">
+  <div class="post-card__media">
+    <picture><source type="image/avif" srcset="assets/img/devlog/new-idea-640.avif 640w, assets/img/devlog/new-idea-960.avif 960w, assets/img/devlog/new-idea-1280.avif 1280w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"><source type="image/webp" srcset="assets/img/devlog/new-idea-640.webp 640w, assets/img/devlog/new-idea-960.webp 960w, assets/img/devlog/new-idea-1280.webp 1280w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"><img src="assets/img/devlog/new-idea-960.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></picture>
+  </div>
+  <div class="post-card__body">
+    <time class="post-card__date" datetime="2026-06-30">30 Jun 2026</time>
+    <h3 class="post-card__title">New Game Idea – Idle Shooter</h3>
+    <p class="post-card__excerpt">How a tiny prototype about shapes and a turret turned into the idea for Idle Shape Shooter.</p>
+    <a class="post-card__link" href="devlog/new-game-idea-idle-shooter/">Read More<span class="visually-hidden"> about “New Game Idea – Idle Shooter”</span> <span aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</article></li>
+    </ol>
+    <p class="devlog__more reveal"><a class="btn btn--ghost" href="devlog/" data-magnetic>All devlog posts <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+  </div>
+</section>
+<section class="section contact" id="contact" aria-labelledby="contact-title">
+  <div class="contact__glow" aria-hidden="true"></div>
+  <div class="container contact__grid">
+    <div class="contact__intro">
+      <p class="eyebrow reveal">Contact</p>
+      <h2 id="contact-title" class="reveal">Let’s Create Something <span class="text-accent">Fun.</span></h2>
+      <p class="contact__lead reveal">Have a game idea, feedback, publishing opportunity or business inquiry? Feel free to reach out.</p>
+      <ul class="contact__topics reveal">
+        <li>Publishing partnerships</li><li>Collaborations</li><li>Player feedback</li><li>Business inquiries</li>
+      </ul>
+      
+      
+    </div>
+    <form class="contact-form glass reveal" data-contact-form action="#" method="post" data-endpoint="" data-email="" novalidate>
+      <div class="field">
+        <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="100" placeholder=" ">
+        <label for="cf-name">Name</label>
+        <span class="field__error" id="cf-name-error"></span>
+      </div>
+      <div class="field">
+        <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="200" placeholder=" ">
+        <label for="cf-email">Email</label>
+        <span class="field__error" id="cf-email-error"></span>
+      </div>
+      <div class="field">
+        <textarea id="cf-message" name="message" rows="5" required maxlength="5000" placeholder=" "></textarea>
+        <label for="cf-message">Message</label>
+        <span class="field__error" id="cf-message-error"></span>
+      </div>
+      <div class="field--hp" aria-hidden="true">
+        <label for="cf-company">Company</label>
+        <input id="cf-company" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <button class="btn btn--primary btn--lg btn--block" type="submit" data-magnetic>
+        <span class="btn__label">Send Message</span> <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>
+      </button>
+      <p class="contact-form__status" role="status" aria-live="polite" data-form-status></p>
+    </form>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <a class="brand" href="#top">
+        <span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7.2 8.2c-2.1 0-3.7 1.7-3.7 3.8s1.6 3.8 3.7 3.8c3.3 0 6.3-7.6 9.6-7.6 2.1 0 3.7 1.7 3.7 3.8s-1.6 3.8-3.7 3.8c-3.3 0-6.3-7.6-9.6-7.6z"/></svg></span>
+        <span class="brand__name">Loopkind</span>
+      </a>
+      <p class="footer__tagline">Better games. Brighter days.</p>
+    </div>
+    <nav class="footer__nav" aria-label="Footer">
+      <ul><li><a href="#top">Home</a></li><li><a href="#games">Games</a></li><li><a href="#about">About</a></li><li><a href="#devlog">Devlog</a></li><li><a href="#contact">Contact</a></li></ul>
+    </nav>
+    
+  </div>
+  <div class="container footer__legal">
+    <p>© 2026 Loopkind. All rights reserved.</p>
+    <p>A one-person indie game studio.</p>
+  </div>
+</footer>
+<button class="to-top" type="button" aria-label="Back to top" data-to-top>
+  <svg class="to-top__ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</button>
+<script>document.body.classList.add('is-loaded')</script>
+</body>
+</html>

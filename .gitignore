@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.log
+.tmp/
+
+# Raw gameplay clips (large). Converted copies live in assets/video/.
+src/video/*
+!src/video/README.md
+!src/video/games.example.txt
+!src/video/games.txt
