@@ -72,7 +72,7 @@ export default {
   // `value` is animated as a counter. Use `display` instead for text values.
   // Keep these honest — publishers check.
   stats: [
-    { value: 1, label: 'Games Created' },
+    { value: 12, label: 'Games Created' },
     { value: 3, label: 'Genres Explored' },
     { value: 100, suffix: '%', label: 'Self Developed' },
     { display: '∞', label: 'Still Learning' },

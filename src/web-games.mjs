@@ -27,7 +27,9 @@ const titleFromFile = (file) =>
     .slice(0, -extname(file).length)
     .replace(/[_]+/g, ' ')
     .replace(/\s+/g, ' ')
-    .trim();
+    .trim()
+    // all-lowercase names ("birddoku") get a capital first letter
+    .replace(/^[a-z][^A-Z]*$/, (t) => t.charAt(0).toUpperCase() + t.slice(1));
 
 /**
  * Optional src/video/games.txt — one block per game, separated by blank lines:

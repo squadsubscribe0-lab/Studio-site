@@ -1,0 +1,43 @@
+Arrow Out
+tags: Puzzle, Casual
+Slide the glowing arrows off the board — plan the right order so none of them get stuck.
+
+Beach Volley Clash
+tags: Sports, Arcade
+Fast beach-volleyball duels: time your jumps and smash the ball past your rival.
+
+Birddoku
+tags: Puzzle, Logic
+A colourful logic puzzle — place one bird in every colour patch so no two share a row, a column or a corner.
+
+Endless Puncher
+tags: Action, Arcade
+Punch through endless crowds and grow stronger with every wave you knock down.
+
+Idle Scoop Empire
+tags: Idle, Tycoon
+Serve customers, upgrade your stations and grow a tiny ice-cream stand into a scoop empire.
+
+Jungle Ladder
+tags: Hypercasual, Arcade
+Climb the jungle tower as high as you can — one tap at a time, without hitting a branch.
+
+Meow Bag Cat Mafia
+tags: Merge, Strategy
+Pack your bag, merge your weapons and lead the cat mafia into battle.
+
+Paddle Royal
+tags: Multiplayer, Arcade
+A paddle battle royale for up to 8 players — open a private room and invite your friends.
+
+Piniata Payday
+tags: Casual, Arcade
+Smash colourful piñatas and grab every reward that bursts out.
+
+Tiny Tandem
+tags: Co-op, Platformer
+A two-player co-op platformer: work together to get both tiny heroes to the goal.
+
+Wild Gambit
+tags: Strategy, Board
+Chess with a wild twist — play cards that bend the rules of the board.
