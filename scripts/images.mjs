@@ -126,7 +126,7 @@ const ogHtml = `
     <div style="margin-top:30px;font:500 22px 'Inter';color:#c4cada">Casual, hypercasual &amp; idle — HTML5 and Unity</div>
   </div>
   <div style="position:absolute;left:72px;bottom:56px;display:flex;align-items:center;gap:14px;font:700 22px 'Space Grotesk';color:#f3f5f9">
-    <span style="display:grid;place-items:center;width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#ffad5c,#ff7a1a);color:#1a0b00;font-size:18px">${dev.monogram}</span>${dev.name}
+    <span style="display:grid;place-items:center;width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#ffad5c,#ff7a1a);color:#1a0b00;font-size:18px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#1a0b00" stroke-width="2.6" stroke-linecap="round"><path d="M7.2 8.2c-2.1 0-3.7 1.7-3.7 3.8s1.6 3.8 3.7 3.8c3.3 0 6.3-7.6 9.6-7.6 2.1 0 3.7 1.7 3.7 3.8s-1.6 3.8-3.7 3.8c-3.3 0-6.3-7.6-9.6-7.6z"/></svg></span>${dev.name}
   </div>
 </div>`;
 const og = await render(page, ogHtml, 1200, 630);

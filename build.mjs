@@ -15,6 +15,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import config from './site.config.mjs';
 import { icons, iconFor } from './src/icons.mjs';
+import { webGamesList } from './src/web-games.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const SITE = config.siteUrl.replace(/\/+$/, '');
@@ -116,7 +117,7 @@ function header(r, isHome) {
 <header class="site-header" data-header>
   <nav class="nav container" aria-label="Primary">
     <a class="brand" href="${isHome ? '#top' : r || './'}">
-      <span class="brand__mark" aria-hidden="true">${esc(DEV.monogram)}</span>
+      <span class="brand__mark" aria-hidden="true">${icons.loopMark}</span>
       <span class="brand__name">${esc(DEV.name)}</span>
     </a>
     <div class="nav__menu" id="nav-menu" data-menu>
@@ -146,7 +147,7 @@ function footer(r, isHome) {
   <div class="container footer__inner">
     <div class="footer__brand">
       <a class="brand" href="${isHome ? '#top' : r || './'}">
-        <span class="brand__mark" aria-hidden="true">${esc(DEV.monogram)}</span>
+        <span class="brand__mark" aria-hidden="true">${icons.loopMark}</span>
         <span class="brand__name">${esc(DEV.name)}</span>
       </a>
       <p class="footer__tagline">${esc(DEV.tagline)}</p>
@@ -158,7 +159,7 @@ function footer(r, isHome) {
   </div>
   <div class="container footer__legal">
     <p>© ${YEAR} ${esc(DEV.name)}. All rights reserved.</p>
-    <p>Designed &amp; built independently.</p>
+    <p>A one-person indie game studio.</p>
   </div>
 </footer>
 <button class="to-top" type="button" aria-label="Back to top" data-to-top>
@@ -394,7 +395,7 @@ function marquee() {
 }
 
 function webGamesCarousel() {
-  const list = config.webGames || [];
+  const list = webGamesList(ROOT, config);
   if (!list.length) return '';
   const pad = (n) => String(n).padStart(2, '0');
   const first = list[0];

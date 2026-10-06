@@ -15,7 +15,6 @@ node build.mjs
 This writes `index.html`, `games/<slug>/`, `devlog/`, `devlog/<slug>/`, `404.html`, `sitemap.xml`, `robots.txt` and `site.webmanifest`. Commit the generated files too.
 
 ### Before going live
-- [ ] `developer.name` / `developer.monogram`: your name or handle (currently the placeholder “Indie Dev”).
 - [ ] `siteUrl`: your real domain. It's used for canonical URLs, the sitemap and Open Graph.
 - [ ] `contact.formEndpoint`: e.g. a free [Formspree](https://formspree.io) endpoint. Alternatively, set `contact.email` and the form opens the visitor's email app instead.
 - [ ] `socials`: fill in the links you have. Only platforms with a URL are shown.
@@ -23,12 +22,11 @@ This writes `index.html`, `games/<slug>/`, `devlog/`, `devlog/<slug>/`, `404.htm
 - [ ] Re-run `npm run images` so the share image (`og-image.jpg`) uses your name.
 
 ### Web games carousel (portrait videos + Play now)
-The vertical carousel in **My Games** comes from `webGames` in the config. For each game set:
-- `title`, `tags`, `description`
-- `url`: where **Play now** goes (Poki, CrazyGames, itch.io, your own host…). Leave it empty and the button shows "Play link coming soon".
-- a portrait gameplay clip: save it as `src/video/<slug>.mp4` (9:16, 5–10 s, no audio needed), then run `npm run videos`. It's compressed to MP4 and WebM, and a poster frame is extracted.
+1. Put your gameplay clips in **`src/video/`**. Each file name becomes the game title (`Idle Shape Shooter.mp4`).
+2. Optional: create `src/video/games.txt` with each game's play link, tags and description (see `games.example.txt`).
+3. Run `npm run videos` and then `node build.mjs`.
 
-The 12 entries that ship now are **placeholders** with generated preview loops.
+Clips are cropped to portrait and trimmed to 12 s. Each is saved as MP4 + WebM with a poster frame. Games without a link show "Play link coming soon". With no clips in the folder, the placeholder entries from `webGames` in the config are shown.
 
 ### Adding a game or devlog post
 Copy an existing entry in `games` or `devlog`, change the `slug` and the text, then run `node build.mjs`. Posts are sorted by date automatically. The home page shows the latest three, and every post gets its own page.

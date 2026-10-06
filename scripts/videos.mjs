@@ -11,12 +11,13 @@
  * Requires ffmpeg on PATH (with libx264) and Chromium (CHROME_PATH).
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import sharp from 'sharp';
 import config from '../site.config.mjs';
+import { webGamesList } from '../src/web-games.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const W = 432;
@@ -192,23 +193,34 @@ await page.setContent(
 await page.evaluate(() => document.fonts.load('700 20px "Space Grotesk"'));
 
 mkdirSync(join(ROOT, 'assets/video'), { recursive: true });
+const games = webGamesList(ROOT, config);
 const WEBM_ONLY = process.argv.includes('--webm-only');
-for (const [i, game] of config.webGames.entries()) {
-  if (WEBM_ONLY) {
-    await toWebm(join(ROOT, `assets/video/${game.slug}.mp4`));
-    console.log(`• ${game.slug}: webm`);
-    continue;
-  }
+const FORCE = process.argv.includes('--force');
+const newer = (a, b) => existsSync(b) && statSync(b).mtimeMs >= statSync(a).mtimeMs;
+
+for (const [i, game] of games.entries()) {
   const slug = game.slug;
   const outVideo = join(ROOT, `assets/video/${slug}.mp4`);
-  const source = ['mp4', 'mov', 'webm'].map((e) => join(ROOT, 'src/video', `${slug}.${e}`)).find(existsSync);
-  if (source) {
-    await ffmpeg(['-i', source, '-t', '12', '-vf', `scale=${W * 1.25}:-2,fps=30`, ...ENCODE, outVideo]);
-    await ffmpeg(['-i', outVideo, '-frames:v', '1', join(ROOT, '.tmp-poster.png')]);
-    await writePoster(readFileSync(join(ROOT, '.tmp-poster.png')), slug);
-    spawnSync('rm', ['-f', join(ROOT, '.tmp-poster.png')]);
+  if (WEBM_ONLY) {
     await toWebm(outVideo);
-    console.log(`• ${slug}: encoded from ${source.replace(`${ROOT}/`, '')}`);
+    console.log(`• ${slug}: webm`);
+    continue;
+  }
+  const source = game.source;
+  if (source) {
+    if (!FORCE && newer(source, outVideo) && existsSync(outVideo.replace(/\.mp4$/, '.webm'))) {
+      console.log(`• ${game.title}: up to date`);
+      continue;
+    }
+    // Fill a 9:16 frame (centre-crop landscape or square clips), max 12 s, no audio.
+    const vf = `scale=${W * 1.25}:${H * 1.25}:force_original_aspect_ratio=increase,crop=${W * 1.25}:${H * 1.25},fps=30`;
+    await ffmpeg(['-i', source, '-t', '12', '-vf', vf, ...ENCODE, outVideo]);
+    const tmp = join(ROOT, '.tmp-poster.png');
+    await ffmpeg(['-ss', '1', '-i', outVideo, '-frames:v', '1', tmp]).catch(() => ffmpeg(['-i', outVideo, '-frames:v', '1', tmp]));
+    await writePoster(readFileSync(tmp), slug);
+    unlinkSync(tmp);
+    await toWebm(outVideo);
+    console.log(`• ${game.title}: encoded from ${source.replace(`${ROOT}/`, '')}`);
     continue;
   }
   const motif = game.motif || MOTIFS[i % MOTIFS.length];
@@ -226,3 +238,16 @@ for (const [i, game] of config.webGames.entries()) {
   console.log(`• ${slug}: generated placeholder (${motif})`);
 }
 await browser.close();
+
+// Remove clips/posters for games that are no longer in the list.
+const keep = new Set(games.map((g) => g.slug));
+for (const dir of ['assets/video', 'assets/img/web-games']) {
+  for (const f of readdirSync(join(ROOT, dir))) {
+    const slug = f.replace(/\.(mp4|webm|webp|avif)$/, '');
+    if (!keep.has(slug)) {
+      unlinkSync(join(ROOT, dir, f));
+      console.log(`  removed ${dir}/${f}`);
+    }
+  }
+}
+console.log(`Done: ${games.length} games. Run \`node build.mjs\` to update the pages.`);

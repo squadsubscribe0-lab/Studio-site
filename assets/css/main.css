@@ -462,6 +462,18 @@ button {
   box-shadow: 0 6px 20px -6px var(--glow);
   transition: transform 0.4s var(--ease-out);
 }
+.brand__mark svg {
+  width: 24px;
+  height: 24px;
+}
+.brand:hover .brand__mark svg path {
+  stroke-dasharray: 60;
+  animation: loop-draw 1.2s var(--ease-in-out);
+}
+@keyframes loop-draw {
+  from { stroke-dashoffset: 60; }
+  to { stroke-dashoffset: 0; }
+}
 .brand:hover .brand__mark {
   transform: rotate(-6deg) scale(1.05);
 }

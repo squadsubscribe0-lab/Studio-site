@@ -3,7 +3,5 @@
     <linearGradient id="fv-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffad5c"/><stop offset="1" stop-color="#ff6a00"/></linearGradient>
   </defs>
   <rect width="64" height="64" rx="15" fill="url(#fv-bg)"/>
-  <path d="M32 12 50 22.5 32 33 14 22.5Z" fill="#1a0b00" opacity=".55"/>
-  <path d="M14 22.5 32 33v21L14 43.5Z" fill="#1a0b00" opacity=".9"/>
-  <path d="M50 22.5 32 33v21l18-10.5Z" fill="#1a0b00" opacity=".72"/>
+  <path d="M19.2 21.9c-5.6 0-9.9 4.5-9.9 10.1s4.3 10.1 9.9 10.1c8.8 0 16.8-20.2 25.6-20.2 5.6 0 9.9 4.5 9.9 10.1S50.4 42.1 44.8 42.1c-8.8 0-16.8-20.2-25.6-20.2z" fill="none" stroke="#1a0b00" stroke-width="6.5" stroke-linecap="round"/>
 </svg>

@@ -27,11 +27,10 @@ export default {
   /* ── You ──────────────────────────────────────────────────────────────── */
 
   developer: {
-    // Shown in the logo, page titles, footer and structured data.
-    // Replace with your real name or developer handle.
-    name: 'Indie Dev',
+    // Studio / developer name: shown in the logo, page titles, footer and structured data.
+    name: 'Loopkind',
     // Two-letter mark used in the logo badge and favicon text.
-    monogram: 'ID',
+    monogram: 'LK',
     role: 'Solo Indie Game Developer',
     tagline: 'Better games. Brighter days.',
     // Optional, e.g. 'Based in Europe · Working worldwide'. Leave '' to hide.
@@ -39,9 +38,9 @@ export default {
   },
 
   seo: {
-    title: 'Indie Game Developer — Casual, Hypercasual & Idle Games',
+    title: 'Casual, Hypercasual & Idle HTML5 Games',
     description:
-      'Portfolio of a solo indie game developer creating fun, polished casual, hypercasual and idle games in Unity — from first idea to release.',
+      'Loopkind is a one-person indie game studio making fun, polished casual, hypercasual and idle games — mostly HTML5 games you can play instantly in your browser.',
     // 1200×630 image used when the site is shared on social media.
     ogImage: 'assets/img/og-image.jpg',
     // Your X/Twitter handle including @, or '' to omit.
