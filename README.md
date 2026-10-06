@@ -65,7 +65,7 @@ npm run dev      # builds, then serves on http://localhost:5173
 ```
 
 ## What's inside
-- **Performance:** self-hosted variable fonts (preloaded), responsive AVIF/WebP with lazy loading, about 20 KB of hand-written JS, and animations only on `transform`/`opacity`. Animation loops pause when off-screen or idle. Lighthouse (mobile): Performance 93, Accessibility 100, Best Practices 100, SEO 100 on a plain local server, before any host compression.
+- **Performance:** self-hosted variable fonts (preloaded), responsive AVIF/WebP with lazy loading, animations only on `transform`/`opacity`, carousel clips that load only when the carousel is on screen, and animation loops that pause when off-screen or idle. Lighthouse (simulated mobile, plain local server, no compression): Performance 89, Accessibility 100, Best Practices 100, SEO 100.
 - **SEO:** unique titles and descriptions, canonical URLs, Open Graph/Twitter cards, a JSON-LD graph (Person, WebSite, VideoGame, BlogPosting, Breadcrumbs), sitemap, robots.txt and web manifest.
 - **Accessibility:** semantic landmarks, skip link, visible focus states, a labelled form with inline errors, and full `prefers-reduced-motion` support (no parallax, particles or reveal motion).
 - **Day / night mode:** toggle in the header. The visitor's choice is remembered, and switching plays a circular reveal. Set the starting theme with `defaultTheme` in the config.
