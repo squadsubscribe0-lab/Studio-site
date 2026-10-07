@@ -9,10 +9,12 @@ tags: Sports, Arcade
 Fast beach-volleyball duels: time your jumps and smash the ball past your rival.
 
 Birddoku
+url: play/birddoku/
 tags: Puzzle, Logic
 A colourful logic puzzle — place one bird in every colour patch so no two share a row, a column or a corner.
 
 Endless Puncher
+url: play/endless-puncher/
 tags: Action, Arcade
 Punch through endless crowds and grow stronger with every wave you knock down.
 
@@ -22,10 +24,12 @@ tags: Idle, Tycoon
 Serve customers, upgrade your stations and grow a tiny ice-cream stand into a scoop empire.
 
 Jungle Ladder
+url: play/jungle-ladder/
 tags: Hypercasual, Arcade
 Climb the jungle tower as high as you can — one tap at a time, without hitting a branch.
 
 Meow Bag Cat Mafia
+url: play/meow-bag-cat-mafia/
 tags: Merge, Strategy
 Pack your bag, merge your weapons and lead the cat mafia into battle.
 
