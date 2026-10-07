@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{ font-family:Fredoka; font-weight:700; src:url(../../src/fonts/fredoka-latin-700-normal.woff2) format('woff2'); }
+html,body{ margin:0; background:#000; }
+canvas{ display:block; }
+</style></head>
+<body><canvas id="c"></canvas>
+<script src="art.js"></script>
+<script>
+/* Layouts (px). u = general scale unit, m = monkey/stick sprite scale. */
+const LAYOUTS = {
+  land:{ W:1920, H:1080, u:1.8,
+    sun:[1470, 420, 1500], gy:990,
+    tr:{ cx:1170, w:300, top:190, bh:118, types:['bark','bark','rot','bark','bark','stone','bark'] }, crown:1.05,
+    title:[520, 330, 200, -0.07],
+    hero:{ x:1470, feet:610, m:4.6, rot:0.08 }, heroSticks:[880, 760], landed:430,
+    rival:{ x:900, feet:820, m:3.9 }, rivalSticks:[820, 940],
+    fly:{ x:1640, y:250, m:3.3, kind:'rainbow' },
+    toucan:{ x:1785, y:560, m:3.2 },
+    coins:[[1720,760,1.9,0.3],[1560,150,1.3,0.2],[1080,620,1.2,0]],
+    sparks:[[1605,640,22],[1720,440,16],[1235,405,26],[1380,210,14],[980,560,14]],
+    ferns:[[-40,1120,-0.9,1.25,'#1d8a4f'],[1990,1150,-2.3,1.2,'#1f9152']],
+    vines:[[70,-20,520,0.3],[1880,-20,380,1.8],[1790,-20,240,3.1]],
+    clouds:[[300,700,150,.75],[1760,120,120,.85],[860,120,90,.7]],
+    palms:[[120,300],[330,250],[720,280],[1560,240],[1850,300]]
+  },
+  port:{ W:800, H:1200, u:0.95,
+    sun:[500, 640, 900], gy:1125,
+    tr:{ cx:340, w:180, top:-60, bh:72, types:['bark','bark','bark','stone','bark','rot','bark','bark','bark','bark','bark','bark','bark','bark','bark','bark','bark'] },
+    title:[405, 175, 128, -0.07],
+    hero:{ x:555, feet:770, m:3.35, rot:0.08 }, heroSticks:[1030, 930], landed:590,
+    rival:{ x:165, feet:955, m:2.75 }, rivalSticks:[955, 1060],
+    fly:{ x:590, y:470, m:2.05, kind:'rainbow' },
+    toucan:{ x:120, y:585, m:1.9, flip:true },
+    coins:[[680,880,1.3,0.3],[710,700,1.0,-0.3],[245,760,0.9,0]],
+    sparks:[[655,820,14],[420,570,17],[610,420,10],[120,880,10]],
+    ferns:[[-40,1260,-0.9,0.75,'#1d8a4f'],[850,1270,-2.3,0.72,'#1f9152']],
+    vines:[[30,-20,380,0.3],[775,-20,300,1.8]],
+    clouds:[[640,330,70,.8],[120,420,60,.7]],
+    palms:[[60,200],[700,190],[600,240]]
+  },
+  square:{ W:800, H:800, u:0.85,
+    sun:[520, 470, 800], gy:745,
+    tr:{ cx:320, w:170, top:-60, bh:68, types:['bark','stone','bark','bark','rot','bark','bark','bark','bark','bark','bark','bark','bark'] },
+    title:[400, 128, 104, -0.07],
+    hero:{ x:515, feet:540, m:2.95, rot:0.08 }, heroSticks:[680, 590], landed:385,
+    rival:{ x:150, feet:640, m:2.35 }, rivalSticks:[640],
+    fly:{ x:600, y:290, m:1.75, kind:'rainbow' },
+    coins:[[660,620,1.15,0.3],[700,470,0.9,-0.3]],
+    sparks:[[630,560,13],[395,370,15],[90,560,9]],
+    ferns:[[-30,850,-0.9,0.62,'#1d8a4f'],[840,860,-2.3,0.6,'#1f9152']],
+    vines:[[26,-20,300,0.3],[778,-20,250,1.8]],
+    clouds:[[660,250,56,.8],[110,330,50,.7]],
+    palms:[[60,170],[720,160]]
+  }
+};
+
+function render(L){
+  const cv = document.getElementById('c'); cv.width = Math.round(L.W * RES); cv.height = Math.round(L.H * RES);
+  const c = cv.getContext('2d'), W = L.W, H = L.H, u = L.u, gy = L.gy;
+  c.scale(RES, RES);
+
+  /* sky, sun, clouds, layered jungle */
+  sky(c, W, H, L.sun[0], L.sun[1], L.sun[2]);
+  for(const [x, y, w, a] of L.clouds) cloud(c, x, y, w, a);
+  hills(c, W, gy - 150 * u, 330 * u, mix(TEAL.far, TEAL.top, 0.45), 1.7, u);
+  hills(c, W, gy - 90 * u, 250 * u, mix(TEAL.far, TEAL.top, 0.2), 4.2, u);
+  canopy(c, W, gy - 40 * u, 200 * u, TEAL.far, 3, 64 * u);
+  for(const [x, h] of L.palms) palm(c, x, gy - 30 * u, h * u * 0.9, (hash(x) - 0.5) * 70 * u, mix(TEAL.near, TEAL.far, 0.25), u);
+  canopy(c, W, gy + 10 * u, 110 * u, TEAL.near, 11, 52 * u);
+  // haze
+  const hz = c.createLinearGradient(0, gy - 400 * u, 0, gy); hz.addColorStop(0, 'rgba(255,255,255,0)'); hz.addColorStop(1, 'rgba(230,255,240,.18)');
+  c.fillStyle = hz; c.fillRect(0, gy - 400 * u, W, 400 * u);
+  for(let i = 0; i < 14; i++) bush(c, hash(i + 70) * W, gy, (20 + hash(i + 80) * 18) * u, mix(TEAL.grass, '#123524', 0.28));
+
+  /* tree */
+  const T = L.tr, { FL, FR } = trunk(c, T.cx, T.w, T.top, gy, T.bh, T.types);
+  const ms = T.w / 150;                                    // trunk scale
+  if(L.crown){
+    crown(c, T.cx, T.top, ms * L.crown);
+    // golden banana bunch (the goal)
+    const g = c.createRadialGradient(T.cx, T.top - 60 * ms, 0, T.cx, T.top - 60 * ms, 120 * ms);
+    g.addColorStop(0, 'rgba(255,245,160,.95)'); g.addColorStop(1, 'rgba(255,245,160,0)');
+    c.fillStyle = g; c.fillRect(T.cx - 150 * ms, T.top - 190 * ms, 300 * ms, 260 * ms);
+    place(c, sprite(70, 60, 35, 35, ms * 1.35, bunch), T.cx, T.top - 42 * ms, { outline:4 * u, shadow:'rgba(120,80,0,.35)', blur:20 });
+  }
+  ground(c, W, H, gy, u);
+  for(let i = 0; i < 10; i++){ const x = hash(i + 300) * W; if(x > FL - 40 && x < FR + 40) continue; flower(c, x, gy + hash(i + 310) * 10 * u, u * 1.2, ['#ffffff', '#ffcf3f', '#ff8fb1'][i % 3]); }
+
+  const ol = m => Math.max(3, m * 1.25);                   // outline thickness for a sprite scale
+  const stickSp = (kind, m) => sprite(110, 40, 22, 20, m, cc => stick(cc, kind));
+
+  /* rival side sticks + rival (purple, angry, behind) */
+  for(const y of L.rivalSticks) place(c, stickSp('purple', L.rival.m), FL, y, { flip:true, outline:ol(L.rival.m) * 0.8 });
+  const rv = sprite(120, 110, 60, 90, L.rival.m, cc => monkey(cc, RIVAL, 'cling', 'angry'));
+  place(c, rv, L.rival.x, L.rival.feet - 4, { outline:ol(L.rival.m), shadow:'rgba(20,20,60,.35)', blur:24 * u });
+
+  /* hero side sticks */
+  for(const y of L.heroSticks) place(c, stickSp('bamboo', L.hero.m), FR, y, { outline:ol(L.hero.m) * 0.8 });
+  // freshly landed stick with impact burst
+  place(c, stickSp('bamboo', L.hero.m), FR, L.landed, { outline:ol(L.hero.m) * 0.8, rot:-0.06 });
+  c.save(); c.translate(FR + 4 * u, L.landed);
+  for(let k = 0; k < 7; k++){ const a = -Math.PI / 2 + (k - 3) * 0.42; c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 5 * u; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(Math.cos(a) * 26 * u + 10 * u, Math.sin(a) * 26 * u); c.lineTo(Math.cos(a) * 48 * u + 10 * u, Math.sin(a) * 48 * u); c.stroke(); }
+  c.restore();
+
+  /* hero: leaping up toward the stick, motion lines underneath */
+  const H0 = L.hero;
+  c.save(); c.globalAlpha = 0.85;
+  for(let k = 0; k < 3; k++){ const x = H0.x + (k - 1) * 22 * H0.m / 2.6 * 1.2; const g = c.createLinearGradient(0, H0.feet + 10, 0, H0.feet + 90 * H0.m / 2.6);
+    g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; rr(c, x - 4 * u, H0.feet + 12, 8 * u, (70 + k % 2 * 25) * H0.m / 2.6, 4 * u); c.fill(); }
+  c.restore();
+  const hs = sprite(120, 120, 60, 95, H0.m, cc => monkey(cc, HERO, 'leap', 'joy'));
+  place(c, hs, H0.x, H0.feet, { flip:true, rot:-H0.rot, outline:ol(H0.m), shadow:'rgba(40,20,0,.4)', blur:34 * u, sy:18 * u });
+
+  /* incoming throw */
+  const F = L.fly;
+  speedLines(c, F.x + 40 * F.m, F.y, W + 40, 3, 7 * F.m, u);
+  place(c, stickSp(F.kind, F.m), F.x, F.y, { outline:ol(F.m) * 0.8, shadow:'rgba(0,0,0,.2)', blur:12 });
+
+  /* toucan */
+  if(L.toucan){ const t = L.toucan; place(c, sprite(90, 50, 40, 25, t.m, cc => toucan(cc, 0.5)), t.x, t.y, { flip:!t.flip, outline:ol(t.m) * 0.7, shadow:'rgba(0,0,0,.25)', blur:16 }); }
+
+  /* banana coins + sparkles */
+  for(const [x, y, s, r] of L.coins) place(c, sprite(40, 40, 20, 20, s * u * 1.6, coin), x, y, { rot:r, outline:3 * u, shadow:'rgba(120,80,0,.35)', blur:14 });
+  for(const [x, y, r] of L.sparks){ sparkle(c, x, y, r * u, 'rgba(255,255,255,.95)'); sparkle(c, x, y, r * u * 0.45, '#fff6b0'); }
+
+  /* foreground framing leaves + vines (soft focus) */
+  for(const [x, top, len, sw] of L.vines){ c.save(); c.filter = 'blur(' + (1.2 * u * RES) + 'px)'; vine(c, x, top, len, u, '#177a45', sw); c.restore(); }
+  for(const [x, y, r, s, col] of L.ferns){ c.save(); c.filter = 'blur(' + (2.2 * u * RES) + 'px)'; fern(c, x, y, r, s * u / (L.W > 1000 ? 1.8 : 0.9), col); c.restore(); }
+
+  vignette(c, W, H, 0.28);
+
+  /* title last so nothing covers it */
+  title(c, L.title[0], L.title[1], L.title[2], L.title[3]);
+  window.DONE = true;
+}
+
+(async () => {
+  const q = new URLSearchParams(location.search), k = q.get('layout') || 'land';
+  RES = +(q.get('res') || 1);
+  await document.fonts.load('700 100px Fredoka');
+  render(LAYOUTS[k]);
+})();
+</script>
+</body></html>
