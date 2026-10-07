@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Punch Horde</title>
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+  <script type="module" crossorigin src="./assets/index-0ZsRzBCi.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DJF-YdSg.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="view"></canvas>
+    <div id="floaters"></div>
+    <div id="eventDmg"></div>
+
+    <!-- Top bar: settings + currencies (always visible) -->
+    <div id="topbar">
+      <button id="btnSettings" class="icon-btn" aria-label="Settings"></button>
+      <div id="currencies"></div>
+    </div>
+
+    <!-- Battle HUD -->
+    <div id="hud">
+      <div id="stageBox">
+        <button id="btnSpeed" class="pill-btn"></button>
+        <div id="stageBar"><div id="stageFill"></div><span id="stageBoss"></span></div>
+        <div id="stageLabel"></div>
+      </div>
+      <div id="bossBar" class="hidden"><div id="bossFill"></div><span>BOSS</span></div>
+      <button id="btnEvent" class="side-btn"></button>
+      <div id="hudBottom">
+        <div id="hpRow">
+          <span id="hpIcon"></span>
+          <div id="hpBar"><div id="hpFill"></div><span id="hpText"></span></div>
+        </div>
+        <div id="xpRow">
+          <span id="lvlBadge">1</span>
+          <div id="xpBar"><div id="xpFill"></div></div>
+        </div>
+        <button id="mission"></button>
+      </div>
+      <div id="joyBase" class="hidden"><div id="joyKnob"></div></div>
+      <div id="hint">Drag to move · punching is automatic</div>
+    </div>
+
+    <!-- Event HUD -->
+    <div id="eventHud" class="hidden">
+      <div id="evTimer">20</div>
+      <div id="evTotal">0</div>
+      <div id="evTip">TAP FAST TO PUNCH HARDER!</div>
+    </div>
+
+    <!-- Meta screens -->
+    <div id="screens">
+      <section id="scr-pet" class="screen"></section>
+      <section id="scr-talents" class="screen"></section>
+      <section id="scr-inventory" class="screen"></section>
+      <section id="scr-ring" class="screen"></section>
+    </div>
+
+    <nav id="nav">
+      <button data-tab="pet"></button>
+      <button data-tab="talents"></button>
+      <button data-tab="battle" class="active"></button>
+      <button data-tab="inventory"></button>
+      <button data-tab="ring"></button>
+    </nav>
+
+    <!-- Modals -->
+    <div id="modal" class="hidden"><div id="modalCard"></div></div>
+
+    <div id="loading">
+      <img class="load-logo" src="./assets/logo-BF4sQLyi.webp" alt="Punch Horde" draggable="false" />
+      <div class="load-bar"><div id="loadFill"></div></div>
+    </div>
+    <div id="toast"></div>
+    <div id="adShield" class="hidden"></div>
+  </div>
+</body>
+</html>

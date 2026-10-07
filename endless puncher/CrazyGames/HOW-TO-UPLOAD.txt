@@ -1,0 +1,37 @@
+PUNCH HORDE - CrazyGames upload
+================================
+
+1) GAME FILES
+   Open the CrazyGames Developer Portal -> your game -> upload HTML5 build.
+   Open the folder "1-GAME-FILES", select everything inside it (Ctrl+A:
+   index.html + assets) and drag THOSE into the upload area.
+   Do NOT drag the "1-GAME-FILES" folder itself: then every path starts
+   with "1-GAME-FILES/" and index.html is no longer at the root.
+   The upload list must show "index.html" and "assets/..." directly.
+   (Alternative: upload marketing/punch-horde-crazygames.zip, which already
+   has index.html at the root.)
+
+   Upload form answers:
+   - Game saves progress: "Yes, using the Data Module from the CrazyGames SDK"
+   - Supports mobile devices: YES
+   - Online multiplayer: NO
+   - Supports CrazyGames muting audio through SDK: YES
+
+   Settings in the portal:
+   - Engine / type: HTML5
+   - Orientation: both (portrait + landscape)
+   - SDK: v3 (already integrated)
+
+2) COVERS AND VIDEOS  (folder "2-COVERS-AND-VIDEOS")
+   - Landscape cover 16:9  -> cover-landscape-1920x1080.png
+   - Portrait cover 2:3    -> cover-portrait-800x1200.png
+   - Square cover 1:1      -> cover-square-800x800.png
+   - Landscape video       -> preview-landscape-1920x1080.mp4
+   - Portrait video        -> preview-portrait-1080x1620.mp4
+
+3) LISTING TEXT
+   Title, description, controls and tags are in SUBMISSION.md
+   (copy-paste into the form).
+
+Tip: after uploading, open the game in the portal's preview/QA mode once
+and check ads, sound and saving there.
