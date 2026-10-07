@@ -1,0 +1,8 @@
+{
+  "_comment": "Super throw badges. Keys are the power types in config.POWERS.types. Each file is optional - a missing or unlisted one falls back to the shape the renderer draws procedurally. The art is a complete badge (its own ring, fill and glow), so it replaces the drawn orb face rather than sitting inside it. Square-ish transparent PNG, 96px or larger, artwork filling the frame.",
+  "icons": {
+    "fire": "fire.png",
+    "ice": "ice.png",
+    "multi": "multiball.png"
+  }
+}

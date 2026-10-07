@@ -1,0 +1,101 @@
+{
+  "_comment": "'price' is what the character costs in coins; 0 or absent means free from the start. 'hair' is one of short | long | ponytail | bun | curly | buzz, and 'outfit' one of tank | tee | jersey | twopiece | wetsuit | vest - together with the palette they are what makes one character look like a different person rather than the same one in a different shirt. Every sprite key is OPTIONAL - anything missing is drawn procedurally, so the game always runs. Use either a single 'full' sprite (whole character, feet at the bottom edge) OR the separate parts (head/body/hat). Recommended sizes: full 220x260, head 120x120, body 110x150, hat 130x90. Transparent PNG, feet-down, facing RIGHT.",
+  "characters": [
+    {
+      "id": "kai",
+      "price": 0,
+      "name": "Kai",
+      "hair": "short",
+      "outfit": "tank",
+      "palette": {
+        "skin": "#e8b184",
+        "hair": "#2b1a10",
+        "top": "#2f6fe0",
+        "bottom": "#14306b",
+        "shoe": "#ffffff",
+        "accent": "#ffd34d"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "luna",
+      "price": 0,
+      "name": "Luna",
+      "hair": "ponytail",
+      "outfit": "twopiece",
+      "palette": {
+        "skin": "#f4d0ae",
+        "hair": "#f0a91b",
+        "top": "#e0392f",
+        "bottom": "#7a1a14",
+        "shoe": "#111827",
+        "accent": "#ffe27a"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "rico",
+      "price": 400,
+      "name": "Rico",
+      "hair": "curly",
+      "outfit": "jersey",
+      "palette": {
+        "skin": "#8d5a3b",
+        "hair": "#161616",
+        "top": "#37c24a",
+        "bottom": "#155e2b",
+        "shoe": "#ffffff",
+        "accent": "#c6ff8f"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "mei",
+      "price": 600,
+      "name": "Mei",
+      "hair": "bun",
+      "outfit": "tee",
+      "palette": {
+        "skin": "#f2c6a0",
+        "hair": "#5b21b6",
+        "top": "#a855f7",
+        "bottom": "#4c1d95",
+        "shoe": "#fde68a",
+        "accent": "#f5d0fe"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "surfer",
+      "price": 900,
+      "name": "Surfer",
+      "hair": "long",
+      "outfit": "wetsuit",
+      "palette": {
+        "skin": "#d99a6c",
+        "hair": "#f5e6a8",
+        "top": "#00b4d8",
+        "bottom": "#0077b6",
+        "shoe": "#ffb703",
+        "accent": "#caf0f8"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "lifeguard",
+      "price": 1200,
+      "name": "Lifeguard",
+      "hair": "buzz",
+      "outfit": "vest",
+      "palette": {
+        "skin": "#f0bd94",
+        "hair": "#7c2d12",
+        "top": "#ef4444",
+        "bottom": "#fbbf24",
+        "shoe": "#ffffff",
+        "accent": "#fee2e2"
+      },
+      "sprites": {}
+    }
+  ]
+}

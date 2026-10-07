@@ -1,0 +1,301 @@
+:root{
+    --bg:#eef4fb;
+    --ink:#1a2338;
+    --blue:#2f7fe0;
+    --blue-dark:#2166bd;
+    --heart:#ff3355;
+    --arrow:#15181f;
+    --dot:#c8d6e6;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+  body{
+    font-family:"Fredoka","Trebuchet MS",system-ui,sans-serif;font-weight:600;
+    background:var(--bg);color:var(--ink);overflow:hidden;user-select:none;
+  }
+  /* ------------------------------------------------------------------
+     Layout
+
+     One grid, two arrangements. Portrait stacks HUD / board / controls.
+     Short landscape moves the HUD and controls into a side rail, because
+     that is where vertical space is scarce and horizontal space is not.
+
+     Every grid and flex child gets min-width:0. Without it, grid children
+     default to min-width:auto and the widest item (the chip row) forces
+     the whole column wider than the viewport, pushing the board off
+     screen. That was the bug on phones.
+     ------------------------------------------------------------------ */
+  #app{
+    height:100dvh;
+    width:100vw;
+    max-width:100vw;
+    overflow:hidden;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr) auto;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"hud" "stage" "controls";
+  }
+  #app > *{min-width:0;min-height:0}
+  #hud{grid-area:hud}
+  #stage{grid-area:stage}
+  #controls{grid-area:controls}
+
+  /* ---------------- top bar ---------------- */
+  #topbar{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px 6px;min-width:0;
+  }
+  .iconbtn{
+    width:38px;height:38px;flex:0 0 auto;border:0;border-radius:50%;
+    background:#fff;color:#5b6b86;cursor:pointer;display:grid;place-items:center;
+    box-shadow:0 2px 5px rgba(30,50,90,.14);
+  }
+  .iconbtn:active{transform:scale(.94)}
+  .iconbtn svg{width:20px;height:20px}
+  .spacer{flex:1 1 auto}
+  .hearts{display:flex;gap:3px}
+  .hearts svg{width:24px;height:24px;transition:opacity .2s,transform .2s}
+  .hearts .gone{opacity:.3;transform:scale(.82)}
+
+  #subbar{
+    display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;gap:6px;
+    padding:0 12px 4px;min-width:0;
+  }
+  .chip{
+    display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;
+    padding:4px 13px;font-size:14px;color:#41506b;box-shadow:0 2px 5px rgba(30,50,90,.1);
+  }
+  .chip svg{width:14px;height:14px}
+  .chip b{color:var(--ink);font-weight:700}
+  #shapeName{font-size:13px;color:#7b8aa4;font-weight:500}
+
+  /* ---------------- stage ---------------- */
+  #stage{position:relative;overflow:hidden}
+  #cv{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
+  #stage.shake{animation:shake .26s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-7px)}
+    55%{transform:translateX(6px)}
+    80%{transform:translateX(-3px)}
+  }
+  #flash{position:absolute;inset:0;background:#ff3355;opacity:0;pointer-events:none;transition:opacity .3s}
+  #flash.on{opacity:.16;transition:opacity 0s}
+
+  /* ---------------- bottom bar ---------------- */
+  #controls{
+    display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;gap:12px;
+    padding:6px 12px 14px;min-width:0;
+  }
+  .bigbtn{
+    position:relative;width:56px;height:56px;border:0;border-radius:50%;
+    background:#fff;cursor:pointer;display:grid;place-items:center;
+    box-shadow:0 4px 10px rgba(30,50,90,.18);
+  }
+  .bigbtn:active{transform:scale(.94)}
+  .bigbtn:disabled{opacity:.45;cursor:default}
+  .bigbtn svg{width:26px;height:26px;color:#8d5cf6}
+  .badge{
+    position:absolute;top:-3px;right:-3px;min-width:21px;height:21px;border-radius:11px;
+    background:#3fb950;color:#fff;font-size:12px;font-weight:700;
+    display:grid;place-items:center;padding:0 5px;border:2px solid var(--bg);
+  }
+  .zoomgrp{display:flex;gap:8px}
+  .zbtn{
+    width:40px;height:40px;border:0;border-radius:50%;background:#fff;color:var(--blue);
+    font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 3px 7px rgba(30,50,90,.14);
+  }
+  .zbtn:active{transform:scale(.94)}
+  #arrowsLeft{font-size:13px;color:#7b8aa4;font-weight:500;text-align:center;min-width:0}
+
+  /* ---------------- overlays ---------------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,34,60,.5);display:none;
+    place-items:center;padding:20px;z-index:30}
+  .overlay.show{display:grid}
+  .panel{
+    background:#fff;border-radius:24px;width:min(390px,100%);padding:24px 22px 18px;
+    text-align:center;box-shadow:0 18px 40px rgba(16,30,60,.3);
+    max-height:86dvh;overflow:auto;
+  }
+  .panel h2{margin:0 0 6px;font-size:25px;font-weight:700}
+  .panel p{margin:0 0 14px;font-size:15px;font-weight:500;color:#5d6d88;line-height:1.55}
+  .stats{display:flex;justify-content:center;gap:26px;margin:12px 0 18px}
+  .stat b{display:block;font-size:21px}
+  .stat span{font-size:12px;font-weight:500;color:#8494ae}
+  .btn{
+    display:block;width:100%;margin-top:9px;padding:12px;border:0;border-radius:15px;
+    background:var(--blue);color:#fff;font-family:inherit;font-size:17px;font-weight:700;
+    cursor:pointer;box-shadow:0 4px 0 var(--blue-dark);
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--blue-dark)}
+  .btn.ghost{background:#eaf1fb;color:var(--blue-dark);box-shadow:0 4px 0 #cfe0f5}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:11px 2px;
+    border-bottom:1px solid #eaeff7;font-size:15px}
+  .row:last-of-type{border-bottom:0}
+  .seg{display:flex;gap:4px}
+  .seg button{border:0;background:#eef3fa;color:#5d6d88;font-family:inherit;font-weight:600;
+    font-size:13px;padding:6px 11px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:var(--blue);color:#fff}
+  .toggle{width:50px;height:28px;border-radius:14px;border:0;background:#cfd9e8;position:relative;cursor:pointer}
+  .toggle::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;
+    border-radius:50%;background:#fff;transition:left .16s}
+  .toggle.on{background:var(--blue)}
+  .toggle.on::after{left:25px}
+  .howto{font-size:13.5px;font-weight:500;color:#6b7b96;line-height:1.65;text-align:left;margin:14px 0 2px}
+
+  /* level select */
+  .lvGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 6px}
+  .lv{
+    aspect-ratio:1;border:0;border-radius:13px;background:#eef3fa;color:#44557a;
+    font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;
+    display:grid;place-items:center;
+  }
+  .lv.done{background:#d9f3e0;color:#227a44}
+  .lv.cur{background:var(--blue);color:#fff}
+
+/* ---------------- loading screen ---------------- */
+#loader{
+  position:fixed;inset:0;z-index:60;display:grid;place-items:center;
+  background:var(--bg);transition:opacity .35s;
+}
+#loader.gone{opacity:0;pointer-events:none}
+.loaderInner{display:flex;flex-direction:column;align-items:center;gap:14px;width:min(260px,70vw)}
+.loaderMark svg{width:96px;height:36px;fill:none;stroke:var(--arrow);
+  stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.loaderName{font-size:25px;font-weight:700;letter-spacing:.4px}
+.loaderBarWrap{width:100%;height:8px;border-radius:4px;background:#d7e3f2;overflow:hidden}
+.loaderBar{height:100%;width:0;border-radius:4px;background:var(--blue);transition:width .25s}
+#loader .btn{width:180px}
+
+/* ---------------- confetti ---------------- */
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+
+/* ---------------- rewarded button ---------------- */
+.btn.rewarded{
+  background:#3fb950;box-shadow:0 4px 0 #2b8c3a;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn.rewarded svg{width:18px;height:18px}
+
+/* ================= themes ================= */
+body.neon{
+  --bg:#10141f; --ink:#e8eefc; --dot:#232a3d;
+  --card:#1a2132; --cardline:#2a3348; --muted:#8f9dba;
+}
+body.paper{
+  --bg:#eef4fb; --ink:#1a2338; --dot:#c8d6e6;
+  --card:#ffffff; --cardline:#eaeff7; --muted:#7b8aa4;
+}
+body{background:var(--bg);color:var(--ink);transition:background .3s,color .3s}
+#loader{background:var(--bg)}
+.iconbtn,.chip,.bigbtn,.zbtn{background:var(--card);color:var(--ink)}
+body.neon .iconbtn,body.neon .chip,body.neon .bigbtn,body.neon .zbtn{
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
+}
+body.neon .chip b{color:var(--ink)}
+body.neon .panel{background:var(--card);color:var(--ink)}
+body.neon .panel p,body.neon .howto,body.neon .stat span,body.neon #shapeName,
+body.neon #arrowsLeft{color:var(--muted)}
+body.neon .row{border-bottom-color:var(--cardline)}
+body.neon .seg button{background:#242d42;color:#b9c6e0}
+body.neon .seg button.on{background:var(--blue);color:#fff}
+body.neon .lv{background:#242d42;color:#b9c6e0}
+body.neon .lv.done{background:#1f4d33;color:#8ce5ab}
+body.neon .btn.ghost{background:#242d42;color:#cfe0ff;box-shadow:0 4px 0 #161d2c}
+body.neon .toggle{background:#39435c}
+body.neon .loaderMark svg{stroke:var(--ink)}
+body.neon .loaderBarWrap{background:#242d42}
+
+/* ================= progress ================= */
+.progWrap{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.progBar{width:clamp(64px,22vw,92px);height:6px;border-radius:3px;background:var(--dot);overflow:hidden}
+.progFill{height:100%;width:0;border-radius:3px;background:var(--blue);transition:width .25s}
+
+/* ================= powerups ================= */
+.powers{display:flex;gap:10px;min-width:0}
+.bigbtn.bomb svg{color:#ff7a45}
+.bigbtn.reveal svg{color:#24b3c4}
+.bigbtn.armed{outline:3px solid #ff7a45;outline-offset:2px}
+
+/* ================= combo ================= */
+#combo{
+  position:absolute;top:14px;left:50%;transform:translate(-50%,-14px);
+  display:flex;align-items:baseline;gap:5px;opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;z-index:6;
+}
+#combo.show{opacity:1;transform:translate(-50%,0)}
+#combo b{font-size:30px;font-weight:700;color:#ffb020;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+#combo span{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+
+/* ================= stars ================= */
+.starRow{display:flex;justify-content:center;gap:8px;margin-bottom:6px}
+.starRow svg{width:38px;height:38px}
+.starRow .off{opacity:.25}
+.lv{position:relative}
+.lv .lvStars{position:absolute;bottom:3px;left:0;right:0;font-size:9px;line-height:1;color:#ffb020}
+
+/* instrument readout */
+.instChip{font-size:13px}
+body.neon .instChip{color:#8ce0ff}
+body.paper .instChip{color:#2166bd}
+
+/* ==================================================================
+   Responsive overrides
+
+   These live at the end on purpose. Media queries carry no extra
+   specificity, so if they sit above the component rules the plain
+   rules win and the overrides silently do nothing — which is exactly
+   what happened: the landscape rail kept full-size buttons and the
+   third powerup hung off the screen edge.
+   ================================================================== */
+/* Short landscape — phones and small tablets held sideways. Keyed on
+   height, not just orientation, so a roomy desktop window keeps the
+   stacked layout instead of growing a pointless side rail. */
+@media (orientation:landscape) and (max-height:600px){
+  #app{
+    grid-template-columns:minmax(0,1fr) clamp(116px, 21vw, 168px);
+    grid-template-rows:auto minmax(0,1fr);
+    grid-template-areas:"stage hud" "stage controls";
+  }
+  #topbar{padding:8px 8px 2px;gap:6px}
+  #topbar .spacer{display:none}
+  #topbar{flex-wrap:wrap;justify-content:center}
+  #subbar{flex-direction:column;gap:4px;padding:0 6px 4px}
+  #controls{
+    flex-direction:column;gap:10px;
+    justify-content:flex-start;align-items:center;
+    padding:2px 6px 10px;
+  }
+  .powers{gap:8px}
+  .progWrap{order:-1;min-width:0}
+  .progBar{width:clamp(70px,17vw,110px)}
+}
+
+/* Really tight landscape: shrink every control so the rail still fits. */
+@media (orientation:landscape) and (max-height:430px){
+  .iconbtn{width:32px;height:32px}
+  .iconbtn svg{width:17px;height:17px}
+  .hearts svg{width:18px;height:18px}
+  .chip{padding:2px 8px;font-size:11px}
+  .chip svg{width:11px;height:11px}
+  .bigbtn{width:42px;height:42px}
+  .bigbtn svg{width:19px;height:19px}
+  .badge{min-width:17px;height:17px;font-size:10px}
+  .zbtn{width:32px;height:32px;font-size:16px}
+  #shapeName{font-size:10px}
+  #arrowsLeft{font-size:10px;min-width:0}
+  .powers{gap:6px}
+}
+
+/* Roomy screens: keep the board from sprawling edge to edge. */
+@media (orientation:landscape) and (min-height:601px){
+  #stage{justify-self:center;width:100%}
+}
+
+
+/* save state note */
+.saveNote{font-size:12px;font-weight:500;color:var(--muted);margin:12px 0 2px;text-align:left}
+.btn.ghost.danger{color:#c2405a;background:#fdeaee;box-shadow:0 4px 0 #f3ccd5}
+body.neon .btn.ghost.danger{color:#ff8fa3;background:#3a2430;box-shadow:0 4px 0 #241620}

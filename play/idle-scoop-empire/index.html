@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Scoop Empire</title>
+    <!-- CrazyGames SDK v3. The game runs fine without it (sdk.ts falls back to no-ops). -->
+    <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+    <script type="module" crossorigin src="./assets/index-CUEmTnMy.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BToGOyKC.css">
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+
+    <div id="hud">
+      <div id="money-box"><img id="money-icon" alt="" /><span id="money">$0</span></div>
+      <div id="pop-box" class="hidden"><span class="star">★</span><div class="bar"><div id="pop-fill"></div></div><span id="pop-val">0</span></div>
+      <div id="loc-name"></div>
+      <div id="hint"></div>
+    </div>
+
+    <button id="boost-btn"><img src="./assets/ad-BO5Eq5Dp.webp" alt="" /><span class="txt"><b>2x Cash</b><small id="boost-sub">60s</small></span></button>
+    <button id="world-btn"><span class="globe">🌍</span><b>World</b></button>
+
+    <div id="top-right">
+      <button id="settings-btn" title="Settings"><img src="./assets/gear-m1PAX5ZV.webp" alt="Settings" /></button>
+    </div>
+
+    <div id="settings" class="hidden">
+      <div class="card">
+        <h3>Settings</h3>
+        <label>🎵 Music <input id="music-vol" type="range" min="0" max="100" /><span id="music-val"></span></label>
+        <label>🔊 Sound FX <input id="sfx-vol" type="range" min="0" max="100" /><span id="sfx-val"></span></label>
+        <div class="row">
+          <button id="reset-btn" class="danger">Reset progress</button>
+          <button id="settings-close">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="world" class="modal hidden">
+      <div class="card">
+        <h3>🌍 World Map</h3>
+        <div id="world-list"></div>
+        <div class="row"><button id="world-close">Close</button></div>
+      </div>
+    </div>
+
+    <div id="upgrades" class="hidden">
+      <h3 id="upg-title">Upgrades</h3>
+      <div id="upg-list"></div>
+    </div>
+
+    <div id="toast"></div>
+    <div id="loc-banner"></div>
+    <div id="floats"></div>
+    <div id="joy-base"><div id="joy-knob"></div></div>
+    <div id="loading">
+      <div class="art">
+        <div class="label">Loading...</div>
+        <div class="bar"><div id="load-fill"></div></div>
+      </div>
+    </div>
+
+  </body>
+</html>

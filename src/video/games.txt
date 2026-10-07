@@ -1,8 +1,10 @@
 Arrow Out
+url: play/arrow-out/
 tags: Puzzle, Casual
 Slide the glowing arrows off the board — plan the right order so none of them get stuck.
 
 Beach Volley Clash
+url: play/beach-volley-clash/
 tags: Sports, Arcade
 Fast beach-volleyball duels: time your jumps and smash the ball past your rival.
 
@@ -15,6 +17,7 @@ tags: Action, Arcade
 Punch through endless crowds and grow stronger with every wave you knock down.
 
 Idle Scoop Empire
+url: play/idle-scoop-empire/
 tags: Idle, Tycoon
 Serve customers, upgrade your stations and grow a tiny ice-cream stand into a scoop empire.
 
@@ -27,17 +30,31 @@ tags: Merge, Strategy
 Pack your bag, merge your weapons and lead the cat mafia into battle.
 
 Paddle Royal
+url: play/paddle-royal/
 tags: Multiplayer, Arcade
 A paddle battle royale for up to 8 players — open a private room and invite your friends.
 
 Piniata Payday
+url: play/piniata-payday/
 tags: Casual, Arcade
 Smash colourful piñatas and grab every reward that bursts out.
 
 Tiny Tandem
+url: play/tiny-tandem/
 tags: Co-op, Platformer
 A two-player co-op platformer: work together to get both tiny heroes to the goal.
 
 Wild Gambit
+url: play/wild-gambit/
 tags: Strategy, Board
 Chess with a wild twist — play cards that bend the rules of the board.
+
+Astro War
+url: play/astro-war/
+tags: Runner, Shooter
+Dodge asteroids, pick the right gates and grow your squad to fight off the alien invasion.
+
+Dungeon.io
+url: play/dungeon-io/
+tags: Roguelite, Action
+Survive ten minutes in the dungeon — your spells cast themselves, you pick the cards.

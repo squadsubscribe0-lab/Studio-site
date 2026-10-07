@@ -28,6 +28,17 @@ This writes `index.html`, `games/<slug>/`, `devlog/`, `devlog/<slug>/`, `404.htm
 
 Clips are cropped to portrait and trimmed to 12 s. Each is saved as MP4 + WebM with a poster frame. Games without a link show "Play link coming soon". With no clips in the folder, the placeholder entries from `webGames` in the config are shown.
 
+### Playable games (`play/`)
+Every game's playable build is copied into `play/<slug>/`, so it is hosted with the site at `…/Studio-site/play/<slug>/`. The list of games and which folder each build comes from is in [`scripts/games.mjs`](scripts/games.mjs).
+
+After updating a game in its own folder (e.g. `Royal Paddle/game-files`), run:
+
+```bash
+npm run games    # re-copies every build into play/
+```
+
+The carousel's **Play now** button uses the `url:` line in `src/video/games.txt` (e.g. `url: play/paddle-royal/`).
+
 ### Adding a game or devlog post
 Copy an existing entry in `games` or `devlog`, change the `slug` and the text, then run `node build.mjs`. Posts are sorted by date automatically. The home page shows the latest three, and every post gets its own page.
 
