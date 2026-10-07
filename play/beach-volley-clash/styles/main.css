@@ -1,0 +1,585 @@
+/* Beach Volley Clash — UI skin.
+   The look is copied from the reference game: chunky dark-navy panels,
+   thick outlines, saturated team colours, everything floating over the field. */
+
+:root{
+  --navy:#101a33;
+  --navy-2:#182647;
+  --ink:#05080f;
+  --line:#0b1122;
+  --blue:#2f6fe0;
+  --blue-d:#1a4aa8;
+  --red:#e0392f;
+  --red-d:#a41f18;
+  --yellow:#ffc31e;
+  --yellow-d:#c98a00;
+  --green:#37c24a;
+  --green-d:#1f8a2e;
+  --grey:#5b6a86;
+  --grey-d:#3a465c;
+  --sand:#f2d39b;
+  --white:#ffffff;
+  --radius:14px;
+  /* Keep in step with HUD_FONT in src/game/renderer.js - the HUD is DOM and
+     the popups are canvas, and they have to be the same typeface. */
+  --hud-font:"Baloo 2","Fredoka","Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* Legibility floor. The overlay scales with the canvas, and CrazyGames QA
+     reads the game at devicePixelRatio 1 in frames as small as 821x462, where
+     the smaller labels used to land at 5-7px. Anything set below 1em is
+     written as max(<em>, var(--min-text)) so it can shrink no further. */
+  --min-text:11px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  height:100%;overflow:hidden;background:#0a1424;
+  /* Everything a browser does to a touch drag by default is wrong here: pinch
+     zoom on a double tap, rubber-band scroll, pull-to-refresh mid-rally. */
+  touch-action:none;
+  overscroll-behavior:none;
+  /* All four prefixes: CrazyGames call this out for tablets, where a missing
+     one lets a drag select the UI text instead of playing the game. */
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
+body{
+  font-family:var(--hud-font);
+  color:var(--white);
+  -webkit-font-smoothing:antialiased;
+  user-select:none;
+  cursor:default;
+}
+.hidden{display:none !important}
+
+#stage{position:fixed;inset:0;display:grid;place-items:center;background:#0a1424;touch-action:none}
+
+/* One row set per input device. ui/touch.js puts .touch on <body> when it
+   decides the player is on glass. */
+body.touch .keys-only{display:none !important}
+body:not(.touch) .touch-only{display:none !important}
+#game{display:block;image-rendering:auto}
+
+/* #overlay is resized by main.js so it sits exactly over the drawn canvas rect.
+   All HUD coordinates below are relative to that rect. */
+#overlay{
+  position:absolute;
+  pointer-events:none;
+  font-size:16px;
+}
+#overlay button,#overlay select,#overlay input,#overlay .card{pointer-events:auto}
+
+/* ---------------- HUD ---------------- */
+#hud{position:absolute;inset:0}
+
+.pill{
+  display:inline-flex;align-items:center;gap:.4em;
+  background:var(--navy);
+  border:3px solid var(--ink);
+  border-radius:999px;
+  padding:.35em .9em;
+  font-weight:800;font-size:1em;letter-spacing:.02em;
+  box-shadow:0 3px 0 rgba(0,0,0,.45);
+  color:#fff;
+}
+.pill-flat{border-radius:10px;font-size:max(.85em,var(--min-text));padding:.4em .8em;cursor:pointer}
+.pill-flat:hover{background:var(--navy-2)}
+
+.hud-left{position:absolute;top:1.2%;left:1%;display:flex;gap:.6em}
+.hud-right{position:absolute;top:1.2%;right:1%;display:flex;gap:.5em;flex-wrap:wrap;justify-content:flex-end;max-width:34%}
+.pill-mult{background:var(--yellow);color:#4a2c00;border-color:var(--ink);font-size:max(.85em,var(--min-text))}
+
+.ic-coin,.ic-crown,.ic-trophy{width:1em;height:1em;display:inline-block;border-radius:50%}
+.ic-coin{background:radial-gradient(circle at 35% 30%,#ffe27a,#f0a91b 70%);border:2px solid #8a5c00}
+.ic-crown{background:linear-gradient(#ffd75e,#f0a91b);clip-path:polygon(0 100%,0 35%,25% 60%,50% 10%,75% 60%,100% 35%,100% 100%);border-radius:2px}
+.ic-trophy{background:linear-gradient(#7fd6ff,#2f9fe0);clip-path:polygon(20% 0,80% 0,80% 45%,60% 70%,60% 90%,80% 100%,20% 100%,40% 90%,40% 70%,20% 45%);border-radius:2px}
+
+/* Scoreboard — blue block, clock, red block, names underneath */
+.scoreboard{
+  position:absolute;top:1%;left:50%;transform:translateX(-50%);
+  display:grid;grid-template-columns:auto 1fr auto;align-items:stretch;
+  background:var(--navy);
+  border:4px solid var(--ink);
+  border-radius:var(--radius);
+  min-width:min(30%,420px);
+  padding:6px;gap:8px;
+  box-shadow:0 5px 0 rgba(0,0,0,.45);
+}
+.score-box{
+  display:grid;place-items:center;
+  width:3.4em;height:3.4em;border-radius:12px;
+  font-size:1.6em;font-weight:900;
+  border:3px solid rgba(0,0,0,.55);
+}
+.score-left{background:linear-gradient(var(--blue),var(--blue-d))}
+.score-right{background:linear-gradient(var(--red),var(--red-d))}
+.score-mid{display:grid;place-items:center;padding:0 1.2em}
+.clock{font-size:1.8em;font-weight:900;line-height:1}
+.target{font-size:max(.75em,var(--min-text));font-weight:800;color:#8fd0ff;letter-spacing:.08em;white-space:nowrap}
+.name{position:absolute;top:100%;margin-top:2px;font-size:max(.75em,var(--min-text));font-weight:800;opacity:.9;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+.name-left{left:6px}
+.name-right{right:6px}
+
+/* Control legend for new players.
+   This replaced a modal lesson box that sat under the scoreboard, over the
+   court, and had to be read before you could play. It lives in the bottom-left
+   corner instead, states every control at once, and is removed for good the
+   moment the player has used the basics. */
+.coach{
+  position:absolute;left:1.1em;bottom:1.1em;
+  display:flex;flex-direction:column;gap:.4em;align-items:flex-start;
+  background:rgba(10,18,38,.72);border:3px solid var(--ink);border-radius:var(--radius);
+  padding:.7em .8em;
+  box-shadow:0 4px 0 rgba(0,0,0,.4);
+  animation:coachIn .35s ease-out;
+}
+.coach-row{display:flex;align-items:center;gap:.35em;font-size:max(.72em,var(--min-text));font-weight:800}
+.coach-row em{font-style:normal;opacity:.88;margin-left:.2em}
+.kc{
+  display:inline-grid;place-items:center;min-width:1.9em;height:1.9em;padding:0 .35em;
+  background:#fff;color:#101a33;border:3px solid var(--ink);border-radius:7px;
+  box-shadow:0 3px 0 rgba(0,0,0,.5);
+  font-weight:900;font-size:max(.9em,var(--min-text));line-height:1;
+}
+.kc-wide{min-width:4.6em}
+.coach-skip{
+  margin-top:.15em;align-self:stretch;
+  background:var(--grey);border:3px solid var(--ink);border-radius:8px;
+  color:#fff;font-family:inherit;font-weight:900;font-size:max(.7em,var(--min-text));letter-spacing:.04em;
+  padding:.35em .6em;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.5);
+}
+.coach-skip:hover{background:var(--grey-d)}
+.coach-skip:active{transform:translateY(2px);box-shadow:none}
+@keyframes coachIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.rally{
+  position:absolute;top:26%;left:50%;transform:translateX(-50%);
+  font-size:2.4em;font-weight:900;color:var(--yellow);
+  -webkit-text-stroke:4px var(--ink);paint-order:stroke fill;
+  animation:pop .35s ease-out;
+}
+@keyframes pop{from{transform:translateX(-50%) scale(.6);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+
+.touchpips{position:absolute;top:20%;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.touchpips i{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(0,0,0,.5)}
+.touchpips i.on{background:var(--yellow)}
+
+/* ---------------- Screens ---------------- */
+#screens{position:absolute;inset:0}
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9em;
+  /* Short windows used to clip whatever did not fit - on the character screen
+     that was the ball names and the BACK button. Scroll instead of hiding. */
+  overflow-y:auto;
+  /* A flat 72% scrim over the whole canvas made the first thing a player sees
+     a murky navy rectangle. The beach is the selling point, so the scrim is now
+     a soft vignette: dark enough behind the button column to keep the labels
+     legible, thin at the edges so the art still reads. */
+  background:radial-gradient(125% 95% at 50% 46%,
+    rgba(6,14,30,.66) 0%, rgba(6,14,30,.44) 52%, rgba(6,14,30,.30) 100%);
+  backdrop-filter:blur(2px) saturate(1.06);
+  pointer-events:auto;
+  padding:4%;
+}
+#scrLoading{background:linear-gradient(#0e2b53,#0a1424)}
+
+.logo{display:flex;flex-direction:column;align-items:center;line-height:.86;text-align:center}
+.logo span{font-weight:900;-webkit-text-stroke:6px var(--ink);paint-order:stroke fill;text-shadow:0 6px 0 rgba(0,0,0,.35)}
+.logo-a{font-size:3.2em;color:var(--sand)}
+.logo-b{font-size:4.6em;color:var(--yellow)}
+.logo-c{font-size:3.2em;color:#7fd6ff}
+.logo.small .logo-a{font-size:2em}
+.logo.small .logo-b{font-size:2.8em}
+.logo.small .logo-c{font-size:2em}
+
+.screen-title{font-size:2em;font-weight:900;-webkit-text-stroke:5px var(--ink);paint-order:stroke fill}
+.screen-sub{font-size:1.1em;font-weight:800;opacity:.9}
+
+.menu-col{display:flex;flex-direction:column;gap:.7em;min-width:min(46%,320px)}
+.row{display:flex;gap:.8em;flex-wrap:wrap;justify-content:center;align-items:flex-end}
+
+.btn{
+  font-family:inherit;font-weight:900;font-size:1.05em;letter-spacing:.04em;
+  color:#fff;border:4px solid var(--ink);border-radius:12px;
+  padding:.6em 1.4em;cursor:pointer;
+  background:linear-gradient(var(--blue),var(--blue-d));
+  box-shadow:0 5px 0 rgba(0,0,0,.5);
+  transition:transform .06s;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.5)}
+.btn:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.btn-lg{font-size:1.5em;padding:.6em 2em}
+.btn-yellow{background:linear-gradient(var(--yellow),var(--yellow-d));color:#4a2c00}
+.btn-blue{background:linear-gradient(var(--blue),var(--blue-d))}
+.btn-green{background:linear-gradient(var(--green),var(--green-d))}
+.btn-grey{background:linear-gradient(var(--grey),var(--grey-d))}
+
+.mode-grid{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:.8em;max-width:760px}
+.card{
+  font-family:inherit;color:#fff;text-align:center;cursor:pointer;
+  background:var(--navy);border:4px solid var(--ink);border-radius:var(--radius);
+  padding:1em .8em;box-shadow:0 5px 0 rgba(0,0,0,.45);
+  display:flex;flex-direction:column;gap:.25em;
+}
+.card b{font-size:1.5em}
+.card small{font-size:max(.8em,var(--min-text));opacity:.75;font-weight:700}
+.card:hover{background:var(--navy-2);transform:translateY(-2px)}
+.card.selected{outline:4px solid var(--yellow);outline-offset:2px}
+
+/* The cards were taller than the 34vh window they lived in, so on a short
+   window every name was sliced off at the bottom and the section heading
+   collided with the row below. The preview is squatter now and the grids get
+   enough height for one full row plus its label. */
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:.7em;width:min(90%,820px);max-height:44vh;overflow-y:auto;padding:.3em .5em}
+
+/* The character grid is one row at almost every width, and it was growing a
+   scrollbar that revealed about thirty pixels of nothing. max-height was never
+   the cause: the screen is a flex column, so the grid was being *shrunk* below
+   its content and never came near its ceiling. `flex:0 0 auto` stops it being
+   squeezed; the ball grid takes whatever is left and does the scrolling, which
+   it has earned with twelve skins over two rows. */
+.pick-grid{flex:0 0 auto}
+.pick-grid.balls{flex:1 1 auto;max-height:30vh;min-height:8em}
+.pick-grid .card{padding:.5em;gap:0}
+.pick-grid canvas{width:100%;height:auto;display:block}
+.pick-grid .card b{font-size:max(.9em,var(--min-text));margin-top:.25em;line-height:1.1}
+
+/* ---------------- Shop ----------------
+   A locked card still shows its art - you are buying something you can see -
+   but drained of colour so the owned ones read first at a glance. */
+.pick-grid .card.locked canvas{filter:grayscale(.85) brightness(.62)}
+.pick-grid .card.locked b{opacity:.7}
+.pick-grid .card .price{
+  display:inline-flex;align-items:center;gap:.3em;justify-content:center;
+  margin-top:.25em;padding:.1em .5em;
+  background:var(--yellow);color:#4a2c00;border:2px solid var(--ink);border-radius:999px;
+  font-size:max(.72em,var(--min-text));font-weight:900;
+}
+/* Out of reach for now: the price is stated but not dressed up as a button. */
+.pick-grid .card.unaffordable .price{background:var(--grey);color:#e8edf5}
+.pick-grid .card.unaffordable{opacity:.82}
+
+.wallet{
+  display:inline-flex;align-items:center;gap:.4em;
+  background:var(--navy);border:3px solid var(--ink);border-radius:999px;
+  padding:.2em .8em;font-weight:900;font-size:.95em;
+  box-shadow:0 3px 0 rgba(0,0,0,.45);
+}
+.shop-msg{
+  font-weight:900;font-size:max(.9em,var(--min-text));color:var(--green);
+  /* Not the .rally `pop`: that one carries a translateX(-50%) for a centred
+     absolute element and would drag this one off to the left. */
+  animation:shopPop .3s ease-out;
+}
+@keyframes shopPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+.shop-msg.bad{color:var(--yellow)}
+
+.opt{display:flex;flex-direction:column;gap:.3em;font-size:max(.85em,var(--min-text));font-weight:800;opacity:.95}
+.opt.wide{min-width:220px}
+select,input{
+  font-family:inherit;font-weight:800;font-size:1em;color:#fff;
+  background:var(--navy);border:3px solid var(--ink);border-radius:10px;padding:.45em .6em;
+}
+input::placeholder{color:rgba(255,255,255,.4)}
+
+.online-box{display:flex;flex-direction:column;gap:.8em;align-items:center;background:rgba(10,20,40,.75);border:4px solid var(--ink);border-radius:var(--radius);padding:1.2em;min-width:min(90%,520px)}
+.hint{font-size:max(.85em,var(--min-text));font-weight:700;opacity:.8;text-align:center}
+.lobby-list{display:flex;flex-direction:column;gap:.3em;font-size:max(.85em,var(--min-text));font-weight:800;min-height:1em}
+.lobby-list div{background:rgba(255,255,255,.08);border-radius:8px;padding:.3em .7em}
+
+.keys{display:flex;flex-direction:column;gap:.6em;font-size:1em;font-weight:700;background:rgba(10,20,40,.75);border:4px solid var(--ink);border-radius:var(--radius);padding:1.2em 1.6em}
+.keys .dim{opacity:.7;font-size:max(.85em,var(--min-text));margin-top:.4em}
+.key{display:inline-grid;place-items:center;min-width:2em;height:2em;padding:0 .4em;margin-right:.3em;background:#fff;color:#101a33;border-radius:8px;border:3px solid var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.5);font-weight:900;font-size:max(.85em,var(--min-text))}
+
+.result-score{font-size:2.4em;font-weight:900;-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;color:var(--yellow)}
+
+.loadbar{width:min(60%,420px);height:22px;background:rgba(0,0,0,.45);border:4px solid var(--ink);border-radius:999px;overflow:hidden}
+#loadfill{width:0%;height:100%;background:linear-gradient(var(--yellow),var(--yellow-d));transition:width .2s}
+.loadmsg{font-size:max(.9em,var(--min-text));font-weight:700;opacity:.85}
+
+
+/* ---------------- Super throws ---------------- */
+/* Every charged-power surface reads off two custom properties, --pw and
+   --pw-glow, which JS sets from POWER_META. One rule set therefore skins the
+   fireball, the ice ball and the multi ball without repeating itself. */
+
+.charge{
+  /* Flanking the scoreboard, not under it: the space below is where the
+     tutorial banner lives, and a charge you cannot see is a charge you forget
+     you are holding. */
+  position:absolute;top:.2em;
+  display:flex;flex-direction:column;align-items:center;gap:.1em;
+  width:4em;
+  transition:opacity .2s,transform .2s;
+}
+.charge-left{right:calc(100% + .5em)}
+.charge-right{left:calc(100% + .5em)}
+.charge.empty{opacity:0;transform:scale(.6);pointer-events:none}
+.charge canvas{
+  width:3.4em;height:3.4em;display:block;
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.14),transparent 70%);
+  filter:drop-shadow(0 0 .5em var(--pw,#fff));
+  animation:chargePulse 1.1s ease-in-out infinite;
+}
+.charge span{
+  font-size:max(.55em,10px);font-weight:900;letter-spacing:.04em;white-space:nowrap;
+  color:var(--pw-glow,#fff);
+  -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;
+}
+@keyframes chargePulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.09)}
+}
+
+/* Announcement card that slides in when a power is gained or fired */
+.powertoast{
+  position:absolute;top:32%;left:50%;
+  display:flex;align-items:center;gap:.8em;
+  background:linear-gradient(rgba(16,26,51,.96),rgba(8,14,30,.96));
+  border:4px solid var(--ink);
+  border-left:10px solid var(--pw,var(--yellow));
+  border-radius:var(--radius);
+  padding:.7em 1.2em .7em .9em;
+  box-shadow:0 6px 0 rgba(0,0,0,.5),0 0 2.2em -.4em var(--pw,#fff);
+  animation:powerIn .4s cubic-bezier(.2,1.5,.4,1);
+  transform:translateX(-50%);
+}
+.powertoast .pt-icon{width:3.4em;height:3.4em;display:block}
+.pt-text{display:flex;flex-direction:column;line-height:1.15}
+.pt-text b{
+  font-size:1.35em;font-weight:900;letter-spacing:.03em;
+  color:var(--pw-glow,#fff);
+  -webkit-text-stroke:4px var(--ink);paint-order:stroke fill;
+}
+.pt-text small{font-size:max(.8em,var(--min-text));font-weight:800;opacity:.85}
+@keyframes powerIn{
+  from{transform:translateX(-50%) scale(.7) translateY(-14px);opacity:0}
+  to{transform:translateX(-50%) scale(1) translateY(0);opacity:1}
+}
+
+/* Clock warning in the last ten seconds */
+.clock.urgent{color:#ff6b5e;animation:tick .6s steps(2,end) infinite}
+@keyframes tick{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* The touch counter is meaningless while multiball is running */
+.touchpips.off{opacity:.25}
+
+/* Codex screen */
+.btn-purple{background:linear-gradient(#a855f7,#6b21a8)}
+.screen-lead{
+  font-size:max(.9em,var(--min-text));font-weight:700;line-height:1.5;opacity:.9;
+  max-width:min(90%,720px);text-align:center;
+}
+.screen-lead b{color:var(--yellow)}
+.power-grid{display:grid;gap:.8em;width:min(92%,760px)}
+.power-card{
+  display:flex;align-items:center;gap:1em;
+  background:var(--navy);
+  border:4px solid var(--ink);
+  border-left:10px solid var(--pw,var(--yellow));
+  border-radius:var(--radius);
+  padding:.8em 1.1em;
+  box-shadow:0 5px 0 rgba(0,0,0,.45);
+  text-align:left;
+}
+.power-card canvas{width:4em;height:4em;flex:0 0 auto;filter:drop-shadow(0 0 .5em var(--pw,#fff))}
+.power-card div{display:flex;flex-direction:column;gap:.2em}
+.power-card b{
+  font-size:1.2em;font-weight:900;color:var(--pw-glow,#fff);
+  -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;
+}
+.power-card small{font-size:max(.85em,var(--min-text));font-weight:700;opacity:.9}
+.power-card i{font-style:normal;font-size:max(.75em,var(--min-text));font-weight:800;opacity:.6}
+
+/* ---------------- Settings ---------------- */
+.settings-box{
+  display:flex;flex-direction:column;gap:1em;
+  background:rgba(10,20,40,.75);border:4px solid var(--ink);border-radius:var(--radius);
+  padding:1.4em 1.6em;min-width:min(90%,460px);
+}
+.slider-row{display:grid;grid-template-columns:6em 1fr 3em;align-items:center;gap:.9em;font-size:max(.9em,var(--min-text));font-weight:800}
+.slider-row b{text-align:right;font-weight:900;color:var(--yellow);font-size:max(.9em,var(--min-text))}
+.slider-row.check{grid-template-columns:6em auto 1fr}
+.slider-row.check b{text-align:left;color:#8fd0ff;opacity:.8}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  background:transparent;border:none;padding:0;height:1.4em;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:.7em;border-radius:999px;
+  background:rgba(0,0,0,.5);border:3px solid var(--ink);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:1.3em;height:1.3em;border-radius:50%;margin-top:-.42em;
+  background:linear-gradient(var(--yellow),var(--yellow-d));
+  border:3px solid var(--ink);box-shadow:0 2px 0 rgba(0,0,0,.5);
+}
+input[type=range]::-moz-range-track{
+  height:.7em;border-radius:999px;background:rgba(0,0,0,.5);border:3px solid var(--ink);
+}
+input[type=range]::-moz-range-thumb{
+  width:1.3em;height:1.3em;border-radius:50%;
+  background:linear-gradient(var(--yellow),var(--yellow-d));
+  border:3px solid var(--ink);
+}
+input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;
+  width:1.5em;height:1.5em;border-radius:6px;
+  background:var(--navy);border:3px solid var(--ink);cursor:pointer;
+  display:grid;place-items:center;padding:0;
+}
+input[type=checkbox]:checked{background:linear-gradient(var(--green),var(--green-d))}
+input[type=checkbox]:checked::after{content:"";width:.5em;height:.85em;border:solid #fff;border-width:0 4px 4px 0;transform:rotate(42deg) translate(-1px,-2px)}
+
+.result-stats{font-size:max(.9em,var(--min-text));font-weight:800;opacity:.75}
+.hint.dim{opacity:.6;max-width:34em;line-height:1.45}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
+}
+
+/* ---------------- On-screen controls ----------------
+   Sized in vmin rather than the overlay's em scale. Every other HUD element is
+   art that should shrink with the court, but a button is a thumb target: it has
+   to stay the same physical size whatever the canvas is scaled to. */
+.touchpad{
+  position:absolute;inset:0;
+  pointer-events:none;
+}
+.tp-side{
+  position:absolute;bottom:3.5vmin;
+  display:flex;align-items:flex-end;gap:2.2vmin;
+  pointer-events:none;
+}
+.tp-left{left:3.5vmin}
+.tp-right{right:3.5vmin}
+
+.tp-btn{
+  pointer-events:auto;touch-action:none;
+  font-family:inherit;font-weight:900;color:#fff;
+  background:rgba(16,26,51,.62);
+  border:0.55vmin solid var(--ink);
+  border-radius:50%;
+  box-shadow:0 0.7vmin 0 rgba(0,0,0,.45);
+  display:grid;place-items:center;
+  cursor:pointer;
+  /* Below the smallest comfortable target the buttons stop being reliable, so
+     the vmin sizing has a floor in real pixels. */
+  min-width:64px;min-height:64px;
+}
+.tp-btn.held{transform:translateY(0.5vmin);box-shadow:0 0.2vmin 0 rgba(0,0,0,.45);filter:brightness(1.35)}
+
+.tp-move{width:15vmin;height:15vmin;font-size:5.5vmin;line-height:1;background:rgba(16,26,51,.62)}
+.tp-jump{width:18vmin;height:18vmin;font-size:3.4vmin;letter-spacing:.03em;background:rgba(47,111,224,.78)}
+.tp-spike{width:14vmin;height:14vmin;font-size:2.7vmin;letter-spacing:.03em;background:rgba(224,57,47,.78);margin-bottom:4vmin}
+
+/* The legend and the pad share the bottom-left corner on a phone. */
+body.touch .coach{left:auto;right:1.1em;bottom:auto;top:4.2em;max-width:46%}
+
+/* ---------------- Rotate prompt ---------------- */
+#rotate{
+  position:fixed;inset:0;z-index:50;
+  display:grid;place-items:center;
+  background:#0a1424;
+}
+.rotate-card{
+  display:flex;flex-direction:column;align-items:center;gap:.5em;
+  text-align:center;padding:2em;font-size:min(4.5vw,22px);
+}
+.rotate-icon{font-size:3em;animation:tilt 1.8s ease-in-out infinite}
+.rotate-card b{font-size:1.3em}
+.rotate-card span{opacity:.8;font-weight:700;font-size:.85em}
+@keyframes tilt{
+  0%,45%{transform:rotate(0)}
+  60%,100%{transform:rotate(-90deg)}
+}
+
+/* ---------------- Short viewports ----------------
+   A phone in landscape is wide but only a few hundred pixels tall. The picker
+   cards are sized by column width and capped in vh, and on a short-and-wide
+   screen those two disagree - the cards grow past their window and the names
+   get sliced off. Narrow the columns and give the grids more of the height. */
+@media (max-height:540px){
+  .screen{gap:.55em;padding:2.5%}
+  .screen-title{font-size:1.5em}
+  .screen-sub{font-size:1.15em}
+  .pick-grid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));max-height:46vh;gap:.5em}
+  .pick-grid.balls{max-height:34vh}
+  .pick-grid::-webkit-scrollbar,
+  .screen::-webkit-scrollbar{width:10px}
+  .pick-grid .card{padding:.35em}
+  .pick-grid .card b{font-size:max(.72em,var(--min-text))}
+  .mode-grid{grid-template-columns:repeat(3,minmax(110px,1fr));gap:.5em}
+  .card b{font-size:1.15em}
+  .btn{padding:.5em 1em}
+  /* The legend is a first-run aid, and on a screen this short it costs more
+     room than it is worth next to the pad. */
+  body.touch .coach{font-size:.85em}
+}
+
+input.locked{opacity:.8;cursor:default}
+#netNameNote{display:block;margin-top:.2em;font-size:max(.72em,var(--min-text));opacity:.75;font-weight:700}
+
+/* ---------------- Scrollbars ----------------
+   The browser default is a grey system bar dropped into the middle of a chunky
+   cartoon UI, and on the character screen there are two of them side by side.
+   These are built from the same parts as the buttons: ink outline, rounded cap,
+   the blue that means "you can touch this".
+
+   Deliberately always visible rather than the overlay style macOS fades in and
+   out - with twelve balls in a two-row grid, the bar is the only thing telling
+   you there is more below the fold. */
+.pick-grid,
+.screen,
+.lobby-list{
+  scrollbar-width:thin;                       /* Firefox */
+  scrollbar-color:var(--blue) rgba(5,8,15,.45);
+}
+.pick-grid::-webkit-scrollbar,
+.screen::-webkit-scrollbar,
+.lobby-list::-webkit-scrollbar{width:14px;height:14px}
+
+.pick-grid::-webkit-scrollbar-track,
+.screen::-webkit-scrollbar-track,
+.lobby-list::-webkit-scrollbar-track{
+  background:rgba(5,8,15,.45);
+  border-radius:999px;
+  margin:2px;
+}
+.pick-grid::-webkit-scrollbar-thumb,
+.screen::-webkit-scrollbar-thumb,
+.lobby-list::-webkit-scrollbar-thumb{
+  background:linear-gradient(var(--blue),var(--blue-d));
+  border:3px solid var(--ink);
+  border-radius:999px;
+  /* Without this the border paints over the track and the thumb looks welded
+     to the ends of the channel. */
+  background-clip:padding-box;
+  min-height:38px;
+}
+.pick-grid::-webkit-scrollbar-thumb:hover,
+.screen::-webkit-scrollbar-thumb:hover,
+.lobby-list::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(var(--yellow),var(--yellow-d));
+  background-clip:padding-box;
+}
+.pick-grid::-webkit-scrollbar-thumb:active,
+.screen::-webkit-scrollbar-thumb:active,
+.lobby-list::-webkit-scrollbar-thumb:active{
+  background:linear-gradient(var(--yellow-d),var(--yellow-d));
+  background-clip:padding-box;
+}
+/* The little stepper arrows are a desktop-OS idiom and look wrong here. */
+.pick-grid::-webkit-scrollbar-button,
+.screen::-webkit-scrollbar-button,
+.lobby-list::-webkit-scrollbar-button{display:none}
+.pick-grid::-webkit-scrollbar-corner,
+.screen::-webkit-scrollbar-corner{background:transparent}

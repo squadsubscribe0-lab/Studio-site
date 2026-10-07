@@ -1,0 +1,17 @@
+{
+  "_comment": "'price' is what the ball costs in coins; 0 or absent means free from the start. Ball skins. 'sprites.ball' is optional: without it the ball is drawn from 'style' + 'colors'. Sprite should be a square transparent PNG, 128x128, the ball filling the frame. Styles: beach | volley | panels | melon | star | swirl | stripe | dots | eclipse | plain.",
+  "balls": [
+    { "id": "beach",    "price": 0,     "name": "Beach",      "style": "beach",   "colors": ["#ffffff", "#ff5252", "#ffd34d", "#4aa3ff"], "sprites": {} },
+    { "id": "classic",  "price": 0,     "name": "Classic",    "style": "volley",  "colors": ["#ffffff", "#1e40af", "#facc15"], "sprites": {} },
+    { "id": "sunset",   "price": 250,   "name": "Sunset",     "style": "beach",   "colors": ["#fff7e6", "#ff7a1a", "#ff2d75", "#7b2ff7"], "sprites": {} },
+    { "id": "pro",      "price": 300,   "name": "Pro",        "style": "panels",  "colors": ["#ffffff", "#1d4ed8", "#f59e0b"], "sprites": {} },
+    { "id": "melon",    "price": 400,   "name": "Watermelon", "style": "melon",   "colors": ["#e8453c", "#2e8b3a", "#f4f4f4"], "sprites": {} },
+    { "id": "star",     "price": 550,   "name": "Allstar",    "style": "star",    "colors": ["#1e3a8a", "#ffd34d", "#0b1122"], "sprites": {} },
+    { "id": "coconut",  "price": 650,   "name": "Coconut",    "style": "plain",   "colors": ["#8b5a2b", "#5b3a1a"], "sprites": {} },
+    { "id": "cabana",   "price": 800,   "name": "Cabana",     "style": "stripe",  "colors": ["#fff8e6", "#ff5f52", "#2fa8dd"], "sprites": {} },
+    { "id": "neon",     "price": 900,   "name": "Neon",       "style": "volley",  "colors": ["#0b1122", "#39ff14", "#00e5ff"], "sprites": {} },
+    { "id": "polka",    "price": 1000,  "name": "Polka",      "style": "dots",    "colors": ["#fdf2f8", "#ec4899", "#22d3ee"], "sprites": {} },
+    { "id": "vortex",   "price": 1300,  "name": "Vortex",     "style": "swirl",   "colors": ["#faf5ff", "#7b2ff7", "#22d3ee"], "sprites": {} },
+    { "id": "eclipse",  "price": 1600,  "name": "Eclipse",    "style": "eclipse", "colors": ["#fde68a", "#111827", "#f97316"], "sprites": {} }
+  ]
+}

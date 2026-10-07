@@ -8,6 +8,7 @@
     "build": "node build.mjs",
     "images": "node scripts/images.mjs",
     "videos": "node scripts/videos.mjs",
+    "games": "node scripts/games.mjs",
     "dev": "node build.mjs && npx --yes serve -l 5173 ."
   },
   "devDependencies": {
