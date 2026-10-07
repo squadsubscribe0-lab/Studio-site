@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Birddoku - a quiet logic puzzle</title>
+<meta name="description" content="Find where every bird is hiding. One bird per colour, one per row and column, and no bird may sit next to another.">
+<link rel="icon" href="assets/icon-180.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ game view ============ -->
+  <header class="topbar">
+    <button class="icon-btn" id="btn-home" aria-label="Back to menu">&#8592;</button>
+    <div>
+      <div class="level-name" id="level-name">Level 1</div>
+      <div class="level-sub" id="level-sub">5 x 5 &middot; 5 birds</div>
+    </div>
+    <div class="hearts" id="hearts" aria-label="Lives"></div>
+  </header>
+
+  <div class="rules">
+    <div class="rule"><b>One per colour</b>every patch hides one bird</div>
+    <div class="rule"><b>One per row &amp; column</b>never two in a line</div>
+    <div class="rule"><b>No touching</b>not even corner to corner</div>
+  </div>
+
+  <div class="board-wrap">
+    <div id="board" role="grid" aria-label="Puzzle board"></div>
+  </div>
+
+  <div class="bottombar">
+    <div class="count"><img id="count-bird" alt=""><span id="count">0/5</span></div>
+    <div class="tools">
+      <button class="tool" id="btn-undo">&#8634; Undo</button>
+      <button class="tool" id="btn-hint">&#128161; Hint <small id="hint-left">2</small></button>
+      <button class="tool" id="btn-restart">&#8635;</button>
+    </div>
+  </div>
+
+  <div class="loading" id="loading" hidden>
+    <img class="loading-bird" src="assets/birds/bird03_sleepy.png" alt="">
+    <span>Settling the flock&hellip;</span>
+  </div>
+
+  <!-- ============ home ============ -->
+  <section class="screen home" id="screen-home">
+    <img class="app-icon" src="assets/icon.png" alt="">
+    <h1>Birddoku</h1>
+    <p>Every colour patch hides one bird. Work out where they sit &mdash; no two may share a row, a column, or a corner.</p>
+    <div class="home-actions">
+      <button class="btn btn-main" id="btn-play">Play</button>
+      <button class="btn" id="btn-levels">Choose a level</button>
+    </div>
+    <div class="toggles">
+      <button class="toggle" id="tg-music">Music</button>
+      <button class="toggle" id="tg-sfx">Sound</button>
+      <button class="toggle" id="tg-auto">Auto-mark</button>
+    </div>
+  </section>
+
+  <!-- ============ level select ============ -->
+  <section class="screen" id="screen-levels" hidden>
+    <div class="screen-head">
+      <button class="icon-btn" id="btn-levels-back" aria-label="Back">&#8592;</button>
+      <h2>Levels</h2>
+    </div>
+    <div class="levels" id="level-grid"></div>
+  </section>
+
+  <!-- ============ modal ============ -->
+  <div class="modal" id="modal" hidden>
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+</div>
+
+<script src="js/puzzle.js"></script>
+<script src="js/birds.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/platform.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

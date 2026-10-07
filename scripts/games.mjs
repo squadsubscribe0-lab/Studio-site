@@ -28,6 +28,10 @@ export const GAMES = [
   { slug: 'wild-gambit', from: 'UnoChess/upload/index.html' },
   { slug: 'dungeon-io', from: 'browserbased', skip: ['source', 'sandbox.html'] },
   { slug: 'astro-war', from: 'logic gate/astro-war', skip: ['.claude'] },
+  { slug: 'birddoku', from: 'birddoku', skip: ['tools'] },
+  { slug: 'endless-puncher', from: 'endless puncher/dist' },
+  { slug: 'jungle-ladder', from: 'jungle-ladder/builds/standalone' },
+  { slug: 'meow-bag-cat-mafia', from: 'Meow Bag Cat Mafia' },
 ];
 
 const outDir = join(root, 'play');
