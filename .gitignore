@@ -2,6 +2,7 @@
 Thumbs.db
 .vscode/
 .idea/
-*.lognode_modules/
+*.log
+node_modules/
 
 node_modules/
