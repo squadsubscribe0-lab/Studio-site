@@ -1,0 +1,9 @@
+Idle Shape Shooter
+url: https://poki.com/en/g/your-game
+tags: Idle, Shooter
+Blast waves of geometric enemies and upgrade your turret.
+
+Another Game Name
+url: https://www.crazygames.com/game/your-game
+tags: Hypercasual, Runner
+One-tap runner: time your jumps and chase a new best score.
