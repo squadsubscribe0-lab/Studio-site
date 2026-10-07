@@ -1,0 +1,3067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#eef4fb">
+<title>Arrow Out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+    --bg:#eef4fb;
+    --ink:#1a2338;
+    --blue:#2f7fe0;
+    --blue-dark:#2166bd;
+    --heart:#ff3355;
+    --arrow:#15181f;
+    --dot:#c8d6e6;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+  body{
+    font-family:"Fredoka","Trebuchet MS",system-ui,sans-serif;font-weight:600;
+    background:var(--bg);color:var(--ink);overflow:hidden;user-select:none;
+  }
+  /* ------------------------------------------------------------------
+     Layout
+
+     One grid, two arrangements. Portrait stacks HUD / board / controls.
+     Short landscape moves the HUD and controls into a side rail, because
+     that is where vertical space is scarce and horizontal space is not.
+
+     Every grid and flex child gets min-width:0. Without it, grid children
+     default to min-width:auto and the widest item (the chip row) forces
+     the whole column wider than the viewport, pushing the board off
+     screen. That was the bug on phones.
+     ------------------------------------------------------------------ */
+  #app{
+    height:100dvh;
+    width:100vw;
+    max-width:100vw;
+    overflow:hidden;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr) auto;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"hud" "stage" "controls";
+  }
+  #app > *{min-width:0;min-height:0}
+  #hud{grid-area:hud}
+  #stage{grid-area:stage}
+  #controls{grid-area:controls}
+
+  /* ---------------- top bar ---------------- */
+  #topbar{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px 6px;min-width:0;
+  }
+  .iconbtn{
+    width:38px;height:38px;flex:0 0 auto;border:0;border-radius:50%;
+    background:#fff;color:#5b6b86;cursor:pointer;display:grid;place-items:center;
+    box-shadow:0 2px 5px rgba(30,50,90,.14);
+  }
+  .iconbtn:active{transform:scale(.94)}
+  .iconbtn svg{width:20px;height:20px}
+  .spacer{flex:1 1 auto}
+  .hearts{display:flex;gap:3px}
+  .hearts svg{width:24px;height:24px;transition:opacity .2s,transform .2s}
+  .hearts .gone{opacity:.3;transform:scale(.82)}
+
+  #subbar{
+    display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;gap:6px;
+    padding:0 12px 4px;min-width:0;
+  }
+  .chip{
+    display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;
+    padding:4px 13px;font-size:14px;color:#41506b;box-shadow:0 2px 5px rgba(30,50,90,.1);
+  }
+  .chip svg{width:14px;height:14px}
+  .chip b{color:var(--ink);font-weight:700}
+  #shapeName{font-size:13px;color:#7b8aa4;font-weight:500}
+
+  /* ---------------- stage ---------------- */
+  #stage{position:relative;overflow:hidden}
+  #cv{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
+  #stage.shake{animation:shake .26s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-7px)}
+    55%{transform:translateX(6px)}
+    80%{transform:translateX(-3px)}
+  }
+  #flash{position:absolute;inset:0;background:#ff3355;opacity:0;pointer-events:none;transition:opacity .3s}
+  #flash.on{opacity:.16;transition:opacity 0s}
+
+  /* ---------------- bottom bar ---------------- */
+  #controls{
+    display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;gap:12px;
+    padding:6px 12px 14px;min-width:0;
+  }
+  .bigbtn{
+    position:relative;width:56px;height:56px;border:0;border-radius:50%;
+    background:#fff;cursor:pointer;display:grid;place-items:center;
+    box-shadow:0 4px 10px rgba(30,50,90,.18);
+  }
+  .bigbtn:active{transform:scale(.94)}
+  .bigbtn:disabled{opacity:.45;cursor:default}
+  .bigbtn svg{width:26px;height:26px;color:#8d5cf6}
+  .badge{
+    position:absolute;top:-3px;right:-3px;min-width:21px;height:21px;border-radius:11px;
+    background:#3fb950;color:#fff;font-size:12px;font-weight:700;
+    display:grid;place-items:center;padding:0 5px;border:2px solid var(--bg);
+  }
+  .zoomgrp{display:flex;gap:8px}
+  .zbtn{
+    width:40px;height:40px;border:0;border-radius:50%;background:#fff;color:var(--blue);
+    font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 3px 7px rgba(30,50,90,.14);
+  }
+  .zbtn:active{transform:scale(.94)}
+  #arrowsLeft{font-size:13px;color:#7b8aa4;font-weight:500;text-align:center;min-width:0}
+
+  /* ---------------- overlays ---------------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,34,60,.5);display:none;
+    place-items:center;padding:20px;z-index:30}
+  .overlay.show{display:grid}
+  .panel{
+    background:#fff;border-radius:24px;width:min(390px,100%);padding:24px 22px 18px;
+    text-align:center;box-shadow:0 18px 40px rgba(16,30,60,.3);
+    max-height:86dvh;overflow:auto;
+  }
+  .panel h2{margin:0 0 6px;font-size:25px;font-weight:700}
+  .panel p{margin:0 0 14px;font-size:15px;font-weight:500;color:#5d6d88;line-height:1.55}
+  .stats{display:flex;justify-content:center;gap:26px;margin:12px 0 18px}
+  .stat b{display:block;font-size:21px}
+  .stat span{font-size:12px;font-weight:500;color:#8494ae}
+  .btn{
+    display:block;width:100%;margin-top:9px;padding:12px;border:0;border-radius:15px;
+    background:var(--blue);color:#fff;font-family:inherit;font-size:17px;font-weight:700;
+    cursor:pointer;box-shadow:0 4px 0 var(--blue-dark);
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--blue-dark)}
+  .btn.ghost{background:#eaf1fb;color:var(--blue-dark);box-shadow:0 4px 0 #cfe0f5}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:11px 2px;
+    border-bottom:1px solid #eaeff7;font-size:15px}
+  .row:last-of-type{border-bottom:0}
+  .seg{display:flex;gap:4px}
+  .seg button{border:0;background:#eef3fa;color:#5d6d88;font-family:inherit;font-weight:600;
+    font-size:13px;padding:6px 11px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:var(--blue);color:#fff}
+  .toggle{width:50px;height:28px;border-radius:14px;border:0;background:#cfd9e8;position:relative;cursor:pointer}
+  .toggle::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;
+    border-radius:50%;background:#fff;transition:left .16s}
+  .toggle.on{background:var(--blue)}
+  .toggle.on::after{left:25px}
+  .howto{font-size:13.5px;font-weight:500;color:#6b7b96;line-height:1.65;text-align:left;margin:14px 0 2px}
+
+  /* level select */
+  .lvGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 6px}
+  .lv{
+    aspect-ratio:1;border:0;border-radius:13px;background:#eef3fa;color:#44557a;
+    font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;
+    display:grid;place-items:center;
+  }
+  .lv.done{background:#d9f3e0;color:#227a44}
+  .lv.cur{background:var(--blue);color:#fff}
+
+/* ---------------- loading screen ---------------- */
+#loader{
+  position:fixed;inset:0;z-index:60;display:grid;place-items:center;
+  background:var(--bg);transition:opacity .35s;
+}
+#loader.gone{opacity:0;pointer-events:none}
+.loaderInner{display:flex;flex-direction:column;align-items:center;gap:14px;width:min(260px,70vw)}
+.loaderMark svg{width:96px;height:36px;fill:none;stroke:var(--arrow);
+  stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.loaderName{font-size:25px;font-weight:700;letter-spacing:.4px}
+.loaderBarWrap{width:100%;height:8px;border-radius:4px;background:#d7e3f2;overflow:hidden}
+.loaderBar{height:100%;width:0;border-radius:4px;background:var(--blue);transition:width .25s}
+#loader .btn{width:180px}
+
+/* ---------------- confetti ---------------- */
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+
+/* ---------------- rewarded button ---------------- */
+.btn.rewarded{
+  background:#3fb950;box-shadow:0 4px 0 #2b8c3a;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn.rewarded svg{width:18px;height:18px}
+
+/* ================= themes ================= */
+body.neon{
+  --bg:#10141f; --ink:#e8eefc; --dot:#232a3d;
+  --card:#1a2132; --cardline:#2a3348; --muted:#8f9dba;
+}
+body.paper{
+  --bg:#eef4fb; --ink:#1a2338; --dot:#c8d6e6;
+  --card:#ffffff; --cardline:#eaeff7; --muted:#7b8aa4;
+}
+body{background:var(--bg);color:var(--ink);transition:background .3s,color .3s}
+#loader{background:var(--bg)}
+.iconbtn,.chip,.bigbtn,.zbtn{background:var(--card);color:var(--ink)}
+body.neon .iconbtn,body.neon .chip,body.neon .bigbtn,body.neon .zbtn{
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
+}
+body.neon .chip b{color:var(--ink)}
+body.neon .panel{background:var(--card);color:var(--ink)}
+body.neon .panel p,body.neon .howto,body.neon .stat span,body.neon #shapeName,
+body.neon #arrowsLeft{color:var(--muted)}
+body.neon .row{border-bottom-color:var(--cardline)}
+body.neon .seg button{background:#242d42;color:#b9c6e0}
+body.neon .seg button.on{background:var(--blue);color:#fff}
+body.neon .lv{background:#242d42;color:#b9c6e0}
+body.neon .lv.done{background:#1f4d33;color:#8ce5ab}
+body.neon .btn.ghost{background:#242d42;color:#cfe0ff;box-shadow:0 4px 0 #161d2c}
+body.neon .toggle{background:#39435c}
+body.neon .loaderMark svg{stroke:var(--ink)}
+body.neon .loaderBarWrap{background:#242d42}
+
+/* ================= progress ================= */
+.progWrap{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.progBar{width:clamp(64px,22vw,92px);height:6px;border-radius:3px;background:var(--dot);overflow:hidden}
+.progFill{height:100%;width:0;border-radius:3px;background:var(--blue);transition:width .25s}
+
+/* ================= powerups ================= */
+.powers{display:flex;gap:10px;min-width:0}
+.bigbtn.bomb svg{color:#ff7a45}
+.bigbtn.reveal svg{color:#24b3c4}
+.bigbtn.armed{outline:3px solid #ff7a45;outline-offset:2px}
+
+/* ================= combo ================= */
+#combo{
+  position:absolute;top:14px;left:50%;transform:translate(-50%,-14px);
+  display:flex;align-items:baseline;gap:5px;opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;z-index:6;
+}
+#combo.show{opacity:1;transform:translate(-50%,0)}
+#combo b{font-size:30px;font-weight:700;color:#ffb020;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+#combo span{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+
+/* ================= stars ================= */
+.starRow{display:flex;justify-content:center;gap:8px;margin-bottom:6px}
+.starRow svg{width:38px;height:38px}
+.starRow .off{opacity:.25}
+.lv{position:relative}
+.lv .lvStars{position:absolute;bottom:3px;left:0;right:0;font-size:9px;line-height:1;color:#ffb020}
+
+/* instrument readout */
+.instChip{font-size:13px}
+body.neon .instChip{color:#8ce0ff}
+body.paper .instChip{color:#2166bd}
+
+/* ==================================================================
+   Responsive overrides
+
+   These live at the end on purpose. Media queries carry no extra
+   specificity, so if they sit above the component rules the plain
+   rules win and the overrides silently do nothing — which is exactly
+   what happened: the landscape rail kept full-size buttons and the
+   third powerup hung off the screen edge.
+   ================================================================== */
+/* Short landscape — phones and small tablets held sideways. Keyed on
+   height, not just orientation, so a roomy desktop window keeps the
+   stacked layout instead of growing a pointless side rail. */
+@media (orientation:landscape) and (max-height:600px){
+  #app{
+    grid-template-columns:minmax(0,1fr) clamp(116px, 21vw, 168px);
+    grid-template-rows:auto minmax(0,1fr);
+    grid-template-areas:"stage hud" "stage controls";
+  }
+  #topbar{padding:8px 8px 2px;gap:6px}
+  #topbar .spacer{display:none}
+  #topbar{flex-wrap:wrap;justify-content:center}
+  #subbar{flex-direction:column;gap:4px;padding:0 6px 4px}
+  #controls{
+    flex-direction:column;gap:10px;
+    justify-content:flex-start;align-items:center;
+    padding:2px 6px 10px;
+  }
+  .powers{gap:8px}
+  .progWrap{order:-1;min-width:0}
+  .progBar{width:clamp(70px,17vw,110px)}
+}
+
+/* Really tight landscape: shrink every control so the rail still fits. */
+@media (orientation:landscape) and (max-height:430px){
+  .iconbtn{width:32px;height:32px}
+  .iconbtn svg{width:17px;height:17px}
+  .hearts svg{width:18px;height:18px}
+  .chip{padding:2px 8px;font-size:11px}
+  .chip svg{width:11px;height:11px}
+  .bigbtn{width:42px;height:42px}
+  .bigbtn svg{width:19px;height:19px}
+  .badge{min-width:17px;height:17px;font-size:10px}
+  .zbtn{width:32px;height:32px;font-size:16px}
+  #shapeName{font-size:10px}
+  #arrowsLeft{font-size:10px;min-width:0}
+  .powers{gap:6px}
+}
+
+/* Roomy screens: keep the board from sprawling edge to edge. */
+@media (orientation:landscape) and (min-height:601px){
+  #stage{justify-self:center;width:100%}
+}
+
+
+/* save state note */
+.saveNote{font-size:12px;font-weight:500;color:var(--muted);margin:12px 0 2px;text-align:left}
+.btn.ghost.danger{color:#c2405a;background:#fdeaee;box-shadow:0 4px 0 #f3ccd5}
+body.neon .btn.ghost.danger{color:#ff8fa3;background:#3a2430;box-shadow:0 4px 0 #241620}
+
+</style>
+
+</head>
+<body>
+
+<div id="loader">
+  <div class="loaderInner">
+    <div class="loaderMark">
+      <svg viewBox="0 0 64 24" aria-hidden="true">
+        <path d="M4 12h44" /><path d="M40 4l10 8-10 8" />
+      </svg>
+    </div>
+    <div class="loaderName">Arrow Out</div>
+    <div class="loaderBarWrap"><div class="loaderBar" id="loaderBar"></div></div>
+    <button class="btn" id="playBtn" hidden>Play</button>
+  </div>
+</div>
+
+<div id="app" hidden>
+
+  <div id="hud">
+    <header id="topbar">
+      <button class="iconbtn" id="backBtn" aria-label="Levels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+      </button>
+      <div class="spacer"></div>
+      <div class="hearts" id="hearts"></div>
+      <div class="spacer"></div>
+      <button class="iconbtn" id="gearBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.4 13a7.8 7.8 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.7 7.7 0 0 0-1.7-1L14 3.4h-4l-.3 2.6a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.4L5.6 11a7.8 7.8 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.8 1.7 1l.3 2.6h4l.3-2.6c.6-.2 1.2-.6 1.7-1l2.4 1 2-3.4-2-1.6ZM12 15.6A3.6 3.6 0 1 1 15.6 12 3.6 3.6 0 0 1 12 15.6Z"/></svg>
+      </button>
+    </header>
+
+    <div id="subbar">
+      <div class="chip">Level <b id="levelNum">1</b></div>
+      <div class="chip" id="timerChip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>
+        </svg>
+        <span id="timeLabel">00:00</span>
+      </div>
+      <div class="chip instChip" id="instChip">&#9834; Piano</div>
+      <div id="shapeName">Square</div>
+    </div>
+  </div>
+
+  <main id="stage">
+    <canvas id="cv"></canvas>
+    <canvas id="fx"></canvas>
+    <div id="flash"></div>
+    <div id="combo"><b id="comboNum">0</b><span>combo</span></div>
+  </main>
+
+  <footer id="controls">
+    <div class="progWrap">
+      <div class="progBar"><div class="progFill" id="progressBar"></div></div>
+      <div id="arrowsLeft">0 / 0</div>
+    </div>
+    <div class="powers">
+      <button class="bigbtn" id="hintBtn" aria-label="Hint">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2Zm-3 18h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1Z"/></svg>
+        <span class="badge" id="hintCount">3</span>
+      </button>
+      <button class="bigbtn bomb" id="bombBtn" aria-label="Blast one arrow">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 4.5 15 3l1.4 1.4L15 5.8l1.8 1.8a7 7 0 1 1-2.1 2.1L12.9 7.9 11.5 9.3 10 7.9l1.5-1.5ZM19 2l.9 1.6L21.5 4l-1.6.9L19 6.5l-.9-1.6L16.5 4l1.6-.9Z"/></svg>
+        <span class="badge" id="bombCount">2</span>
+      </button>
+      <button class="bigbtn reveal" id="revealBtn" aria-label="Reveal every open arrow">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7c-1.2-2.8-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>
+        <span class="badge" id="revealCount">1</span>
+      </button>
+    </div>
+    <div class="zoomgrp">
+      <button class="zbtn" id="zoomOut" aria-label="Zoom out">&minus;</button>
+      <button class="zbtn" id="zoomFit" aria-label="Fit board">&#9633;</button>
+      <button class="zbtn" id="zoomIn" aria-label="Zoom in">+</button>
+    </div>
+  </footer>
+</div>
+
+<!-- settings -->
+<div class="overlay" id="settingsOverlay">
+  <div class="panel">
+    <h2>Settings</h2>
+    <div class="row">Theme
+      <div class="seg" id="themeSeg">
+        <button data-t="neon" class="on">Neon</button>
+        <button data-t="paper">Paper</button>
+      </div>
+    </div>
+    <div class="row">Arrow colour
+      <div class="seg" id="colorSeg">
+        <button data-c="rainbow" class="on">Rainbow</button>
+        <button data-c="random">Random</button>
+        <button data-c="mono">Mono</button>
+      </div>
+    </div>
+    <div class="row">Colourblind friendly <button class="toggle" id="cvdToggle" aria-label="Colourblind friendly"></button></div>
+    <div class="row">Zen mode (no hearts, no clock) <button class="toggle" id="zenToggle" aria-label="Zen mode"></button></div>
+    <div class="row">Line width
+      <div class="seg" id="widthSeg">
+        <button data-w="0.13">Thin</button>
+        <button data-w="0.18" class="on">Normal</button>
+        <button data-w="0.24">Bold</button>
+      </div>
+    </div>
+    <div class="row">Sound effects <button class="toggle on" id="soundToggle" aria-label="Sound effects"></button></div>
+    <div class="row">Music <button class="toggle on" id="musicToggle" aria-label="Music"></button></div>
+    <div class="row">Show all open arrows <button class="toggle" id="hintToggle" aria-label="Show open arrows"></button></div>
+    <p class="howto">
+      Tap an arrow and it leaves the board tip first, its body following its own shape.
+      It only goes if the straight lane ahead of the tip is completely empty.<br><br>
+      Tap a blocked arrow and it crashes into whatever is in the way, costing a heart.<br><br>
+      Clearing an arrow only ever opens space, so you can't lock yourself out &mdash; the
+      challenge is reading the board, not move order.
+    </p>
+    <p class="saveNote" id="saveNote"></p>
+    <button class="btn ghost" id="restartBtn">Restart level</button>
+    <button class="btn ghost danger" id="resetBtn">Reset all progress</button>
+    <button class="btn" id="closeSettings">Back to game</button>
+  </div>
+</div>
+
+<!-- level select -->
+<div class="overlay" id="levelsOverlay">
+  <div class="panel">
+    <h2>Levels</h2>
+    <p>30 shapes. Every five levels the boards get bigger and the arrows shorter.</p>
+    <div class="lvGrid" id="lvGrid"></div>
+    <button class="btn" id="closeLevels">Close</button>
+  </div>
+</div>
+
+<!-- win -->
+<div class="overlay" id="winOverlay">
+  <div class="panel">
+    <div class="starRow" id="starRow"></div>
+    <h2 id="winTitle">Board cleared</h2>
+    <p id="winSub">Every arrow found its way out.</p>
+    <div class="stats">
+      <div class="stat"><b id="winTime">00:00</b><span>Time</span></div>
+      <div class="stat"><b id="winTaps">0</b><span>Taps</span></div>
+      <div class="stat"><b id="winCombo">0</b><span>Best combo</span></div>
+    </div>
+    <button class="btn" id="nextBtn">Next level</button>
+    <button class="btn ghost" id="replayBtn">Shuffle this shape</button>
+  </div>
+</div>
+
+<!-- lose -->
+<div class="overlay" id="loseOverlay">
+  <div class="panel">
+    <h2>Out of hearts</h2>
+    <p>Too many crashes. Keep going, or start the shape again.</p>
+    <button class="btn rewarded" id="reviveBtn" hidden>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      Watch ad for 2 hearts
+    </button>
+    <button class="btn ghost" id="retryBtn">Try again</button>
+  </div>
+</div>
+
+<!-- music omitted from the single-file preview -->
+
+<script src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>
+<script>
+/* ------------------------------------------------------------------
+   Playgama Bridge v2 adapter
+   Official CDN: https://bridge.playgama.com/v2/stable/playgama-bridge.js
+
+   The game keeps using the small Platform.* interface below, so the rest
+   of the game does not need to know which portal SDK is underneath it.
+   ------------------------------------------------------------------ */
+(function(){
+  "use strict";
+
+  var noop = function(){};
+  var bridgeReady = false;
+  var initPromise = null;
+  var rewardedHandler = null;
+  var interstitialHandler = null;
+  var pendingRewarded = null;
+  var pendingInterstitial = null;
+  var adEventsBound = false;
+
+  function hasBridge(){
+    return !!(window.bridge && typeof window.bridge.initialize === "function");
+  }
+
+  function safeMute(on){
+    try{
+      if(window.Game && typeof window.Game.mute === "function") window.Game.mute(!!on);
+      if(window.Music){
+        if(on && typeof window.Music.pause === "function") window.Music.pause();
+        if(!on && typeof window.Music.play === "function" && window.S && window.S.music) window.Music.play();
+      }
+    }catch(e){}
+  }
+
+  function init(){
+    if(bridgeReady) return Promise.resolve();
+    if(initPromise) return initPromise;
+
+    if(!hasBridge()){
+      console.warn("Playgama Bridge SDK was not loaded; using standalone fallback.");
+      return Promise.resolve();
+    }
+
+    initPromise = window.bridge.initialize().then(function(){
+      bridgeReady = true;
+      window.Platform.name = (window.bridge.platform && window.bridge.platform.id) || "playgama";
+      window.Platform.hasRewarded = !!(window.bridge.advertisement && window.bridge.advertisement.isRewardedSupported);
+
+      // Respect platform audio/pause events and ad lifecycle events.
+      try{
+        if(window.bridge.platform && typeof window.bridge.platform.on === "function"){
+          window.bridge.platform.on(window.bridge.EVENT_NAME.AUDIO_STATE_CHANGED, function(enabled){
+            safeMute(!enabled);
+          });
+          window.bridge.platform.on(window.bridge.EVENT_NAME.PAUSE_STATE_CHANGED, function(paused){
+            if(window.S){
+              if(paused){ window.S._platformPaused = true; window.S.running = false; }
+              else { window.S._platformPaused = false; }
+            }
+            if(paused) safeMute(true);
+            else if(window.S && window.S.music) safeMute(false);
+          });
+        }
+
+        if(window.bridge.advertisement && typeof window.bridge.advertisement.on === "function" && !adEventsBound){
+          var ad = window.bridge.advertisement;
+          interstitialHandler = function(state){
+            if(state === "opened") safeMute(true);
+            if(state === "closed" || state === "failed") {
+              safeMute(false);
+              if(pendingInterstitial){
+                var done = pendingInterstitial;
+                pendingInterstitial = null;
+                done();
+              }
+            }
+          };
+          rewardedHandler = function(state){
+            if(state === "opened") safeMute(true);
+            if(state === "rewarded" && pendingRewarded) pendingRewarded.granted = true;
+            if(state === "closed" || state === "failed") {
+              safeMute(false);
+              if(pendingRewarded){
+                var rewardDone = pendingRewarded;
+                pendingRewarded = null;
+                rewardDone.resolve(state === "closed" && rewardDone.granted);
+              }
+            }
+          };
+          ad.on(window.bridge.EVENT_NAME.INTERSTITIAL_STATE_CHANGED, interstitialHandler);
+          ad.on(window.bridge.EVENT_NAME.REWARDED_STATE_CHANGED, rewardedHandler);
+          adEventsBound = true;
+        }
+      }catch(e){}
+    }).catch(function(err){
+      console.warn("Playgama Bridge initialization failed; continuing standalone.", err);
+    });
+
+    return initPromise;
+  }
+
+  function sendMessage(name){
+    try{
+      if(bridgeReady && window.bridge.platform && typeof window.bridge.platform.sendMessage === "function")
+        window.bridge.platform.sendMessage(name);
+    }catch(e){}
+  }
+
+  window.Platform = {
+    name: "standalone",
+    hasRewarded: false,
+    initialize: init,
+    loadingStart: function(){ sendMessage("in_game_loading_started"); },
+    loadingStop: function(){ sendMessage("in_game_loading_stopped"); },
+    ready: function(){ sendMessage("game_ready"); },
+    gameplayStart: function(){ sendMessage("gameplay_started"); },
+    gameplayStop: function(){ sendMessage("gameplay_stopped"); },
+    happyTime: function(){},
+
+    interstitial: function(){
+      return init().then(function(){
+        var ad = window.bridge && window.bridge.advertisement;
+        if(!ad || !ad.isInterstitialSupported || typeof ad.showInterstitial !== "function") return;
+
+        return new Promise(function(resolve){
+          var finished = false;
+          function finish(){
+            if(finished) return;
+            finished = true;
+            if(pendingInterstitial) pendingInterstitial = null;
+            safeMute(false);
+            resolve();
+          }
+
+          pendingInterstitial = finish;
+          try{
+            ad.showInterstitial("level_complete");
+          }catch(e){
+            console.warn("Playgama interstitial failed", e);
+            finish();
+          }
+
+          // Never allow a missing/blocked ad to freeze the game.
+          setTimeout(finish, 12000);
+        });
+      });
+    },
+
+    rewarded: function(){
+      return init().then(function(){
+        var ad = window.bridge && window.bridge.advertisement;
+        if(!ad || !ad.isRewardedSupported || typeof ad.showRewarded !== "function") return false;
+
+        return new Promise(function(resolve){
+          var finished = false;
+          function finish(value){
+            if(finished) return;
+            finished = true;
+            if(pendingRewarded) pendingRewarded = null;
+            safeMute(false);
+            resolve(!!value);
+          }
+
+          pendingRewarded = { granted:false, resolve:finish };
+          try{
+            ad.showRewarded("revive");
+          }catch(e){
+            console.warn("Playgama rewarded ad failed", e);
+            finish(false);
+          }
+
+          // If the portal returns no ad, continue without granting a reward.
+          setTimeout(function(){
+            if(!finished){
+              var pending = pendingRewarded;
+              finish(!!(pending && pending.granted));
+            }
+          }, 15000);
+        });
+      });
+    }
+  };
+
+  window.Platform._mute = safeMute;
+  window.Platform._safe = function(fn, fallback){
+    try{ return fn(); }catch(e){ return fallback; }
+  };
+
+  // Begin SDK initialization immediately; the game still waits for the
+  // existing loading screen/user gesture before becoming playable.
+  window.Platform.initialize();
+})();
+</script>
+<script>
+(() => {
+"use strict";
+
+/* ============================================================
+   30 shape masks.  '#' = a cell arrows may occupy.
+   The silhouette is the board; everything outside it is open air
+   that arrows fly through on their way out.
+   ============================================================ */
+const SHAPES = [
+  { name:"Square", rows:[
+    "########",
+    "########",
+    "########",
+    "########",
+    "########",
+    "########",
+    "########",
+    "########"]},
+
+  { name:"Diamond", rows:[
+    "....#....",
+    "...###...",
+    "..#####..",
+    ".#######.",
+    "#########",
+    ".#######.",
+    "..#####..",
+    "...###...",
+    "....#...."]},
+
+  { name:"Cross", rows:[
+    "...###...",
+    "...###...",
+    "...###...",
+    "#########",
+    "#########",
+    "#########",
+    "...###...",
+    "...###...",
+    "...###..."]},
+
+  { name:"Circle", rows:[
+    "...####...",
+    "..######..",
+    ".########.",
+    "##########",
+    "##########",
+    "##########",
+    "##########",
+    ".########.",
+    "..######..",
+    "...####..."]},
+
+  { name:"Triangle", rows:[
+    ".....#.....",
+    "....###....",
+    "...#####...",
+    "...#####...",
+    "..#######..",
+    "..#######..",
+    ".#########.",
+    ".#########.",
+    "###########",
+    "###########",
+    "###########"]},
+
+  { name:"Heart", rows:[
+    ".###...###.",
+    "###########",
+    "###########",
+    "###########",
+    ".#########.",
+    ".#########.",
+    "..#######..",
+    "...#####...",
+    "....###....",
+    ".....#....."]},
+
+  { name:"Star", rows:[
+    ".....#.....",
+    "....###....",
+    "....###....",
+    "###########",
+    ".#########.",
+    "..#######..",
+    "..#######..",
+    ".###...###.",
+    ".##.....##.",
+    ".#.......#."]},
+
+  { name:"Arrow", rows:[
+    ".....#.....",
+    "....###....",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    "###########",
+    "...#####...",
+    "...#####...",
+    "...#####...",
+    "...#####...",
+    "...#####..."]},
+
+  { name:"House", rows:[
+    ".....#.....",
+    "....###....",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    "###########",
+    ".#########.",
+    ".#########.",
+    ".#########.",
+    ".###...###.",
+    ".###...###."]},
+
+  { name:"Clover", rows:[
+    "...###...###...",
+    "..#####.#####..",
+    ".#############.",
+    ".#############.",
+    "..###########..",
+    "...#########...",
+    "....#######....",
+    "...#########...",
+    "..###########..",
+    ".#############.",
+    ".#############.",
+    "..#####.#####..",
+    "...###...###...",
+    ".......#.......",
+    ".......#......."]},
+
+  { name:"Rook", rows:[
+    "##.##.##.##",
+    "###########",
+    "###########",
+    "..#######..",
+    "..#######..",
+    "...#####...",
+    "...#####...",
+    "...#####...",
+    "..#######..",
+    "..#######..",
+    ".#########.",
+    "###########",
+    "###########"]},
+
+  { name:"Hourglass", rows:[
+    "###########",
+    "###########",
+    ".#########.",
+    "..#######..",
+    "...#####...",
+    "....###....",
+    ".....#.....",
+    "....###....",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    "###########",
+    "###########"]},
+
+  { name:"Tree", rows:[
+    ".....#.....",
+    "....###....",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    "....###....",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    "###########",
+    "....###....",
+    "....###....",
+    "....###....",
+    "...#####..."]},
+
+  { name:"Plane", rows:[
+    ".......#.......",
+    ".......#.......",
+    "......###......",
+    "......###......",
+    "......###......",
+    "###############",
+    "###############",
+    "###############",
+    "......###......",
+    "......###......",
+    "......###......",
+    "....#######....",
+    "....#######....",
+    ".....#####.....",
+    ".......#......."]},
+
+  { name:"Fish", rows:[
+    "....#######....",
+    "..#########.#..",
+    ".##############",
+    "###############",
+    "###############",
+    "###############",
+    ".##############",
+    "..#########.#..",
+    "....#######...."]},
+
+  { name:"Rocket", rows:[
+    ".....#.....",
+    "....###....",
+    "....###....",
+    "...#####...",
+    "...#####...",
+    "...#####...",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    "###########",
+    "###.###.###",
+    "##..###..##",
+    "....###....",
+    "....###....",
+    "...#####...",
+    "....###...."]},
+
+  { name:"Crown", rows:[
+    "#...........#",
+    "#.....#.....#",
+    "#..#.###.#..#",
+    "##.###.###.##",
+    "#############",
+    "#############",
+    "#############",
+    ".###########.",
+    ".###########."]},
+
+  { name:"Trophy", rows:[
+    "#############",
+    "#############",
+    "##.#######.##",
+    "##.#######.##",
+    "##.#######.##",
+    ".#.#######.#.",
+    "...#######...",
+    "....#####....",
+    ".....###.....",
+    ".....###.....",
+    ".....###.....",
+    "....#####....",
+    "...#######...",
+    "#############",
+    "#############"]},
+
+  { name:"Umbrella", rows:[
+    "......###......",
+    "...#########...",
+    ".#############.",
+    "###############",
+    "###############",
+    "###############",
+    ".......###.....",
+    ".......###.....",
+    ".......###.....",
+    ".......###.....",
+    ".....#####.....",
+    ".....###.......",
+    ".....#####.....",
+    ".......###....."]},
+
+  { name:"Bell", rows:[
+    ".....###.....",
+    ".....###.....",
+    "....#####....",
+    "...#######...",
+    "..#########..",
+    "..#########..",
+    ".###########.",
+    ".###########.",
+    "#############",
+    "#############",
+    ".....###.....",
+    "....#####....",
+    ".....###....."]},
+
+  { name:"Mushroom", rows:[
+    "...#######...",
+    ".###########.",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    "....#####....",
+    "....#####....",
+    "....#####....",
+    "...#######...",
+    "..#########..",
+    "..#########.."]},
+
+  { name:"Lightbulb", rows:[
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    ".#########.",
+    "###########",
+    "###########",
+    "###########",
+    ".#########.",
+    ".#########.",
+    "..#######..",
+    "...#####...",
+    "...#####...",
+    "...#####...",
+    "....###....",
+    "....###...."]},
+
+  { name:"Cactus", rows:[
+    ".....###.....",
+    ".....###.....",
+    ".###.###.###.",
+    ".###.###.###.",
+    ".###.###.###.",
+    ".#######.###.",
+    ".....#######.",
+    ".....###.....",
+    ".....###.....",
+    ".....###.....",
+    ".....###.....",
+    ".....###.....",
+    ".....###.....",
+    "..#########..",
+    "..#########.."]},
+
+  { name:"Pineapple", rows:[
+    "...#.#.#...",
+    "...#####...",
+    "....###....",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    "###########",
+    "###########",
+    "###########",
+    "###########",
+    "###########",
+    ".#########.",
+    ".#########.",
+    "..#######..",
+    "...#####..."]},
+
+  { name:"Sailboat", rows:[
+    ".......#.......",
+    ".......##......",
+    ".......###.....",
+    ".......####....",
+    ".......#####...",
+    ".......######..",
+    ".......#######.",
+    ".......#.......",
+    ".......#.......",
+    ".......#.......",
+    "###############",
+    ".#############.",
+    "..###########..",
+    "...#########..."]},
+
+  { name:"Ghost", rows:[
+    "....#####....",
+    "..#########..",
+    ".###########.",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    "##.##.##.##.#"]},
+
+  { name:"Robot", rows:[
+    "...#######...",
+    "..#########..",
+    "..##.###.##..",
+    "..#########..",
+    "...#######...",
+    ".....###.....",
+    "#############",
+    "#############",
+    "#.#########.#",
+    "#.#########.#",
+    "#.#########.#",
+    "..#########..",
+    "...##...##...",
+    "...##...##...",
+    "..###...###.."]},
+
+  { name:"Cat", rows:[
+    ".##.......##.",
+    ".###.....###.",
+    ".#####.#####.",
+    ".###########.",
+    ".###########.",
+    ".###########.",
+    "..#########..",
+    "...#######...",
+    "....#####....",
+    "...#######...",
+    "..#########..",
+    "..#########..",
+    "..#########..",
+    "..#########..",
+    ".###########."]},
+
+  { name:"Penguin", rows:[
+    "....#####....",
+    "...#######...",
+    "..#########..",
+    "..##.###.##..",
+    "..#########..",
+    "...###.###...",
+    "..#########..",
+    ".###########.",
+    "#############",
+    "#############",
+    "#############",
+    "#############",
+    ".###########.",
+    "..#########..",
+    ".###.....###.",
+    ".###.....###."]},
+
+  { name:"Guitar", rows:[
+    "....###....",
+    "....###....",
+    "....###....",
+    "....###....",
+    "....###....",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    ".####.####.",
+    ".###...###.",
+    ".####.####.",
+    "..#######..",
+    ".#########.",
+    "###########",
+    "###########",
+    ".#########.",
+    "..#######.."]},
+
+  { name:"Dog", rows:[
+    "...##..........",
+    "...####........",
+    "..######.......",
+    "..######.......",
+    "..###########..",
+    "..#############",
+    "..#############",
+    ".##############",
+    ".##############",
+    "..##.##..##.##.",
+    "..##.##..##.##.",
+    "..##.##..##.##.",
+    "..##.##..##.##."]},
+
+  { name:"Turtle", rows:[
+    "....#######....",
+    "..###########..",
+    ".#############.",
+    "###############",
+    "###############",
+    "###############",
+    "###############",
+    ".#############.",
+    "..###########..",
+    ".##.##...##.##.",
+    ".##.##...##.##."]},
+
+  { name:"Bird", rows:[
+    ".........####..",
+    "........######.",
+    ".......###.###.",
+    "....#########..",
+    "..###########..",
+    ".#############.",
+    "###############",
+    ".#############.",
+    "..###########..",
+    "....#######....",
+    "......###......",
+    ".......#......."]},
+
+  { name:"Butterfly", rows:[
+    "###....#....###",
+    "####...#...####",
+    "#####..#..#####",
+    "######.#.######",
+    "###############",
+    "######.#.######",
+    "#####..#..#####",
+    "#####..#..#####",
+    "######.#.######",
+    "###############",
+    "######.#.######",
+    "#####..#..#####",
+    "####...#...####"]},
+
+  { name:"Elephant", rows:[
+    "...##########...",
+    "..############..",
+    ".##############.",
+    "################",
+    "###.########.###",
+    "################",
+    "################",
+    ".####..####.....",
+    ".####..####.....",
+    ".......###......",
+    ".......###......",
+    ".......####.....",
+    ".......####....."]},
+
+  { name:"Crescent", rows:[
+    "....######...",
+    "..#########..",
+    ".####....###.",
+    ".###......###",
+    "###........##",
+    "###.........#",
+    "###..........",
+    "###..........",
+    "###.........#",
+    "###........##",
+    ".###......###",
+    ".####....###.",
+    "..#########..",
+    "....######..."]},
+
+  { name:"Flower", rows:[
+    "...###...###...",
+    "..#####.#####..",
+    ".#############.",
+    ".#############.",
+    "..###########..",
+    "...#########...",
+    "..#####.#####..",
+    "..####...####..",
+    ".......#.......",
+    ".......#.......",
+    "....####.......",
+    "...#####.......",
+    "....####.......",
+    ".......#.......",
+    ".......#......."]},
+
+  { name:"Anchor", rows:[
+    ".....###.....",
+    "....#####....",
+    "....##.##....",
+    ".....###.....",
+    "..#########..",
+    "..#########..",
+    ".....###.....",
+    ".....###.....",
+    ".....###.....",
+    "#....###....#",
+    "#....###....#",
+    "##...###...##",
+    "###.#####.###",
+    ".###########.",
+    "..#########.."]},
+
+  { name:"Lion", rows:[
+    "..#####.............",
+    ".#######...........#",
+    "#########.........##",
+    "###...####........##",
+    "###...####.....#####",
+    "###...##############",
+    "####################",
+    ".##################.",
+    "..################..",
+    "...##.####.####.##..",
+    "...##.####.####.##..",
+    "...##.####.####.##..",
+    "..###..###..###..###"]},
+
+  { name:"Skull", rows:[
+    "...#######...",
+    "..#########..",
+    ".###########.",
+    "#############",
+    "#############",
+    "##.##...##.##",
+    "##.##...##.##",
+    "#############",
+    "#############",
+    "#############",
+    ".###########.",
+    "..#########..",
+    "..##.##.##...",
+    "..##.##.##..."]}
+];
+
+/* ============================================================
+   Config
+   ============================================================ */
+const CFG = {
+  hearts: 3,
+  hints: 3,
+  bombs: 2,
+  reveals: 1,
+  minLen: 2,
+  slideSpeed: 17,
+  straightBias: 0.55,
+  searchBudget: 30000,   // divided by cell count to pick generation attempts
+  fillGoal: 0.94
+};
+
+/* Difficulty curve. Each band of 5 levels is denser than the last:
+   more arrows, and shorter arrows so the board reads as a tighter tangle.
+   Band 0 lands around 40-80 arrows, band 5 around 265-305. */
+const PROFILES = [
+  [5,5,4,4,3,3,2,2],
+  [5,4,4,3,3,3,2,2],
+  [4,4,4,3,3,3,2,2],
+  [4,4,3,3,3,3,2,2],
+  [4,3,3,3,3,2,2,2],
+  [4,3,3,3,2,2,2,2],
+  [4,3,3,2,2,2,2,2],
+  [3,3,3,2,2,2,2,2]
+];
+
+/* Per-level mask scale, calibrated so each level hits its arrow target.
+   Masks are resampled to these sizes, so the silhouette is unchanged. */
+const SCALES = [
+  1.602, 2.225, 2.225, 1.780, 1.869,
+  2.136, 2.581, 2.581, 2.403, 1.869,
+  2.136, 2.314, 2.604, 2.403, 2.314,
+  2.592, 2.726, 2.247, 2.537, 2.670,
+  2.559, 2.581, 2.938, 2.581, 3.205,
+  2.403, 2.648, 2.670, 2.537, 2.893,
+  2.938, 2.759, 3.227, 2.759, 2.893,
+  3.383, 3.071, 3.294, 2.424, 2.670
+];
+
+const bandOf = level => Math.min(PROFILES.length-1, Math.floor((level-1)/5));
+const DIRS = [[0,-1],[1,0],[0,1],[-1,0]];
+
+/* ============================================================
+   Seeded RNG — level N always builds the same board
+   ============================================================ */
+let seedState = 1;
+function seed(v){ seedState = (v >>> 0) || 1; }
+function R(){
+  seedState |= 0; seedState = (seedState + 0x6D2B79F5) | 0;
+  let t = Math.imul(seedState ^ (seedState >>> 15), 1 | seedState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+const rnd = n => (R()*n)|0;
+function shuffle(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+/* ============================================================
+   State
+   ============================================================ */
+const S = {
+  level: 1,
+  w: 8, h: 8,
+  mask: null,
+  pieces: [],
+  occ: new Map(),
+  cleared: new Set(),
+  hearts: CFG.hearts,
+  hints: CFG.hints,
+  taps: 0,
+  elapsed: 0,
+  running: false,
+  zoom: 1,
+  sound: true,
+  music: true,
+  showAll: false,
+  theme: "neon",
+  colorMode: "rainbow",
+  cvd: false,
+  zen: false,
+  total: 0,
+  combo: 0, bestCombo: 0,
+  bombs: 0, reveals: 0,
+  armed: null,              // "bomb" when the next tap should detonate
+  stars: {},                // level -> stars earned
+  lineW: 0.18
+};
+let nextId = 1;
+
+/* ============================================================
+   DOM
+   ============================================================ */
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const stage = document.getElementById("stage");
+const flash = document.getElementById("flash");
+const heartsEl = document.getElementById("hearts");
+const levelNum = document.getElementById("levelNum");
+const shapeName = document.getElementById("shapeName");
+const timeLabel = document.getElementById("timeLabel");
+const arrowsLeft = document.getElementById("arrowsLeft");
+const hintBtn = document.getElementById("hintBtn");
+const hintCount = document.getElementById("hintCount");
+const fx = document.getElementById("fx");
+const fxCtx = fx.getContext("2d");
+const loader = document.getElementById("loader");
+const loaderBar = document.getElementById("loaderBar");
+const playBtn = document.getElementById("playBtn");
+const reviveBtn = document.getElementById("reviveBtn");
+const progressBar = document.getElementById("progressBar");
+const comboEl = document.getElementById("combo");
+const comboNum = document.getElementById("comboNum");
+const bombBtn = document.getElementById("bombBtn");
+const bombCount = document.getElementById("bombCount");
+const revealBtn = document.getElementById("revealBtn");
+const revealCount = document.getElementById("revealCount");
+const starRow = document.getElementById("starRow");
+const timerChip = document.getElementById("timerChip");
+const app = document.getElementById("app");
+const instChip = document.getElementById("instChip");
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+const key = (x,y) => x + "," + y;
+const inb = (x,y) => x>=0 && y>=0 && x<S.w && y<S.h;
+const open = (x,y) => inb(x,y) && S.mask[y*S.w + x] === 1;
+const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
+
+/* ============================================================
+   Generation
+
+   Built in reverse removal order: each new piece only has to keep
+   its exit lane clear of pieces already on the board, because the
+   pieces added after it are the ones removed before it. Since
+   clearing an arrow only ever frees cells, the finished board is
+   solvable in any greedy order.
+   ============================================================ */
+function loadMask(level){
+  const shape = SHAPES[(level-1) % SHAPES.length];
+  // rows may be ragged — pad to the widest, treating gaps as empty
+  const bw = shape.rows.reduce((m,r) => Math.max(m, r.length), 0);
+  const bh = shape.rows.length;
+  const k = SCALES[(level-1) % SCALES.length];
+
+  S.w = Math.round(bw * k);
+  S.h = Math.round(bh * k);
+  S.mask = new Uint8Array(S.w * S.h);
+
+  // nearest-neighbour resample: same silhouette, more cells to fill
+  for(let y=0;y<S.h;y++){
+    const sy = Math.min(bh-1, (y*bh/S.h)|0);
+    for(let x=0;x<S.w;x++){
+      const sx = Math.min(bw-1, (x*bw/S.w)|0);
+      S.mask[y*S.w + x] = shape.rows[sy][sx] === "#" ? 1 : 0;   // undefined -> 0
+    }
+  }
+  shapeName.textContent = shape.name;
+}
+
+/* Generation is cheap, so run it many times and keep the densest board.
+   A sparse board leaves holes and the silhouette stops reading. */
+function generateBest(baseSeed){
+  let total = 0;
+  for(let i=0;i<S.mask.length;i++) total += S.mask[i];
+
+  // big boards cost more per attempt, so spend a fixed budget instead of fixed tries
+  const tries = clamp(Math.round(CFG.searchBudget / Math.max(1,total)), 8, 150);
+
+  let bestPieces = null, bestOcc = null, bestFill = -1;
+  for(let i=0;i<tries;i++){
+    seed(baseSeed + i*104729);
+    generate();
+    const fill = S.occ.size / total;
+    if(fill > bestFill){ bestFill = fill; bestPieces = S.pieces; bestOcc = S.occ; }
+    if(fill >= CFG.fillGoal) break;
+  }
+  S.pieces = bestPieces;
+  S.occ = bestOcc;
+  S.total = bestPieces.length;
+}
+
+/* Placement order is the single biggest lever on density.
+
+   A piece's exit lane runs from its tip to the edge of the BOARD, so the
+   cost of placing it is how far it sits from that edge — not how deep it
+   sits inside the silhouette. Cells far from every edge need long clear
+   lanes, so they have to be placed while the board is still empty.
+   Pieces placed last are removed first, and those sit near the edges
+   where lanes are short, so they can still escape past a packed middle.
+
+   Ordering by silhouette depth instead caps density near 88% and leaves
+   big boards hollow in the middle; ordering by edge distance holds ~94%
+   even on the largest levels. */
+function edgeDistance(c){
+  return Math.min(c.x + 1, S.w - c.x, c.y + 1, S.h - c.y);
+}
+
+function generate(){
+  S.occ = new Map();
+  S.pieces = [];
+  nextId = 1;
+
+  const cells = [];
+  for(let y=0;y<S.h;y++) for(let x=0;x<S.w;x++) if(open(x,y)) cells.push({x,y});
+
+  for(const want of PROFILES[bandOf(S.level)]){
+    const order = shuffle(cells).sort((a,b) => edgeDistance(b) - edgeDistance(a));
+    for(const c of order){
+      if(S.occ.has(key(c.x,c.y))) continue;
+      const p = tryPlace(c.x, c.y, want);
+      if(p) S.pieces.push(p);
+    }
+  }
+}
+
+function tryPlace(hx, hy, want){
+  // Collect every direction whose exit lane is currently clear, then take the
+  // SHORTEST one. A short lane is cheaper to keep clear, which leaves more
+  // room for the pieces placed after this one.
+  const cand = [];
+  for(const d of DIRS){
+    const lane = new Set();
+    let x = hx + d[0], y = hy + d[1], clear = true;
+    while(inb(x,y)){
+      if(S.occ.has(key(x,y))){ clear = false; break; }
+      lane.add(key(x,y));
+      x += d[0]; y += d[1];
+    }
+    if(!clear) continue;
+
+    // first body cell sits directly behind the tip — that sets the arrow's direction
+    const bx = hx - d[0], by = hy - d[1];
+    if(!open(bx,by) || S.occ.has(key(bx,by))) continue;
+
+    cand.push({d, lane, bx, by});
+  }
+  if(!cand.length) return null;
+  cand.sort((a,b) => a.lane.size - b.lane.size);
+
+  const {d, lane, bx, by} = cand[0];
+  const body = [{x:hx,y:hy}, {x:bx,y:by}];
+  const used = new Set([key(hx,hy), key(bx,by)]);
+  let cur = {x:bx, y:by};
+  let lastDir = [-d[0], -d[1]];
+
+  while(body.length < want){
+    const opts = shuffle(DIRS).filter(dd => {
+      const nx = cur.x+dd[0], ny = cur.y+dd[1], k = key(nx,ny);
+      return open(nx,ny) && !S.occ.has(k) && !used.has(k) && !lane.has(k);
+    });
+    if(!opts.length) break;
+    let pick = opts[0];
+    if(R() < CFG.straightBias){
+      const st = opts.find(o => o[0]===lastDir[0] && o[1]===lastDir[1]);
+      if(st) pick = st;
+    }
+    cur = {x:cur.x+pick[0], y:cur.y+pick[1]};
+    used.add(key(cur.x,cur.y));
+    body.push(cur);
+    lastDir = pick;
+  }
+  if(body.length < CFG.minLen) return null;
+
+  const cellsArr = body.reverse();                 // tail -> tip
+  const p = { id:nextId++, cells:cellsArr, dir:d, track:null,
+              s:0, endS:0, leaving:false, blockT:0, glowT:0,
+              randHue: Math.floor(R()*360) };
+  for(const c of cellsArr) S.occ.set(key(c.x,c.y), p.id);
+  return p;
+}
+
+/* ============================================================
+   Rules
+   ============================================================ */
+const tip = p => p.cells[p.cells.length-1];
+
+function laneClear(p){
+  const t = tip(p);
+  let x = t.x + p.dir[0], y = t.y + p.dir[1];
+  while(inb(x,y)){
+    if(S.occ.has(key(x,y))) return false;
+    x += p.dir[0]; y += p.dir[1];
+  }
+  return true;
+}
+
+function buildTrack(p){
+  const t = p.cells.map(c => ({x:c.x, y:c.y}));
+  const h = tip(p);
+  let x = h.x, y = h.y;
+  const runway = Math.max(S.w, S.h) + p.cells.length + 3;
+  for(let i=0;i<runway;i++){ x += p.dir[0]; y += p.dir[1]; t.push({x,y}); }
+  return t;
+}
+
+function release(p){
+  p.leaving = true;
+  p.track = buildTrack(p);
+  p.s = 0;
+  const h = tip(p);
+  const steps = p.dir[0] ===  1 ? S.w - h.x
+              : p.dir[0] === -1 ? h.x + 1
+              : p.dir[1] ===  1 ? S.h - h.y
+              :                   h.y + 1;
+  p.endS = steps + p.cells.length + 1;
+  for(const c of p.cells) S.occ.delete(key(c.x,c.y));
+  bumpCombo();
+  Sound.clear();
+}
+
+function crash(p){
+  p.blockT = 0.3;
+  dropCombo();
+  if(!S.zen){ S.hearts--; renderHearts(); }
+  Sound.crash();
+  flash.style.background = badColor();
+  flash.classList.add("on");
+  setTimeout(() => flash.classList.remove("on"), 40);
+  stage.classList.remove("shake"); void stage.offsetWidth; stage.classList.add("shake");
+  if(!S.zen && S.hearts <= 0) lose();
+}
+
+/* ============================================================
+   Level lifecycle
+   ============================================================ */
+function buildLevel(shuffleSeed){
+  loadMask(S.level);
+  generateBest(shuffleSeed !== undefined ? shuffleSeed : S.level * 7919 + 13);
+
+  S.hearts = CFG.hearts;
+  S.hints = CFG.hints;
+  S.bombs = CFG.bombs;
+  S.reveals = CFG.reveals;
+  S.armed = null;
+  S.combo = 0; S.bestCombo = 0;
+  S.taps = 0;
+  S.elapsed = 0;
+  S.running = true;
+  S.zoom = 1;
+
+  levelNum.textContent = S.level;
+  const instName = Sound.setLevel(S.level);
+  if(instChip) instChip.textContent = "\u266A " + instName;
+
+  renderHearts();
+  updatePowerUI();
+  applyZen();
+  dropCombo();
+  updateTimer();
+  Confetti.clear();
+  saveProgress();               // remember which level they're on
+  resize();
+  Platform.gameplayStart();
+}
+
+function renderHearts(){
+  heartsEl.innerHTML = "";
+  for(let i=0;i<CFG.hearts;i++){
+    const dead = i >= S.hearts;
+    heartsEl.insertAdjacentHTML("beforeend",
+      '<svg viewBox="0 0 24 24" class="'+(dead?"gone":"")+'">' +
+      '<path d="M12 20.7 3.9 12.9a5 5 0 0 1 7.1-7l1 1 1-1a5 5 0 1 1 7.1 7Z" fill="' +
+      (dead ? "#b9c6d8" : "#ff3355") + '"/></svg>');
+  }
+}
+
+function updateTimer(){
+  const m = String(Math.floor(S.elapsed/60)).padStart(2,"0");
+  const s = String(Math.floor(S.elapsed%60)).padStart(2,"0");
+  timeLabel.textContent = m + ":" + s;
+}
+
+function win(){
+  S.running = false;
+  S.cleared.add(S.level);
+  Platform.gameplayStop();
+  Platform.happyTime();
+  Confetti.burst(stage.clientWidth, stage.clientHeight);
+  Sound.popper();
+  const last = S.level >= SHAPES.length;
+  document.getElementById("winTitle").textContent = last ? "All 30 cleared" : "Board cleared";
+  document.getElementById("winSub").textContent = last
+    ? "Every shape solved. Shuffle any level for a fresh layout."
+    : "Every arrow found its way out.";
+  document.getElementById("nextBtn").style.display = last ? "none" : "block";
+  const st = starsEarned();
+  S.stars[S.level] = Math.max(S.stars[S.level] || 0, st);
+  saveProgress();
+  renderStars(st);
+  dropCombo();
+  document.getElementById("winTime").textContent = S.zen ? "--:--" : timeLabel.textContent;
+  document.getElementById("winTaps").textContent = S.taps;
+  document.getElementById("winCombo").textContent = S.bestCombo;
+  show("winOverlay");
+}
+function lose(){
+  S.running = false;
+  Platform.gameplayStop();
+  reviveBtn.hidden = !Platform.hasRewarded;
+  setTimeout(() => show("loseOverlay"), 400);
+}
+
+/* Rewarded ad hands back two hearts and drops the player straight back
+   into the board they were already working on. */
+function revive(){
+  hide("loseOverlay");
+  Platform.rewarded().then(granted => {
+    if(!granted){ show("loseOverlay"); return; }
+    S.hearts = 2;
+    renderHearts();
+    S.running = true;
+    Platform.gameplayStart();
+  });
+}
+
+/* ============================================================
+   Rendering
+
+   Two themes. "Neon" draws glowing arrows on a dark board, which is
+   what makes a 350-arrow silhouette read as a single picture rather
+   than a scribble. "Paper" is the flat light version.
+
+   Glow is expensive, so the board is drawn once into an offscreen
+   cache and blitted each frame. Only arrows that are actually moving
+   (sliding out, crashing, glowing from a hint) are redrawn per frame,
+   which keeps the cost flat no matter how many arrows the level holds.
+   ============================================================ */
+const THEMES = {
+  neon:  { bg:"#10141f", dot:"#232a3d", mono:"#e8eefc", glow:true,  sat:85, light:58 },
+  paper: { bg:"#eef4fb", dot:"#c8d6e6", mono:"#15181f", glow:false, sat:62, light:46 }
+};
+
+let cell = 30, ox = 0, oy = 0, dpr = 1, fitCell = 30;
+let cache = null, cacheCtx = null, cacheDirty = true, lastSig = "";
+
+function theme(){ return THEMES[S.theme] || THEMES.neon; }
+
+/* Colour comes from where the arrow sits on the board, so the whole
+   shape reads as one diagonal gradient instead of confetti. */
+/* ------------------------------------------------------------------
+   Colour
+
+   The default rainbow runs through red and green, which are the two
+   hues most colour-vision-deficient players confuse — roughly 1 in 12
+   men. Colourblind mode swaps it for a blue -> cyan -> light -> amber
+   -> orange ramp. That axis survives deuteranopia, protanopia and
+   tritanopia because it varies in lightness as well as hue, so the
+   gradient still reads as a gradient rather than flattening to mush.
+   ------------------------------------------------------------------ */
+const CVD_RAMP = [
+  [ 56,130,246],   // blue
+  [ 34,211,238],   // cyan
+  [229,231,235],   // light grey
+  [251,191, 36],   // amber
+  [249,115, 22]    // orange
+];
+
+function rampColor(t, darken){
+  t = Math.max(0, Math.min(0.9999, t));
+  const f = t * (CVD_RAMP.length - 1);
+  const i = Math.floor(f), k = f - i;
+  const a = CVD_RAMP[i], b = CVD_RAMP[Math.min(CVD_RAMP.length-1, i+1)];
+  let r = a[0] + (b[0]-a[0])*k;
+  let gq = a[1] + (b[1]-a[1])*k;
+  let bl = a[2] + (b[2]-a[2])*k;
+  if(darken){ r *= 0.66; gq *= 0.66; bl *= 0.66; }   // for the light theme
+  return `rgb(${r|0} ${gq|0} ${bl|0})`;
+}
+
+/* Where the arrow sits on the board, 0..1 along the diagonal. */
+function colorParam(p){
+  const t = p.cells[p.cells.length-1];
+  return ((t.x / S.w) + (t.y / S.h)) * 0.5;
+}
+
+/* Semantic colours. Green/red is the worst possible pair for the most
+   common deficiency, so colourblind mode uses cyan/orange instead. */
+function okColor(){  return S.cvd ? "#22d3ee" : "#3fb950"; }
+function badColor(){ return S.cvd ? "#f97316" : "#ff3355"; }
+
+function strokeFor(p){
+  const th = theme();
+  if(p.blockT > 0) return badColor();
+  if(p.glowT > 0)  return okColor();
+  if(S.showAll && !p.leaving && laneClear(p)) return okColor();
+
+  if(S.colorMode === "mono") return th.mono;
+
+  const t = S.colorMode === "random" ? (p.randHue / 360) : colorParam(p);
+  if(S.cvd) return rampColor(t, !th.glow);
+
+  const hue = (t * 300 + 185) % 360;
+  return `hsl(${hue.toFixed(0)} ${th.sat}% ${th.light}%)`;
+}
+
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if(!w || !h) return;
+
+  cv.width  = Math.round(w*dpr);
+  cv.height = Math.round(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  fx.width  = Math.round(w*dpr);
+  fx.height = Math.round(h*dpr);
+  fxCtx.setTransform(dpr,0,0,dpr,0,0);
+
+  if(!cache){ cache = document.createElement("canvas"); cacheCtx = cache.getContext("2d"); }
+  cache.width  = cv.width;
+  cache.height = cv.height;
+  cacheCtx.setTransform(dpr,0,0,dpr,0,0);
+
+  // fit the whole silhouette on screen with a margin — the default view is
+  // always the entire board, and zooming in is how you read it
+  fitCell = Math.min(w/(S.w + 2.2), h/(S.h + 2.2));
+  cell = fitCell * S.zoom;
+  recentre();
+  cacheDirty = true;
+  draw();
+}
+
+function recentre(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const bw = S.w*cell, bh = S.h*cell;
+  ox = bw <= w ? (w-bw)/2 : clamp(ox, w-bw, 0);
+  oy = bh <= h ? (h-bh)/2 : clamp(oy, h-bh, 0);
+}
+const px = x => ox + x*cell + cell/2;
+const py = y => oy + y*cell + cell/2;
+
+function trackPoint(t, u){
+  const i = Math.floor(u), f = u - i;
+  const a = t[clamp(i, 0, t.length-1)];
+  const b = t[clamp(i+1, 0, t.length-1)];
+  return {x: a.x + (b.x-a.x)*f, y: a.y + (b.y-a.y)*f};
+}
+
+function pointsOf(p){
+  if(!p.leaving) return p.cells.map(c => ({x:px(c.x), y:py(c.y)}));
+  const out = [];
+  for(let j=0;j<p.cells.length;j++){
+    const pt = trackPoint(p.track, j + p.s);
+    out.push({x:px(pt.x), y:py(pt.y)});
+  }
+  return out;
+}
+
+function arrowHead(c, x, y, ux, uy, size){
+  const ang = Math.atan2(uy, ux), spread = 0.5;
+  c.beginPath();
+  c.moveTo(x - size*Math.cos(ang-spread), y - size*Math.sin(ang-spread));
+  c.lineTo(x, y);
+  c.lineTo(x - size*Math.cos(ang+spread), y - size*Math.sin(ang+spread));
+  c.stroke();
+}
+
+/* An arrow is "live" while it animates; live arrows stay out of the cache. */
+const isLive = p => p.leaving || p.blockT > 0 || p.glowT > 0;
+
+function strokePiece(c, p){
+  let pts = pointsOf(p);
+  if(p.blockT > 0){
+    const k = Math.sin((1 - p.blockT/0.3) * Math.PI) * cell * 0.22;
+    pts = pts.map(q => ({x:q.x + p.dir[0]*k, y:q.y + p.dir[1]*k}));
+  }
+  c.strokeStyle = strokeFor(p);
+  if(theme().glow){
+    c.shadowColor = c.strokeStyle;
+    c.shadowBlur  = Math.max(3, cell*0.42);
+  }
+  c.beginPath();
+  pts.forEach((q,i) => i ? c.lineTo(q.x,q.y) : c.moveTo(q.x,q.y));
+  c.stroke();
+
+  const a = pts[pts.length-2], b = pts[pts.length-1];
+  const dx = b.x-a.x, dy = b.y-a.y, len = Math.hypot(dx,dy) || 1;
+  arrowHead(c, b.x, b.y, dx/len, dy/len, Math.max(2, cell*0.3));
+  c.shadowBlur = 0;
+}
+
+function drawCache(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const th = theme();
+  cacheCtx.clearRect(0,0,w,h);
+
+  if(cell >= 11){
+    cacheCtx.fillStyle = th.dot;
+    const dot = Math.max(0.9, cell*0.045);
+    const x0 = Math.max(-2, Math.floor((-ox)/cell) - 1);
+    const x1 = Math.min(S.w+2, Math.ceil((w-ox)/cell) + 1);
+    const y0 = Math.max(-2, Math.floor((-oy)/cell) - 1);
+    const y1 = Math.min(S.h+2, Math.ceil((h-oy)/cell) + 1);
+    for(let y=y0; y<y1; y++)
+      for(let x=x0; x<x1; x++){
+        cacheCtx.beginPath(); cacheCtx.arc(px(x), py(y), dot, 0, 7); cacheCtx.fill();
+      }
+  }
+
+  cacheCtx.lineCap = "round";
+  cacheCtx.lineJoin = "round";
+  cacheCtx.lineWidth = Math.max(1, cell*S.lineW);
+  for(const p of S.pieces) if(!isLive(p)) strokePiece(cacheCtx, p);
+}
+
+function draw(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if(!w || !h || !cache) return;
+
+  // rebuild the cache whenever the set of still arrows changes
+  const live = S.pieces.reduce((n,p) => n + (isLive(p) ? 1 : 0), 0);
+  const sig = S.pieces.length + "/" + live;
+  if(sig !== lastSig){ lastSig = sig; cacheDirty = true; }
+  if(cacheDirty){ drawCache(); cacheDirty = false; }
+
+  ctx.clearRect(0,0,w,h);
+  ctx.drawImage(cache, 0, 0, w, h);
+
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = Math.max(1, cell*S.lineW);
+  for(const p of S.pieces) if(isLive(p)) strokePiece(ctx, p);
+
+  const left = S.pieces.filter(p => !p.leaving).length;
+  const done = S.total - left;
+  arrowsLeft.textContent = done + " / " + S.total;
+  if(progressBar) progressBar.style.width = (S.total ? (done/S.total*100) : 0) + "%";
+}
+
+/* ============================================================
+   Audio — soft, warm, hypercasual.
+
+   Everything is synthesised at runtime, so there are no audio files to
+   ship or preload. Sounds run through a gentle lowpass and a short
+   feedback delay so nothing is harsh: the aim is "calm puzzle game",
+   not "arcade". Clearing arrows walks up a pentatonic ladder, which is
+   why a run of quick clears feels like a melody rather than a rattle.
+   ============================================================ */
+/* ============================================================
+   Instruments
+
+   Every arrow you clear plays the next note of a pentatonic ladder, and
+   each level plays it on a different instrument in a different key. All
+   of it is synthesised from oscillators at runtime — no samples, so the
+   whole instrument bank costs zero download.
+
+   A voice is built from:
+     partials     [harmonic, gain, waveform] — the harmonic recipe
+     attack/decay envelope in seconds
+     lpf          fixed lowpass, for warmth
+     sweep        [from, to] filter sweep, which is what makes plucks pluck
+     fm           {ratio, index} inharmonic modulation, for bells
+     tremolo      Hz of gain wobble, for vibraphone
+     breath       noise blend, for flute
+   ============================================================ */
+const INSTRUMENTS = [
+  { name:"Piano",
+    partials:[[1,1,"triangle"],[2,0.30,"sine"],[3,0.12,"sine"],[4,0.05,"sine"]],
+    attack:0.004, decay:1.40, lpf:4500, gain:0.16 },
+
+  { name:"Marimba",
+    partials:[[1,1,"sine"],[4,0.35,"sine"],[9.2,0.07,"sine"]],
+    attack:0.002, decay:0.45, lpf:5200, gain:0.20 },
+
+  { name:"Music Box",
+    partials:[[2,1,"sine"],[5.4,0.18,"sine"],[8.9,0.06,"sine"]],
+    attack:0.002, decay:1.80, lpf:7000, gain:0.13 },
+
+  { name:"Kalimba",
+    partials:[[1,1,"triangle"],[2.01,0.28,"sine"],[3,0.10,"sine"]],
+    attack:0.003, decay:0.90, lpf:3800, gain:0.17 },
+
+  { name:"Harp",
+    partials:[[1,1,"sawtooth"],[2,0.15,"sine"]],
+    sweep:[3200,600], attack:0.003, decay:1.00, gain:0.12 },
+
+  { name:"Vibraphone",
+    partials:[[1,1,"sine"],[4,0.22,"sine"]],
+    tremolo:5.5, attack:0.004, decay:1.90, lpf:4000, gain:0.16 },
+
+  { name:"Glass Bell",
+    partials:[[1,1,"sine"]], fm:{ratio:3.46, index:380},
+    attack:0.002, decay:2.20, lpf:6000, gain:0.12 },
+
+  { name:"Nylon Guitar",
+    partials:[[1,1,"sawtooth"],[2,0.20,"sine"]],
+    sweep:[2600,700], attack:0.004, decay:0.85, gain:0.13 },
+
+  { name:"Flute",
+    partials:[[1,1,"sine"],[2,0.12,"sine"]],
+    breath:0.05, attack:0.055, decay:0.70, lpf:3000, gain:0.17 },
+
+  { name:"Steel Drum",
+    partials:[[1,1,"sine"],[2.4,0.40,"sine"],[3.8,0.14,"sine"]],
+    attack:0.003, decay:1.10, lpf:4600, gain:0.15 },
+
+  { name:"Celesta",
+    partials:[[2,1,"sine"],[4,0.25,"sine"],[6,0.08,"sine"]],
+    attack:0.002, decay:1.50, lpf:6500, gain:0.13 },
+
+  { name:"Koto",
+    partials:[[1,1,"triangle"],[2,0.35,"sawtooth"],[3,0.10,"sine"]],
+    sweep:[2200,500], attack:0.003, decay:1.05, gain:0.14 }
+];
+
+/* Each level also shifts key, so two levels on the same instrument
+   still sound different. Semitone offsets, all consonant. */
+const KEYS = [0, 3, -2, 5, -4, 7, 2, -5];
+
+const Sound = {
+  ctx: null,
+  master: null, sfxBus: null, musicGain: null,
+  ready: false,
+  step: 0, lastClear: 0,
+  musicTimer: null, chordIndex: 0,
+  inst: INSTRUMENTS[0], keyShift: 1,
+
+  // C major pentatonic over two octaves
+  ladder: [261.63, 293.66, 329.63, 392.00, 440.00,
+           523.25, 587.33, 659.25, 783.99, 880.00],
+
+  chords: [
+    [130.81, 196.00, 329.63],   // Cmaj9-ish
+    [110.00, 164.81, 329.63],   // Am7
+    [174.61, 261.63, 392.00],   // Fmaj7
+    [196.00, 293.66, 392.00]    // G6
+  ],
+
+  init(){
+    if(this.ctx) return;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      this.ctx = new AC();
+
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0.9;
+      this.master.connect(this.ctx.destination);
+
+      // soften everything
+      const lp = this.ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 3600;
+      lp.Q.value = 0.5;
+      lp.connect(this.master);
+
+      // short feedback delay for a bit of air
+      const delay = this.ctx.createDelay(1);
+      delay.delayTime.value = 0.19;
+      const fb = this.ctx.createGain();  fb.gain.value = 0.26;
+      const wet = this.ctx.createGain(); wet.gain.value = 0.17;
+      delay.connect(fb); fb.connect(delay);
+      delay.connect(wet); wet.connect(this.master);
+
+      this.delayIn = delay;
+      this.sfxBus = this.ctx.createGain();
+      this.sfxBus.gain.value = 1;
+      this.sfxBus.connect(lp);
+      this.sfxBus.connect(delay);
+
+      this.musicGain = this.ctx.createGain();
+      this.musicGain.gain.value = 0;
+      this.musicGain.connect(lp);
+
+      this.ready = true;
+    }catch(_){ this.ready = false; }
+  },
+
+  // browsers block audio until a gesture; call this from the first tap
+  unlock(){
+    this.init();
+    if(this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+  },
+
+  setMuted(m){
+    if(!this.ready) return;
+    const t = this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(t);
+    this.master.gain.linearRampToValueAtTime(m ? 0 : 0.9, t + 0.12);
+  },
+
+  /* ---- voices ---- */
+  tone(freq, dur, {type="sine", gain=0.13, attack=0.006, detune=0, bus=null} = {}){
+    if(!this.ready || !S.sound) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    o.detune.value = detune;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(bus || this.sfxBus);
+    o.start(t); o.stop(t + dur + 0.03);
+  },
+
+  noise(dur, {gain=0.2, type="lowpass", from=1200, to=300, q=1} = {}){
+    if(!this.ready || !S.sound) return;
+    const t = this.ctx.currentTime;
+    const n = Math.max(1, Math.floor(this.ctx.sampleRate * dur));
+    const buf = this.ctx.createBuffer(1, n, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i] = (Math.random()*2 - 1) * (1 - i/n);
+    const src = this.ctx.createBufferSource(); src.buffer = buf;
+    const f = this.ctx.createBiquadFilter();
+    f.type = type; f.Q.value = q;
+    f.frequency.setValueAtTime(from, t);
+    f.frequency.exponentialRampToValueAtTime(Math.max(40,to), t + dur);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f).connect(g).connect(this.sfxBus);
+    src.start(t);
+  },
+
+  /* ---- game sounds ---- */
+
+  /* Pick the instrument and key for a level. Instruments rotate through
+     the bank; the key rotates on a different cycle so the two don't line
+     up, which keeps level 13 from sounding like level 1. */
+  setLevel(lvl){
+    this.inst = INSTRUMENTS[(lvl-1) % INSTRUMENTS.length];
+    this.keyShift = Math.pow(2, KEYS[(lvl-1) % KEYS.length] / 12);
+    this.step = 0;
+    return this.inst.name;
+  },
+
+  /* Build one instrument voice at freq. */
+  note(freq, inst, gainScale){
+    if(!this.ready || !S.sound) return;
+    const t = this.ctx.currentTime;
+    const dur = inst.decay;
+
+    const voice = this.ctx.createGain();
+    voice.gain.value = (inst.gain || 0.15) * (gainScale === undefined ? 1 : gainScale);
+
+    // optional filter: a sweep is what gives plucked instruments their bite
+    let node = voice;
+    if(inst.sweep || inst.lpf){
+      const f = this.ctx.createBiquadFilter();
+      f.type = "lowpass";
+      f.Q.value = inst.sweep ? 1.2 : 0.6;
+      if(inst.sweep){
+        f.frequency.setValueAtTime(inst.sweep[0], t);
+        f.frequency.exponentialRampToValueAtTime(Math.max(60, inst.sweep[1]), t + dur*0.7);
+      }else{
+        f.frequency.value = inst.lpf;
+      }
+      voice.connect(f);
+      node = f;
+    }
+    node.connect(this.sfxBus);
+    if(inst.decay > 1) node.connect(this.delayIn);   // long notes get some air
+
+    // gain wobble for vibraphone
+    if(inst.tremolo){
+      const lfo = this.ctx.createOscillator();
+      const depth = this.ctx.createGain();
+      lfo.frequency.value = inst.tremolo;
+      depth.gain.value = voice.gain.value * 0.4;
+      lfo.connect(depth).connect(voice.gain);
+      lfo.start(t); lfo.stop(t + dur + 0.1);
+    }
+
+    for(const [mult, amp, wave] of inst.partials){
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = wave || "sine";
+      o.frequency.value = freq * mult;
+
+      // inharmonic FM for bell-like timbres
+      if(inst.fm){
+        const m = this.ctx.createOscillator();
+        const mg = this.ctx.createGain();
+        m.frequency.value = freq * inst.fm.ratio;
+        mg.gain.setValueAtTime(inst.fm.index, t);
+        mg.gain.exponentialRampToValueAtTime(1, t + dur*0.6);
+        m.connect(mg).connect(o.frequency);
+        m.start(t); m.stop(t + dur + 0.05);
+      }
+
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, amp), t + inst.attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(voice);
+      o.start(t); o.stop(t + dur + 0.05);
+    }
+
+    if(inst.breath) this.noise(dur*0.5, {gain:inst.breath, from:freq*3, to:freq*1.5, type:"bandpass", q:2});
+  },
+
+  // each cleared arrow steps up the ladder; a pause resets it
+  clear(){
+    const now = performance.now();
+    if(now - this.lastClear > 1100) this.step = 0;
+    this.lastClear = now;
+    const f = this.ladder[Math.min(this.step, this.ladder.length-1)] * this.keyShift;
+    this.step++;
+    this.note(f, this.inst);
+    this.noise(0.10, {gain:0.035, from:2600, to:900});   // soft whoosh
+  },
+
+  crash(){
+    this.step = 0;
+    this.tone(104, 0.34, {type:"sine", gain:0.16, attack:0.004});
+    this.tone(78,  0.28, {type:"sine", gain:0.10, attack:0.004});
+    this.noise(0.22, {gain:0.14, from:700, to:120});
+  },
+
+  hint(){
+    this.tone(1046.5, 0.5, {type:"sine", gain:0.07, attack:0.004});
+    this.tone(1568.0, 0.35, {type:"sine", gain:0.035, attack:0.004});
+  },
+
+  tapBlockedEdge(){
+    this.tone(180, 0.1, {type:"sine", gain:0.05, attack:0.004});
+  },
+
+  // party popper: the bang, the paper rustle, then a bright arpeggio
+  popper(){
+    if(!this.ready) return;
+    this.step = 0;
+    const t = this.ctx.currentTime;
+
+    // the pop itself — fast pitch sweep plus a bandpassed crack
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(380, t);
+    o.frequency.exponentialRampToValueAtTime(1500, t + 0.07);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.3, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    o.connect(g).connect(this.sfxBus);
+    o.start(t); o.stop(t + 0.2);
+
+    this.noise(0.12, {gain:0.3, type:"bandpass", from:900, to:3000, q:0.8});
+    // streamers fluttering down
+    setTimeout(() => this.noise(0.75, {gain:0.09, from:5200, to:1400}), 70);
+
+    // rising celebration arpeggio
+    const arp = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    // the fanfare plays on this level's instrument, so finishing a level
+    // sounds like the melody you just built
+    arp.forEach((f,i) => setTimeout(() => {
+      this.note(f * this.keyShift, this.inst, 1.1);
+    }, 150 + i*105));
+  },
+
+  /* ---- ambient pad ---- */
+  startMusic(){
+    if(!this.ready || this.musicTimer) return;
+    const play = () => {
+      if(!S.music) return;
+      const chord = this.chords[this.chordIndex % this.chords.length];
+      this.chordIndex++;
+      const t = this.ctx.currentTime;
+      chord.forEach((f, i) => {
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = i === 0 ? "sine" : "triangle";
+        o.frequency.value = f;
+        o.detune.value = (i-1) * 4;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.05, t + 2.4);       // slow swell
+        g.gain.linearRampToValueAtTime(0.0001, t + 8.2);
+        o.connect(g).connect(this.musicGain);
+        o.start(t); o.stop(t + 8.4);
+      });
+    };
+    this.musicGain.gain.value = 1;
+    play();
+    this.musicTimer = setInterval(play, 8000);
+  },
+
+  stopMusic(){
+    if(this.musicTimer){ clearInterval(this.musicTimer); this.musicTimer = null; }
+    if(this.ready) this.musicGain.gain.value = 0;
+  }
+};
+
+/* ============================================================
+   Confetti — two party poppers firing in from the bottom corners
+   plus a shower from above. Drawn on its own canvas so the board
+   never has to redraw for it.
+   ============================================================ */
+const Confetti = {
+  parts: [],
+  colors: ["#ff3355","#ffb020","#3fb950","#2f7fe0","#8d5cf6","#ff7ab8","#24d3c4"],
+
+  burst(w, h){
+    const add = (x, y, angle, spread, count, power) => {
+      for(let i=0;i<count;i++){
+        const a = angle + (Math.random()-0.5)*spread;
+        const v = power * (0.55 + Math.random()*0.65);
+        this.parts.push({
+          x, y,
+          vx: Math.cos(a)*v,
+          vy: Math.sin(a)*v,
+          w: 5 + Math.random()*7,
+          h: 8 + Math.random()*9,
+          rot: Math.random()*Math.PI*2,
+          vr: (Math.random()-0.5)*14,
+          flut: Math.random()*Math.PI*2,
+          color: this.colors[(Math.random()*this.colors.length)|0],
+          life: 2.6 + Math.random()*1.9
+        });
+      }
+    };
+    const P = Math.min(w, h);
+    // the two poppers, angled up and inward
+    add(-10,      h+10, -Math.PI/3.1,      0.75, 70, P*2.5);
+    add(w+10,     h+10, -Math.PI + Math.PI/3.1, 0.75, 70, P*2.5);
+    // and a shower drifting down over the board
+    add(w*0.5, -20,      Math.PI/2,        2.6,  50, P*0.6);
+  },
+
+  update(dt, w, h){
+    const g = 1250;
+    for(let i=this.parts.length-1;i>=0;i--){
+      const p = this.parts[i];
+      p.life -= dt;
+      p.vy += g*dt;
+      p.vx *= 0.988;
+      p.vy *= 0.992;
+      p.flut += dt*9;
+      p.x += (p.vx + Math.sin(p.flut)*36) * dt;
+      p.y += p.vy * dt;
+      p.rot += p.vr * dt;
+      if(p.life <= 0 || p.y > h + 60) this.parts.splice(i,1);
+    }
+    return this.parts.length > 0;
+  },
+
+  draw(ctx, dpr){
+    for(const p of this.parts){
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      // squash horizontally as it spins, so pieces read as thin paper
+      ctx.scale(Math.max(0.15, Math.abs(Math.cos(p.flut*0.6))), 1);
+      ctx.globalAlpha = Math.min(1, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  },
+
+  clear(){ this.parts.length = 0; }
+};
+
+/* ============================================================
+   Saving
+
+   localStorage throws rather than returning null in a few real
+   situations: Safari private browsing, a cross-origin iframe with
+   storage partitioned off, and some portal preview sandboxes. Every
+   access is wrapped, and if storage is unavailable the game runs
+   exactly as before with progress held in memory for the session.
+   Nothing here is allowed to be load-bearing.
+   ============================================================ */
+const Store = {
+  ok: false,
+  PREFIX: "arrowout.",
+
+  init(){
+    try{
+      const k = this.PREFIX + "__t";
+      localStorage.setItem(k, "1");
+      localStorage.removeItem(k);
+      this.ok = true;
+    }catch(e){ this.ok = false; }
+    return this.ok;
+  },
+
+  get(key, fallback){
+    if(!this.ok) return fallback;
+    try{
+      const raw = localStorage.getItem(this.PREFIX + key);
+      return raw === null ? fallback : JSON.parse(raw);
+    }catch(e){ return fallback; }
+  },
+
+  set(key, value){
+    if(!this.ok) return false;
+    try{
+      localStorage.setItem(this.PREFIX + key, JSON.stringify(value));
+      return true;
+    }catch(e){ return false; }        // quota, or storage revoked mid-session
+  },
+
+  remove(key){
+    if(!this.ok) return;
+    try{ localStorage.removeItem(this.PREFIX + key); }catch(e){}
+  }
+};
+
+function saveProgress(){
+  Store.set("progress", {
+    v: 1,
+    level: S.level,
+    cleared: [...S.cleared],
+    stars: S.stars
+  });
+}
+
+function loadProgress(){
+  const d = Store.get("progress", null);
+  if(!d || d.v !== 1) return;
+  if(Array.isArray(d.cleared)) S.cleared = new Set(d.cleared);
+  if(d.stars && typeof d.stars === "object") S.stars = d.stars;
+  // clamp in case the level count changed between versions
+  if(typeof d.level === "number") S.level = clamp(d.level, 1, SHAPES.length);
+}
+
+function saveSettings(){
+  Store.set("settings", {
+    v: 1,
+    theme: S.theme, colorMode: S.colorMode, cvd: S.cvd,
+    sound: S.sound, music: S.music, zen: S.zen,
+    showAll: S.showAll, lineW: S.lineW
+  });
+}
+
+function loadSettings(){
+  const d = Store.get("settings", null);
+  if(!d || d.v !== 1) return;
+  if(d.theme === "neon" || d.theme === "paper") S.theme = d.theme;
+  if(["rainbow","random","mono"].includes(d.colorMode)) S.colorMode = d.colorMode;
+  if(typeof d.cvd === "boolean") S.cvd = d.cvd;
+  if(typeof d.sound === "boolean") S.sound = d.sound;
+  if(typeof d.music === "boolean") S.music = d.music;
+  if(typeof d.zen === "boolean") S.zen = d.zen;
+  if(typeof d.showAll === "boolean") S.showAll = d.showAll;
+  if(typeof d.lineW === "number" && d.lineW > 0.05 && d.lineW < 0.5) S.lineW = d.lineW;
+}
+
+/* Push loaded values back into the settings panel so the controls match
+   what the game is actually doing. */
+function syncSettingsUI(){
+  const mark = (sel, attr, val) => {
+    const wrap = document.querySelector(sel);
+    if(!wrap) return;
+    [...wrap.children].forEach(b => b.classList.toggle("on", b.dataset[attr] === String(val)));
+  };
+  mark("#themeSeg", "t", S.theme);
+  mark("#colorSeg", "c", S.colorMode);
+  const seg = document.querySelector("#widthSeg");
+  if(seg) [...seg.children].forEach(b =>
+    b.classList.toggle("on", Math.abs(parseFloat(b.dataset.w) - S.lineW) < 0.001));
+
+  soundToggle.classList.toggle("on", S.sound);
+  musicToggle.classList.toggle("on", S.music);
+  zenToggle.classList.toggle("on", S.zen);
+  hintToggle.classList.toggle("on", S.showAll);
+  cvdToggle.classList.toggle("on", S.cvd);
+
+  const note = document.getElementById("saveNote");
+  if(note) note.textContent = Store.ok
+    ? "Progress saves automatically on this device."
+    : "Storage is blocked here, so progress lasts for this session only.";
+}
+
+function resetProgress(){
+  S.cleared = new Set();
+  S.stars = {};
+  S.level = 1;
+  Store.remove("progress");
+  buildLevel();
+}
+
+/* ============================================================
+   Features layered on top of the core puzzle
+   ============================================================ */
+
+/* ---- combo ----------------------------------------------------------
+   Clearing arrows without a crash builds a streak. It drives the
+   pentatonic ladder in the audio, so a good run literally sounds like a
+   rising melody, and it decays if you stop to think — which keeps the
+   scanning tense without adding a fail state. */
+let comboTimer = null;
+function bumpCombo(){
+  S.combo++;
+  if(S.combo > S.bestCombo) S.bestCombo = S.combo;
+  if(S.combo >= 3){
+    comboNum.textContent = S.combo;
+    comboEl.classList.add("show");
+  }
+  clearTimeout(comboTimer);
+  comboTimer = setTimeout(dropCombo, 2200);
+}
+function dropCombo(){
+  S.combo = 0;
+  comboEl.classList.remove("show");
+  clearTimeout(comboTimer);
+}
+
+/* ---- stars ----------------------------------------------------------
+   Three stars for a clean board, losing one per heart spent and one if
+   you leaned on powerups. Gives a reason to replay a shape. */
+function starsEarned(){
+  let s = 3;
+  if(S.hearts <= 2) s--;
+  if(S.hearts <= 1) s--;
+  if(S.hints < CFG.hints || S.bombs < CFG.bombs || S.reveals < CFG.reveals) s--;
+  return Math.max(1, s);
+}
+function starSvg(on){
+  return '<svg viewBox="0 0 24 24" class="' + (on ? "" : "off") + '">' +
+         '<path fill="#ffb020" d="m12 2 3 6.6 7 .8-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.8Z"/></svg>';
+}
+function renderStars(n){
+  starRow.innerHTML = starSvg(n>=1) + starSvg(n>=2) + starSvg(n>=3);
+}
+
+/* ---- powerups -------------------------------------------------------
+   Bomb removes one arrow no matter what is in its way, which is the only
+   thing in the game that can break the "lane must be clear" rule.
+   Reveal flashes every currently legal arrow for a few seconds. */
+function updatePowerUI(){
+  hintCount.textContent   = S.hints;
+  bombCount.textContent   = S.bombs;
+  revealCount.textContent = S.reveals;
+  hintBtn.disabled   = S.hints   <= 0;
+  bombBtn.disabled   = S.bombs   <= 0;
+  revealBtn.disabled = S.reveals <= 0;
+  bombBtn.classList.toggle("armed", S.armed === "bomb");
+}
+
+function useHint(){
+  if(S.hints <= 0 || !S.running) return;
+  const open = S.pieces.filter(p => !p.leaving && laneClear(p));
+  if(!open.length) return;
+  S.hints--;
+  updatePowerUI();
+  const p = open[(Math.random()*open.length)|0];
+  p.glowT = 1.8;
+  Sound.hint();
+  draw();
+}
+
+function armBomb(){
+  if(S.bombs <= 0 || !S.running) return;
+  S.armed = S.armed === "bomb" ? null : "bomb";
+  updatePowerUI();
+}
+
+function useReveal(){
+  if(S.reveals <= 0 || !S.running) return;
+  S.reveals--;
+  updatePowerUI();
+  Sound.hint();
+  for(const p of S.pieces) if(!p.leaving && laneClear(p)) p.glowT = 3;
+  draw();
+}
+
+/* ---- music ----------------------------------------------------------
+   A real track rather than the synth pad. Held at low volume and faded
+   rather than cut, so ad breaks and tab switches aren't jarring. */
+const Music = {
+  el: null, wanted: false,
+  init(){
+    this.el = document.getElementById("bgm");
+    if(!this.el) return;
+    this.el.volume = 0;
+    this.el.loop = true;
+  },
+  play(){
+    if(!this.el) return;
+    this.wanted = true;
+    if(!S.music) return;
+    const p = this.el.play();
+    if(p && p.catch) p.catch(() => {});   // autoplay may be blocked until a tap
+    this.fade(0.34);
+  },
+  pause(){ if(this.el) this.fade(0, () => this.el.pause()); },
+  setEnabled(on){
+    if(!this.el) return;
+    if(on && this.wanted) this.play();
+    else this.fade(0, () => this.el.pause());
+  },
+  fade(to, done){
+    if(!this.el) return;
+    const from = this.el.volume, t0 = performance.now(), dur = 420;
+    const step = now => {
+      const k = Math.min(1, (now-t0)/dur);
+      this.el.volume = Math.max(0, Math.min(1, from + (to-from)*k));
+      if(k < 1) requestAnimationFrame(step);
+      else if(done) done();
+    };
+    requestAnimationFrame(step);
+  }
+};
+
+/* ---- theme ---- */
+function applyTheme(){
+  document.body.classList.toggle("neon",  S.theme === "neon");
+  document.body.classList.toggle("paper", S.theme === "paper");
+  cacheDirty = true;
+  draw();
+}
+
+/* ---- zen mode -------------------------------------------------------
+   No hearts, no clock. Crashes still shake and still break the combo,
+   but nothing can end the run. */
+function applyZen(){
+  heartsEl.style.display = S.zen ? "none" : "";
+  timerChip.style.display = S.zen ? "none" : "";
+  if(S.zen){ S.hearts = CFG.hearts; renderHearts(); }
+}
+
+/* ---- global hooks used by the platform adapters ---- */
+window.Game = {
+  mute(on){ Sound.setMuted(on); if(on) Music.pause(); else if(S.music) Music.play(); },
+  pause(){ S.running = false; Music.pause(); },
+  resume(){ if(!anyOverlayOpen()) S.running = true; if(S.music) Music.play(); }
+};
+function anyOverlayOpen(){
+  return !!document.querySelector(".overlay.show");
+}
+
+/* ============================================================
+   Camera
+
+   One rule underpins all of this: zooming keeps the board point under
+   the anchor exactly where it is on screen. Pinch anchors to the point
+   between your fingers, wheel anchors to the cursor, buttons anchor to
+   the middle of the view. Without that, zooming slides the board out
+   from under you, which is what made the old version feel broken.
+   ============================================================ */
+const ZOOM_MIN = 1, ZOOM_MAX = 9;
+let zoomAnim = null;
+
+/* Instant zoom, holding (ax,ay) in screen space fixed. */
+function zoomAt(z, ax, ay){
+  z = clamp(z, ZOOM_MIN, ZOOM_MAX);
+  const bx = (ax - ox) / cell;         // board coords under the anchor
+  const by = (ay - oy) / cell;
+  S.zoom = z;
+  cell = fitCell * z;
+  ox = ax - bx * cell;
+  oy = ay - by * cell;
+  recentre();
+  cacheDirty = true;
+  draw();
+}
+
+/* Eased zoom for buttons and double-tap, so they glide instead of jumping. */
+function animateZoom(z, ax, ay){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  zoomAnim = {
+    from: S.zoom,
+    to: clamp(z, ZOOM_MIN, ZOOM_MAX),
+    ax: ax === undefined ? w/2 : ax,
+    ay: ay === undefined ? h/2 : ay,
+    t0: performance.now(),
+    dur: 240
+  };
+}
+
+function stepZoomAnim(now){
+  if(!zoomAnim) return false;
+  const k = Math.min(1, (now - zoomAnim.t0) / zoomAnim.dur);
+  const e = 1 - Math.pow(1 - k, 3);                  // easeOutCubic
+  zoomAt(zoomAnim.from + (zoomAnim.to - zoomAnim.from) * e, zoomAnim.ax, zoomAnim.ay);
+  if(k >= 1) zoomAnim = null;
+  return true;
+}
+
+function panTo(nx, ny){
+  ox = nx; oy = ny;
+  recentre();
+  cacheDirty = true;
+  draw();
+}
+
+/* ============================================================
+   Input
+
+   Pointer states:
+     1 finger  — tap, or drag to pan once it passes the slop threshold
+     2 fingers — pinch to zoom and pan at the same time
+
+   Any gesture that ever had two fingers down sets suppressTap, which is
+   only released when every finger is up. That stops the second finger
+   lifting off a pinch from registering as a tap on an arrow — which in
+   this game would blow up an arrow and cost a heart.
+   ============================================================ */
+const pts = new Map();
+let gesture = null;
+let suppressTap = false;
+let lastTapAt = 0, lastTapX = 0, lastTapY = 0;
+
+const TAP_SLOP = 10;          // px of movement still counted as a tap
+const DOUBLE_TAP_MS = 300;
+
+function localPoint(e){
+  const r = cv.getBoundingClientRect();
+  return {x: e.clientX - r.left, y: e.clientY - r.top};
+}
+
+function startPinch(){
+  const [a, b] = [...pts.values()];
+  gesture = {
+    mode: "pinch",
+    d0: Math.max(1, Math.hypot(a.x-b.x, a.y-b.y)),
+    z0: S.zoom,
+    cell0: cell,
+    mx0: (a.x+b.x)/2,
+    my0: (a.y+b.y)/2,
+    ox0: ox,
+    oy0: oy
+  };
+  suppressTap = true;
+  zoomAnim = null;             // a live gesture always beats an animation
+}
+
+function startPan(p){
+  gesture = {mode:"pan", sx:p.x, sy:p.y, ox0:ox, oy0:oy, moved:false};
+}
+
+cv.addEventListener("pointerdown", e => {
+  cv.setPointerCapture(e.pointerId);
+  const p = localPoint(e);
+  pts.set(e.pointerId, p);
+
+  if(pts.size === 1) startPan(p);
+  else if(pts.size === 2) startPinch();
+  else suppressTap = true;
+});
+
+cv.addEventListener("pointermove", e => {
+  if(!pts.has(e.pointerId)) return;
+  const p = localPoint(e);
+  pts.set(e.pointerId, p);
+  if(!gesture) return;
+
+  if(gesture.mode === "pinch" && pts.size >= 2){
+    const [a, b] = [...pts.values()];
+    const d = Math.max(1, Math.hypot(a.x-b.x, a.y-b.y));
+    const mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+
+    // zoom and pan together: the board point that was under the starting
+    // midpoint follows the midpoint as it moves
+    const z = clamp(gesture.z0 * (d / gesture.d0), ZOOM_MIN, ZOOM_MAX);
+    const newCell = fitCell * z;
+    const bx = (gesture.mx0 - gesture.ox0) / gesture.cell0;
+    const by = (gesture.my0 - gesture.oy0) / gesture.cell0;
+
+    S.zoom = z;
+    cell = newCell;
+    panTo(mx - bx*newCell, my - by*newCell);
+    return;
+  }
+
+  if(gesture.mode === "pan"){
+    const dx = p.x - gesture.sx, dy = p.y - gesture.sy;
+    if(!gesture.moved && Math.hypot(dx, dy) > TAP_SLOP) gesture.moved = true;
+    if(!gesture.moved) return;
+    panTo(gesture.ox0 + dx, gesture.oy0 + dy);
+  }
+});
+
+function tapBoard(ux, uy){
+  if(!S.running) return;
+
+  const gx = Math.floor((ux - ox)/cell);
+  const gy = Math.floor((uy - oy)/cell);
+  if(!inb(gx,gy)) return;
+
+  const id = S.occ.get(key(gx,gy));
+  if(id === undefined) return;
+  const p = S.pieces.find(q => q.id === id);
+  if(!p || p.leaving) return;
+
+  S.taps++;
+
+  if(S.armed === "bomb"){
+    S.armed = null;
+    S.bombs--;
+    updatePowerUI();
+    p.glowT = 0.2;
+    release(p);                 // blasts out regardless of what blocks it
+    return;
+  }
+
+  if(laneClear(p)){ p.glowT = 0.12; release(p); }
+  else crash(p);
+}
+
+function endPointer(e){
+  const p = pts.get(e.pointerId);
+  pts.delete(e.pointerId);
+
+  if(pts.size === 0){
+    const wasTap = gesture && gesture.mode === "pan" && !gesture.moved && !suppressTap;
+    gesture = null;
+    suppressTap = false;
+    if(wasTap && p){
+      const now = performance.now();
+      const near = Math.hypot(p.x - lastTapX, p.y - lastTapY) < 40;
+      if(now - lastTapAt < DOUBLE_TAP_MS && near){
+        // double tap toggles between fit and a comfortable reading zoom
+        animateZoom(S.zoom > 1.6 ? 1 : 2.8, p.x, p.y);
+        lastTapAt = 0;
+      }else{
+        lastTapAt = now; lastTapX = p.x; lastTapY = p.y;
+        tapBoard(p.x, p.y);
+      }
+    }
+  }else if(pts.size === 1){
+    // a finger left a pinch — continue as a pan from the remaining finger
+    // so the board doesn't jump, and keep taps suppressed
+    startPan([...pts.values()][0]);
+    gesture.moved = true;
+  }
+}
+
+cv.addEventListener("pointerup", endPointer);
+cv.addEventListener("pointercancel", endPointer);
+
+/* A pointer released outside the canvas, or a capture lost to the browser,
+   would otherwise leave a finger "stuck down" and kill tapping for the rest
+   of the session. Catch those on the window too. */
+window.addEventListener("pointerup", e => { if(pts.has(e.pointerId)) endPointer(e); });
+window.addEventListener("pointercancel", e => { if(pts.has(e.pointerId)) endPointer(e); });
+cv.addEventListener("lostpointercapture", e => { if(pts.has(e.pointerId)) endPointer(e); });
+
+// last-resort reset: if the window loses focus, drop any in-flight gesture
+window.addEventListener("blur", () => {
+  pts.clear();
+  gesture = null;
+  suppressTap = false;
+});
+
+cv.addEventListener("wheel", e => {
+  e.preventDefault();
+  zoomAnim = null;
+  const p = localPoint(e);
+  // exponential so trackpads feel continuous and mouse wheels feel stepped
+  zoomAt(S.zoom * Math.exp(-e.deltaY * 0.0016), p.x, p.y);
+}, {passive:false});
+
+/* ============================================================
+   Hint
+   ============================================================ */
+hintBtn.onclick   = useHint;
+bombBtn.onclick   = armBomb;
+revealBtn.onclick = useReveal;
+
+/* ============================================================
+   Overlays
+   ============================================================ */
+const show = id => document.getElementById(id).classList.add("show");
+const hide = id => document.getElementById(id).classList.remove("show");
+
+document.getElementById("gearBtn").onclick       = () => { S.running=false; Platform.gameplayStop(); show("settingsOverlay"); };
+document.getElementById("closeSettings").onclick = () => { hide("settingsOverlay"); S.running=true; Platform.gameplayStart(); };
+document.getElementById("restartBtn").onclick    = () => { hide("settingsOverlay"); buildLevel(); };
+document.getElementById("replayBtn").onclick     = () => { hide("winOverlay"); buildLevel((Math.random()*1e9)|0); };
+document.getElementById("retryBtn").onclick      = () => { hide("loseOverlay"); buildLevel(); };
+
+/* Between levels is the natural ad break: gameplay has stopped, the player
+   has already seen their result, and they have just asked to continue. */
+document.getElementById("nextBtn").onclick = () => {
+  hide("winOverlay");
+  S.level = Math.min(SHAPES.length, S.level + 1);
+  Platform.interstitial().then(() => buildLevel());
+};
+
+document.getElementById("backBtn").onclick = () => { S.running=false; Platform.gameplayStop(); renderLevels(); show("levelsOverlay"); };
+document.getElementById("closeLevels").onclick = () => { hide("levelsOverlay"); S.running=true; Platform.gameplayStart(); };
+
+function renderLevels(){
+  const g = document.getElementById("lvGrid");
+  g.innerHTML = "";
+  for(let i=1;i<=SHAPES.length;i++){
+    const b = document.createElement("button");
+    b.className = "lv" + (i === S.level ? " cur" : S.cleared.has(i) ? " done" : "");
+    b.innerHTML = i + (S.stars[i] ? '<span class="lvStars">' + "\u2605".repeat(S.stars[i]) + '</span>' : "");
+    b.title = SHAPES[i-1].name;
+    b.onclick = () => { S.level = i; hide("levelsOverlay"); buildLevel(); };
+    g.appendChild(b);
+  }
+}
+
+const soundToggle = document.getElementById("soundToggle");
+soundToggle.onclick = () => { S.sound = !S.sound; soundToggle.classList.toggle("on", S.sound); saveSettings(); };
+
+const musicToggle = document.getElementById("musicToggle");
+musicToggle.onclick = () => {
+  S.music = !S.music;
+  musicToggle.classList.toggle("on", S.music);
+  Music.setEnabled(S.music);
+  saveSettings();
+};
+
+const cvdToggle = document.getElementById("cvdToggle");
+cvdToggle.onclick = () => {
+  S.cvd = !S.cvd;
+  cvdToggle.classList.toggle("on", S.cvd);
+  cacheDirty = true;
+  draw();
+  saveSettings();
+};
+
+document.getElementById("resetBtn").onclick = () => {
+  if(window.confirm("Reset all levels and stars?")){
+    hide("settingsOverlay");
+    resetProgress();
+  }
+};
+
+const zenToggle = document.getElementById("zenToggle");
+zenToggle.onclick = () => {
+  S.zen = !S.zen;
+  zenToggle.classList.toggle("on", S.zen);
+  applyZen();
+  saveSettings();
+};
+
+document.getElementById("themeSeg").addEventListener("click", e => {
+  const b = e.target.closest("button[data-t]");
+  if(!b) return;
+  S.theme = b.dataset.t;
+  [...b.parentNode.children].forEach(c => c.classList.toggle("on", c === b));
+  applyTheme();
+  saveSettings();
+});
+
+document.getElementById("colorSeg").addEventListener("click", e => {
+  const b = e.target.closest("button[data-c]");
+  if(!b) return;
+  S.colorMode = b.dataset.c;
+  [...b.parentNode.children].forEach(c => c.classList.toggle("on", c === b));
+  cacheDirty = true;
+  draw();
+  saveSettings();
+});
+
+document.getElementById("zoomIn").onclick  = () => animateZoom(S.zoom * 1.7);
+document.getElementById("zoomOut").onclick = () => animateZoom(S.zoom / 1.7);
+document.getElementById("zoomFit").onclick = () => animateZoom(1);
+reviveBtn.onclick = revive;
+const hintToggle = document.getElementById("hintToggle");
+hintToggle.onclick = () => { S.showAll = !S.showAll; hintToggle.classList.toggle("on", S.showAll); cacheDirty = true; draw(); saveSettings(); };
+
+document.getElementById("widthSeg").addEventListener("click", e => {
+  const b = e.target.closest("button[data-w]");
+  if(!b) return;
+  S.lineW = parseFloat(b.dataset.w);
+  [...b.parentNode.children].forEach(c => c.classList.toggle("on", c === b));
+  cacheDirty = true;
+  draw();
+  saveSettings();
+});
+
+/* ============================================================
+   Loop
+   ============================================================ */
+let last = performance.now();
+function tick(now){
+  const dt = Math.min((now - last)/1000, 0.05);
+  last = now;
+  let dirty = false;
+
+  for(let i=S.pieces.length-1;i>=0;i--){
+    const p = S.pieces[i];
+    if(p.leaving){
+      p.s += CFG.slideSpeed * dt;
+      dirty = true;
+      if(p.s >= p.endS){
+        S.pieces.splice(i,1);
+        if(!S.pieces.length && S.running) win();
+      }
+    }
+    if(p.blockT > 0){ p.blockT = Math.max(0, p.blockT - dt); dirty = true; }
+    if(p.glowT > 0){ p.glowT = Math.max(0, p.glowT - dt); dirty = true; }
+  }
+
+  if(stepZoomAnim(now)) dirty = false;      // zoomAt already redrew
+  if(S.running && !S.zen){ S.elapsed += dt; updateTimer(); }
+  if(dirty) draw();
+
+  if(Confetti.parts.length){
+    const w = stage.clientWidth, h = stage.clientHeight;
+    Confetti.update(dt, w, h);
+    fxCtx.clearRect(0,0,w,h);
+    Confetti.draw(fxCtx, dpr);
+  }
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+window.addEventListener("resize", resize);
+window.addEventListener("orientationchange", () => setTimeout(resize, 220));
+if(window.visualViewport) window.visualViewport.addEventListener("resize", resize);
+
+// pause cleanly when the tab or the portal hides us
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden){ Music.pause(); }
+  else if(S.music) Music.play();
+});
+
+/* ---- boot ----------------------------------------------------------
+   Portals need a loading signal, and browsers need a user gesture before
+   any audio will play. The Play button gives us both in one tap. */
+async function boot(){
+  Store.init();
+  loadSettings();
+  loadProgress();
+  syncSettingsUI();
+  applyTheme();
+  Music.init();
+
+  // Playgama Bridge v2 must be initialized before any platform API is used.
+  await Platform.initialize();
+  Platform.loadingStart();
+
+  let pct = 0;
+  const fake = setInterval(() => {
+    pct = Math.min(100, pct + 7 + Math.random()*13);
+    loaderBar.style.width = pct + "%";
+    if(pct >= 100){
+      clearInterval(fake);
+      Platform.loadingStop();
+      playBtn.hidden = false;
+    }
+  }, 90);
+}
+
+playBtn.onclick = () => {
+  Sound.unlock();
+  Music.play();
+  loader.classList.add("gone");
+  setTimeout(() => { loader.style.display = "none"; }, 400);
+  app.hidden = false;
+  Platform.ready();
+  buildLevel();
+};
+
+boot();
+
+/* Hook used by test.js to drive real gameplay headlessly. Harmless in
+   production: it only exposes functions that already exist. */
+window.__TEST__ = {
+  goto(n){ S.level = n; buildLevel(); },
+  state(){
+    return { level:S.level, name:SHAPES[S.level-1].name, total:S.total,
+             left:S.pieces.filter(p => !p.leaving).length, hearts:S.hearts };
+  },
+  anyClearable(){ return S.pieces.find(p => !p.leaving && laneClear(p)) || null; },
+  camera(){ return {zoom:S.zoom, cell, ox, oy, fitCell}; },
+  dims(){ return {w:S.w, h:S.h}; },
+  raw(){ return S; },
+  storageOK(){ return Store.ok; },
+  redraw(){ cacheDirty = true; draw(); },
+  zoomAt(z, ax, ay){ zoomAt(z, ax, ay); },
+  cellCentre(p){ const c = p.cells[p.cells.length-1]; return {x:px(c.x), y:py(c.y)}; },
+  instrument(){ return Sound.inst.name; },
+  animateZoom(z, ax, ay){ animateZoom(z, ax, ay); },
+  probe(){ return {running:S.running, armed:S.armed, suppressTap, gesture: gesture && gesture.mode,
+                   pts: pts.size, lastTapAt}; },
+  tapPiece(p){ if(laneClear(p)) release(p); },
+  finishAnimations(){
+    for(let i=S.pieces.length-1;i>=0;i--){
+      const p = S.pieces[i];
+      if(p.leaving) S.pieces.splice(i,1);
+    }
+    if(!S.pieces.length && S.running) win();
+  }
+};
+
+})();
+
+</script>
+</body>
+</html>

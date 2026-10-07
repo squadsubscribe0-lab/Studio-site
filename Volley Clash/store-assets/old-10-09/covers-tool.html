@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<!-- assets.js fetches its manifests with document-relative paths
+     ("assets/characters/manifest.json"), which from /tools/ resolve to
+     /tools/assets/... and 404 into the built-in fallback roster - the
+     covers came out with the wrong characters and no power icons.
+     Rebase the document; the imports below are absolute to match. -->
+<base href="/" />
+<title>Beach Volley Clash — cover renderer</title>
+<style>
+  body{font:14px/1.55 ui-monospace,Menlo,Consolas,monospace;background:#0f1626;color:#e8edf5;margin:0;padding:24px}
+  h1{font-size:16px;margin:0 0 4px}
+  p{color:#94a3b8;max-width:70ch;margin:0 0 16px}
+  .row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-top:18px}
+  figure{margin:0}
+  figcaption{color:#94a3b8;margin-top:6px;font-size:12px}
+  canvas{background:#0a1424;border:1px solid #223;border-radius:6px;display:block}
+  #log{margin-top:16px;white-space:pre-wrap;color:#7dd3a0}
+  .err{color:#ff8f8f}
+</style>
+</head>
+<body>
+<h1>Cover renderer</h1>
+<p>
+  Poses a rally, renders the scene once at 4x, then crops the three shapes the
+  store needs and writes them to <code>store-assets/</code> through the dev
+  server. Nothing here ships — <code>tools/</code> is not in build.py's
+  INCLUDE_DIRS.
+</p>
+<div class="row" id="out"></div>
+<div id="log"></div>
+
+<script type="module">
+import { VIEW, COURT, TEAM } from '/src/config.js';
+import { loadAllAssets } from '/src/core/assets.js';
+import { attachPowerIcons } from '/src/game/powers.js';
+import { Renderer } from '/src/game/renderer.js';
+import { Match } from '/src/game/match.js';
+
+const log = (msg, bad) => {
+  const el = document.getElementById('log');
+  el.innerHTML += `<span class="${bad ? 'err' : ''}">${msg}</span>\n`;
+};
+
+// Render the world large, then downscale into each crop. Downsampling from 4x
+// is what keeps the thick outlines clean; drawing straight into an 800px box
+// gives you ragged edges on every stroke.
+const SUPER = 4;
+
+// Each cover crops a window of the world rather than showing all of it. The
+// full 1600x900 frame puts the players at under a quarter of the height, and on
+// a store card at thumbnail size that reads as an empty beach - the two figures
+// and the net have to carry the picture, so the crop is tight on them.
+const SIZES = [
+  { name: 'cover-landscape.png', w: 1920, h: 1080,
+    crop: { cx: 700, cy: 488, worldW: 1120 }, title: { place: 'left', div: 24, y: 0.16 } },
+  { name: 'cover-portrait.png',  w: 800,  h: 1200,
+    crop: { cx: 828, cy: 480, worldW: 470 },  title: { place: 'top',  div: 13, y: 0.12 } },
+  { name: 'cover-square.png',    w: 800,  h: 800,
+    crop: { cx: 830, cy: 472, worldW: 740 },  title: { place: 'top',  div: 16, y: 0.125 } }
+];
+
+/** Builds a match and freezes it on the most flattering frame of a rally. */
+function poseMatch(assets) {
+  const match = new Match({
+    mode: 'ai', teamSize: 1, pointsToWin: 5, matchSeconds: 120, difficulty: 1,
+    characters: { left: [assets.characters[0]], right: [assets.characters[1]] },
+    ballSkin: assets.balls[0],
+    localSeats: [{ team: TEAM.LEFT, slot: 0, controller: 'human0', name: 'You' }]
+  }, assets);
+
+  match.state = 'rally';
+  match.score = [3, 2];
+  match.clock = 74;
+
+  const [left, right] = match.players;
+
+  // Both players are pulled in towards the net so a tight crop still holds the
+  // spiker, the net and the defender.
+  //
+  // Left player at the top of a spike: airborne, arm up, mouth open.
+  // Caught lower in the jump than the peak: at the top of the arc his raised
+  // arm ends up behind the wordmark on the two portrait crops, and a cover
+  // whose title covers the action is not selling the action.
+  left.x = 706; left.y = 596; left.onGround = false; left.spikeHeld = true;
+  left.facing = 1; left.vx = 120; left.vy = -60;
+
+  // Right player braced to dig it, leaning into the ball.
+  right.x = 962; right.y = COURT.groundY; right.onGround = true;
+  right.facing = -1; right.vx = -180; right.animTime = 0.42;
+
+  // Ball just off the hands, above the tape, with a trail behind it.
+  const ball = match.ball;
+  ball.x = 852; ball.y = 452; ball.vx = 900; ball.vy = 250; ball.rot = 0.6;
+  ball.trail.length = 0;
+  for (let i = 0; i < 8; i++) ball.trail.push({ x: ball.x - i * 24, y: ball.y - i * 8 });
+
+  // A fireball orb waiting to be hit - it says "this is not just volleyball".
+  // Kept inside the narrowest crop so every cover gets it.
+  match.powers.orbs.length = 0;
+  match.powers.orbs.push({ id: 1, type: 'fire', x: 1044, y: 392, r: 34, age: 0, life: 999, vx: 0, vy: 0 });
+  match.powers.charges = [{ type: 'ice' }, null];
+
+  return match;
+}
+
+/** The wordmark, drawn to match the DOM logo on the menu. */
+function drawTitle(ctx, w, h, cfg) {
+  const unit = w / cfg.div;
+  const cx = cfg.place === 'left' ? w * 0.22 : w / 2;
+  let y = h * cfg.y;
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowOffsetY = unit * 0.16;
+  ctx.shadowBlur = unit * 0.1;
+
+  // Leading has to come from BOTH lines' sizes, not just the one being drawn.
+  // Stepping by a fraction of the current size put a 126px BEACH only 108px
+  // above a 205px VOLLEY, and with textBaseline 'middle' the big line simply
+  // swallowed the small one - the first render had BEACH almost invisible
+  // behind VOLLEY.
+  const LINES = [
+    ['BEACH',  1.45, '#f2d39b'],
+    ['VOLLEY', 2.35, '#ffc31e'],
+    ['CLASH',  1.70, '#4aa3ff']
+  ];
+
+  const draw = (text, size, fill) => {
+    ctx.font = `900 ${size}px "Baloo 2","Fredoka","Nunito",system-ui,-apple-system,"Segoe UI",sans-serif`;
+    ctx.lineWidth = size * 0.2;
+    ctx.strokeStyle = '#05080f';
+    ctx.strokeText(text, cx, y);
+    ctx.fillStyle = fill;
+    ctx.fillText(text, cx, y);
+  };
+
+  for (let i = 0; i < LINES.length; i++) {
+    const [text, mul, fill] = LINES[i];
+    const size = unit * mul;
+    draw(text, size, fill);
+    const next = LINES[i + 1];
+    if (next) y += (size + unit * next[1]) * 0.42;
+  }
+  ctx.restore();
+}
+
+async function main() {
+  log('loading assets…');
+  const assets = await loadAllAssets();
+  attachPowerIcons(assets.powerIcons);
+
+  // A canvas the renderer can own. Its rect/scale are what draw() reads.
+  const big = document.createElement('canvas');
+  big.width = VIEW.W * SUPER;
+  big.height = VIEW.H * SUPER;
+
+  const renderer = new Renderer(big, assets);
+  renderer.dpr = 1;
+  renderer.rect = { x: 0, y: 0, w: big.width, h: big.height, scale: SUPER };
+  renderer.time = 6.2;                       // a settled point in the wave/sun cycles
+
+  const match = poseMatch(assets);
+
+  // Two passes: the first builds the cached sand layer and seeds the effect
+  // buffers, the second is the frame we actually keep.
+  renderer.draw(match, 0.016);
+  renderer.updateEffects(0.016);
+  renderer.draw(match, 0.016);
+  log('scene rendered at ' + big.width + '×' + big.height);
+
+  for (const spec of SIZES) {
+    const out = document.createElement('canvas');
+    out.width = spec.w;
+    out.height = spec.h;
+    const ctx = out.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+
+    // Crop a window of the world centred on the net, in the output's aspect.
+    const worldH = spec.crop.worldW * (spec.h / spec.w);
+    const sx = (spec.crop.cx - spec.crop.worldW / 2) * SUPER;
+    const sy = (spec.crop.cy - worldH / 2) * SUPER;
+    ctx.drawImage(big, sx, sy, spec.crop.worldW * SUPER, worldH * SUPER, 0, 0, spec.w, spec.h);
+
+    // A little top shade so the wordmark always has something to sit on,
+    // whatever the sky is doing behind it.
+    // Only as deep as the wordmark needs. The old version dimmed the top half
+    // of the image, which took the sun and the sky down with it.
+    const band = spec.h * (spec.title.place === 'left' ? 0.42 : 0.34);
+    const shade = ctx.createLinearGradient(0, 0, 0, band);
+    shade.addColorStop(0, 'rgba(6,14,30,0.50)');
+    shade.addColorStop(0.6, 'rgba(6,14,30,0.16)');
+    shade.addColorStop(1, 'rgba(6,14,30,0)');
+    ctx.fillStyle = shade;
+    ctx.fillRect(0, 0, spec.w, band);
+
+    drawTitle(ctx, spec.w, spec.h, spec.title);
+
+    // Preview at a sane size on the page.
+    const fig = document.createElement('figure');
+    const prev = document.createElement('canvas');
+    const k = 260 / spec.w;
+    prev.width = Math.round(spec.w * k);
+    prev.height = Math.round(spec.h * k);
+    prev.getContext('2d').drawImage(out, 0, 0, prev.width, prev.height);
+    const cap = document.createElement('figcaption');
+    cap.textContent = `${spec.name} — ${spec.w}×${spec.h}`;
+    fig.append(prev, cap);
+    document.getElementById('out').append(fig);
+
+    const blob = await new Promise((res) => out.toBlob(res, 'image/png'));
+    const r = await fetch(`/__save?name=${encodeURIComponent(spec.name)}`, { method: 'POST', body: blob });
+    log(`${r.ok ? 'saved' : 'FAILED'}  ${spec.name}  ${(blob.size / 1024).toFixed(0)} KB`, !r.ok);
+  }
+
+  log('done');
+  window.__coversDone = true;
+}
+
+main().catch((e) => { log('ERROR ' + e.message, true); console.error(e); });
+</script>
+</body>
+</html>

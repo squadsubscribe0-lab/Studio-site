@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<!-- assets.js fetches its manifests document-relative, so from /tools/ they
+     404 into the built-in fallback roster. Rebase; imports are absolute. -->
+<base href="/" />
+<title>Beach Volley Clash — trailer recorder</title>
+<style>
+  body{font:14px/1.55 ui-monospace,Menlo,Consolas,monospace;background:#0f1626;color:#e8edf5;margin:0;padding:24px}
+  h1{font-size:16px;margin:0 0 4px}
+  p{color:#94a3b8;max-width:72ch;margin:0 0 16px}
+  canvas{background:#0a1424;border:1px solid #223;border-radius:6px;display:block;max-width:640px;max-height:480px}
+  #log{margin-top:16px;white-space:pre-wrap;color:#7dd3a0}
+  .err{color:#ff8f8f}
+  progress{width:640px;margin-top:10px}
+</style>
+</head>
+<body>
+<h1>Trailer recorder</h1>
+<p>
+  Plays a real AI-vs-AI match and writes every frame out as a JPEG through the
+  dev server; ffmpeg assembles them at an exact 30fps and crossfades the store
+  cover in front. Open with <code>?format=landscape</code> (1920×1080) or
+  <code>?format=portrait</code> (1080×1620). Nothing here watches a clock, so a
+  slow frame costs time, never smoothness.
+</p>
+<canvas id="stage"></canvas>
+<progress id="bar" max="100" value="0"></progress>
+<div id="log"></div>
+
+<script type="module">
+import { VIEW, PHYS, TEAM, POWERS, COURT } from '/src/config.js';
+import { loadAllAssets } from '/src/core/assets.js';
+import { POWER_META, attachPowerIcons } from '/src/game/powers.js';
+import { Renderer } from '/src/game/renderer.js';
+import { Match, STATE } from '/src/game/match.js';
+
+const log = (m, bad) => {
+  document.getElementById('log').innerHTML += `<span class="${bad ? 'err' : ''}">${m}</span>\n`;
+};
+
+// CrazyGames asks for both trailers at 1080p: 16:9 landscape and 2:3 portrait.
+// The old take was 720p because it was paced against the wall clock and could
+// not encode 1080p in real time; this loop is not paced at all, so the only
+// cost of the bigger frame is a longer render.
+//
+// Portrait is a real 2:3 shot, not the landscape video shrunk into a strip with
+// blurred copies above and below - the store bans bars, and at that size the
+// players were a few pixels tall. The world is drawn at the portrait's height
+// and a 2:3 window follows the ball across it.
+const FORMATS = {
+  landscape: { w: 1920, h: 1080, dir: 'frames-landscape' },
+  portrait:  { w: 1080, h: 1620, dir: 'frames-portrait' }
+};
+const FORMAT = new URLSearchParams(location.search).get('format') || 'landscape';
+const OUT = FORMATS[FORMAT];
+
+const FPS = 30;
+// Gameplay only. ffmpeg holds the cover for a second and crossfades into this,
+// which lands the finished clip at 18s - inside the store's 20s cap.
+const SECONDS = 17;
+const TOTAL = FPS * SECONDS;
+const DT = 1 / FPS;
+
+// The game integrates at a fixed 1/120 behind an accumulator. Stepping once by
+// the frame time instead would be a coarser integration than the thing being
+// filmed, and the ball would not travel quite the same arc.
+const SUBSTEPS = Math.round((1 / FPS) / PHYS.dt);
+
+/** Beats that keep the clip from being one flat rally. Shifted 0.6s earlier
+    than the old take to make room for the cover crossfade. */
+const SCRIPT = [
+  { at: 1.9, power: 'fire',  team: TEAM.LEFT },
+  { at: 5.4, power: 'ice',   team: TEAM.RIGHT },
+  { at: 8.9, power: 'multi', team: TEAM.LEFT },
+  { at: 12.4, power: 'fire', team: TEAM.RIGHT },
+  { at: 14.9, power: 'ice',  team: TEAM.LEFT }
+];
+
+function buildMatch(assets) {
+  // Both sides on the AI. A trailer wants a real rally, and the human seat with
+  // nobody behind it just stands on the sand while the other side scores.
+  return new Match({
+    mode: 'ai', teamSize: 2, pointsToWin: 99, matchSeconds: 0, difficulty: 1.15,
+    characters: {
+      left: [assets.characters[0], assets.characters[3]],
+      right: [assets.characters[1], assets.characters[4]]
+    },
+    ballSkin: assets.balls[0],
+    localSeats: []
+  }, assets);
+}
+
+const rgba = (hex, alpha) => {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+};
+
+/**
+ * The visual half of main.js's handleEvents - no audio, no HUD, no coins.
+ *
+ * The old take drained the event queue and threw it away, so the trailer had
+ * none of the hit sparks, spike rings, power flashes or impact bursts a player
+ * sees: it undersold the game it was selling. Screen shake is left out because
+ * it translates the whole scene and leaves unpainted edges in the frame.
+ */
+function feedEffects(R, ev) {
+  const P = (power, a) => rgba((POWER_META[power] || POWER_META.fire).color, a);
+  switch (ev.type) {
+    case 'hit':
+      R.burst(ev.x, ev.y, 6, 'rgba(255,255,255,ALPHA)', 220);
+      R.ring(ev.x, ev.y, { to: 46 + ev.power * 40, life: 0.26, width: 4 });
+      break;
+    case 'spike':
+      R.burst(ev.x, ev.y, 16, 'rgba(255,220,120,ALPHA)', 420, { glow: true });
+      R.ring(ev.x, ev.y, { to: 150, life: 0.35, width: 8, color: 'rgba(255,220,140,ALPHA)' });
+      break;
+    case 'dive':
+      R.burst(ev.player.x, ev.player.y, 10, 'rgba(240,215,160,ALPHA)', 260);
+      break;
+    case 'land':
+      R.burst(ev.player.x, ev.player.y, 5, 'rgba(240,215,160,ALPHA)', 180);
+      break;
+    case 'orbSpawn':
+      R.ring(ev.x, ev.y, { to: 120, life: 0.5, width: 5, color: P(ev.power, 'ALPHA') });
+      break;
+    case 'orbTaken':
+      R.burst(ev.x, ev.y, 26, P(ev.power, 'ALPHA'), 460, { glow: true, shape: 'star', gravity: 200 });
+      R.ring(ev.x, ev.y, { to: 200, life: 0.5, width: 9, color: P(ev.power, 'ALPHA') });
+      R.popup(ev.x, ev.y - 40, POWER_META[ev.power].label, { color: POWER_META[ev.power].glow, size: 40, life: 1.0 });
+      break;
+    case 'powerFired': {
+      const meta = POWER_META[ev.power];
+      R.flash(meta.color, 0.3, 0.26);
+      R.ring(ev.x, ev.y, { to: 260, life: 0.5, width: 12, color: P(ev.power, 'ALPHA') });
+      R.burst(ev.x, ev.y, 30, P(ev.power, 'ALPHA'), 620, {
+        glow: true, gravity: ev.power === 'fire' ? -200 : 400,
+        shape: ev.power === 'ice' ? 'shard' : 'flame'
+      });
+      R.popup(ev.x, ev.y - 70, meta.label, { color: meta.glow, size: 52, life: 1.2, shake: 5 });
+      break;
+    }
+    case 'frozen':
+      R.burst(ev.x, ev.y, 20, 'rgba(200,244,255,ALPHA)', 300, { shape: 'shard', glow: true });
+      R.ring(ev.x, ev.y, { to: 130, life: 0.45, width: 7, color: 'rgba(120,220,255,ALPHA)' });
+      break;
+    case 'unfreeze':
+      R.burst(ev.x, ev.y, 26, 'rgba(223,251,255,ALPHA)', 420, { shape: 'shard', gravity: 1400 });
+      break;
+    case 'scorched':
+      R.burst(ev.x, ev.y, 14, 'rgba(255,140,40,ALPHA)', 260, { glow: true, shape: 'flame', gravity: -180 });
+      break;
+    case 'multiStart':
+      R.flash('#c084fc', 0.35, 0.3);
+      R.popup(ev.x, ev.y - 60, `x${ev.count}`, { color: '#f5d0fe', size: 72, life: 1.1, shake: 6 });
+      break;
+    case 'ballGone':
+      R.burst(ev.x, ev.y, 12, 'rgba(200,170,255,ALPHA)', 260, { glow: true });
+      break;
+    case 'impact':
+      if (ev.kind === 'fire') {
+        R.flash('#ff7a1a', 0.32, 0.24);
+        R.ring(ev.x, ev.y, { to: 240, life: 0.5, width: 12, color: 'rgba(255,140,40,ALPHA)', squash: 0.32 });
+        R.burst(ev.x, ev.y, 34, 'rgba(255,150,40,ALPHA)', 520, {
+          glow: true, shape: 'flame', gravity: -140, angle: -Math.PI / 2, spread: Math.PI * 1.4
+        });
+      } else if (ev.kind === 'ice') {
+        R.ring(ev.x, ev.y, { to: 200, life: 0.5, width: 9, color: 'rgba(140,225,255,ALPHA)', squash: 0.32 });
+        R.burst(ev.x, ev.y, 26, 'rgba(223,251,255,ALPHA)', 460, { shape: 'shard', glow: true });
+      } else {
+        R.burst(ev.x, ev.y, 12, 'rgba(240,215,160,ALPHA)', 260, { angle: -Math.PI / 2, spread: Math.PI });
+        R.ring(ev.x, ev.y, { to: 90, life: 0.35, width: 5, color: 'rgba(255,240,200,ALPHA)', squash: 0.3 });
+      }
+      break;
+  }
+}
+
+/**
+ * Uploads frames as they are made, a few requests in flight, and makes the
+ * render loop wait when the queue backs up. Holding all 510 1080p frames in
+ * memory before sending was the old approach; at this size it is ~200MB of
+ * blobs for no benefit.
+ */
+function makeUploader(dir) {
+  const queue = [];
+  let inFlight = 0, sent = 0, failed = 0;
+  const waiters = [];
+  const pump = () => {
+    while (inFlight < 6 && queue.length) {
+      const { blob, i } = queue.shift();
+      inFlight++;
+      fetch(`/__save?dir=${dir}&name=f${String(i).padStart(4, '0')}.jpg`, { method: 'POST', body: blob })
+        .then((r) => { if (!r.ok) failed++; })
+        .catch(() => { failed++; })
+        .finally(() => {
+          inFlight--; sent++;
+          pump();
+          while (waiters.length && queue.length < 12) waiters.shift()();
+        });
+    }
+  };
+  return {
+    async push(blob, i) {
+      queue.push({ blob, i });
+      pump();
+      if (queue.length >= 12) await new Promise((r) => waiters.push(r));
+    },
+    async drain() {
+      while (queue.length || inFlight) await new Promise((r) => setTimeout(r, 25));
+      return { sent, failed };
+    }
+  };
+}
+
+async function record(assets) {
+  POWERS.enabled = true;
+
+  const stage = document.getElementById('stage');
+  stage.width = OUT.w;
+  stage.height = OUT.h;
+  const ctx = stage.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+
+  // The world is always drawn whole, at the output's height; landscape then
+  // uses all of it and portrait crops a moving 2:3 window out of it.
+  const scale = OUT.h / VIEW.H;
+  const world = document.createElement('canvas');
+  world.width = Math.round(VIEW.W * scale);
+  world.height = OUT.h;
+
+  const renderer = new Renderer(world, assets);
+  renderer.dpr = 1;
+  renderer.rect = { x: 0, y: 0, w: world.width, h: world.height, scale };
+
+  const match = buildMatch(assets);
+  const uploader = makeUploader(OUT.dir);
+  const bar = document.getElementById('bar');
+  const fired = new Set();
+  const empty = new Map();
+  const t0 = performance.now();
+
+  // Portrait camera, in world units. Starts on the net and eases after the ball.
+  const viewW = OUT.w / scale;
+  let camX = COURT.netX;
+
+  for (let f = 0; f < TOTAL; f++) {
+    const t = f * DT;
+
+    // Hand a charge to a side on cue, so the powers actually show up on camera
+    // instead of waiting on the orb spawn timer.
+    for (const beat of SCRIPT) {
+      if (!fired.has(beat) && t >= beat.at && match.state === STATE.RALLY) {
+        match.powers.grant(beat.team, beat.power, 'trailer');
+        fired.add(beat);
+      }
+    }
+
+    for (let i = 0; i < SUBSTEPS; i++) match.step(PHYS.dt, empty);
+    for (const ev of match.drainEvents()) feedEffects(renderer, ev);
+    renderer.updateEffects(DT);
+    renderer.shake = 0;
+    renderer.draw(match, DT);
+
+    if (FORMAT === 'portrait') {
+      // Follow the fastest ball, so a fireball or a multiball split stays in
+      // shot. Eased, so the camera glides instead of snapping on every touch.
+      const ball = match.balls.reduce(
+        (a, b) => (Math.hypot(b.vx, b.vy) > Math.hypot(a.vx, a.vy) ? b : a),
+        match.balls[0]
+      );
+      const want = ball ? ball.x : COURT.netX;
+      camX += (want - camX) * 0.09;
+      const left = Math.max(0, Math.min(VIEW.W - viewW, camX - viewW / 2));
+      ctx.drawImage(world, left * scale, 0, OUT.w, OUT.h, 0, 0, OUT.w, OUT.h);
+    } else {
+      ctx.drawImage(world, 0, 0);
+    }
+
+    const blob = await new Promise((res) => stage.toBlob(res, 'image/jpeg', 0.92));
+    await uploader.push(blob, f);
+    if (f % 15 === 0) bar.value = (f / TOTAL) * 100;
+  }
+
+  const { sent, failed } = await uploader.drain();
+  bar.value = 100;
+  const wall = (performance.now() - t0) / 1000;
+  log(`${FORMAT}: ${sent} frames at ${OUT.w}×${OUT.h} in ${wall.toFixed(1)}s`);
+  if (failed) log(`${failed} frames FAILED to upload`, true);
+  window.__trailerDone = failed === 0;
+  window.__frameCount = sent;
+}
+
+(async () => {
+  try {
+    if (!OUT) throw new Error(`unknown format "${FORMAT}" - use landscape or portrait`);
+    log(`loading assets… (${FORMAT})`);
+    const assets = await loadAllAssets();
+    attachPowerIcons(assets.powerIcons);
+    await record(assets);
+    log('done — now run ffmpeg');
+  } catch (e) {
+    window.__trailerError = e.message;
+    log('ERROR ' + e.message, true);
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>

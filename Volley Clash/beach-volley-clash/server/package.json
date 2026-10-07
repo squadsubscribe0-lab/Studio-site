@@ -1,0 +1,15 @@
+{
+  "name": "beach-volley-clash-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Room relay for Beach Volley Clash online play",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": { "node": ">=18" }
+}

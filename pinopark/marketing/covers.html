@@ -1,0 +1,276 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tiny Tandem Covers</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+html,body{margin:0;padding:0;background:#000;overflow:hidden}
+canvas{display:block}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<script>
+// Cover renderer for CrazyGames assets. Usage: covers.html?s=land|land2|port|square
+// Sprite data copied from index.html so the art matches the game 1:1.
+const BUD=[
+ '...OOOOOO...',
+ '..OFFFFFFO..',
+ '.OFFFFFFFFO.',
+ 'OFFFFFFFFFFO',
+ 'OFFFFFFFFFFO',
+ 'OFFFFFFFFFFO',
+ 'OFFFFFFFFFFO',
+ 'OFFFFFFFFFFO',
+ 'OFFFFFFFFFFO',
+ 'OFFFFFFFFFFO',
+ 'OFFFFFFFFFFO',
+ '.OFFFFFFFFO.',
+ '..OOOOOOOO..'];
+const FEET=['..OO....OO..','.OO......OO.','...OO..OO...'];
+const PCOL=[{c:'#ff6b6b',d:'#e0443e'},{c:'#4da3ff',d:'#2f7fe0'},{c:'#ffd23f',d:'#d9a400'},{c:'#4cd07a',d:'#259a4f'}];
+const LIGHT=['#ffb3b3','#a9d4ff','#fff0a0','#b4f0c2'];
+const INK='#1d2340';
+// thumbnail fill: halfway between the in-game pastel and the base color, so bodies stay punchy when shrunk
+const mix=(a,b,t)=>'#'+[1,3,5].map(k=>Math.round(parseInt(a.substr(k,2),16)*(1-t)+parseInt(b.substr(k,2),16)*t).toString(16).padStart(2,'0')).join('');
+const FILL=LIGHT.map((l,i)=>mix(l,PCOL[i].c,0.5));
+const FONT='"Baloo 2","Trebuchet MS",system-ui,sans-serif';
+
+const S=(new URLSearchParams(location.search).get('s'))||'land';
+const SIZES={land:[1920,1080],land2:[1920,1080],port:[800,1200],square:[800,800]};
+const [W,H]=SIZES[S];
+const cv=document.getElementById('cv');cv.width=W;cv.height=H;
+const ctx=cv.getContext('2d');
+
+// ---------- buddy ----------
+// face: happy | shock | grit | joy ; look: -1..1 pupils shift
+function buddyCells(i,o){
+  const col=PCOL[i],cells=[];
+  const put=(x,y,c)=>cells.push([o.flip?11-x:x,y,c]);
+  if(o.leaf!==false){const lc='#3fbf5f',st='#2b8a3e';put(5,-1,st);put(5,-2,st);put(6,-3,lc);put(7,-3,lc);put(7,-4,lc);put(8,-4,lc);put(4,-3,lc);}
+  for(let y=0;y<BUD.length;y++)for(let x=0;x<12;x++){const c=BUD[y][x];if(c==='O')put(x,y,col.d);else if(c==='F')put(x,y,FILL[i]);}
+  const fr=FEET[o.feet||0];for(let x=0;x<12;x++)if(fr[x]==='O')put(x,13,col.d);
+  const f=o.face||'happy',ey=o.ey!=null?o.ey:5;
+  if(f==='joy'){ // open eyes + big open grin
+    for(const ex of [4,7])for(let yy=0;yy<3;yy++)for(let xx=0;xx<2;xx++)put(ex+xx,ey+yy,INK);
+    put(4,ey,'#fff');put(7,ey,'#fff');
+    for(let x=3;x<9;x++)put(x,8,INK);put(3,9,INK);put(8,9,INK);for(let x=4;x<8;x++)put(x,9,x<6?'#b3263f':'#ff6b8b');for(let x=4;x<8;x++)put(x,10,INK);
+    put(4,9,'#fff');  }else{
+    const eh=f==='shock'?4:3;
+    for(const ex of [4,7])for(let yy=0;yy<eh;yy++)for(let xx=0;xx<2;xx++)put(ex+xx,ey-(f==='shock'?1:0)+yy,INK);
+    put(4,ey-(f==='shock'?1:0),'#fff');put(7,ey-(f==='shock'?1:0),'#fff');
+    if(f==='shock'){put(5,9,INK);put(6,9,INK);put(5,10,INK);put(6,10,INK);}
+    else if(f==='grit'){put(4,9,INK);for(let x=4;x<8;x++)put(x,9,INK);put(5,9,'#fff');put(6,9,'#fff');put(3,ey-1,INK);put(8,ey-1,INK);}
+    else {put(4,9,INK);put(5,10,INK);put(6,10,INK);put(7,9,INK);}
+  }
+  put(3,f==='joy'?9:9,'rgba(255,110,140,.6)');put(8+(f==='joy'?0:0),9,'rgba(255,110,140,.6)');
+  put(10,9,'rgba(255,110,140,.6)');
+  return cells;
+}
+// draw buddy with top-left of body row 0 at (x,y); px = pixel size
+function buddy(i,x,y,px,o={}){
+  const cells=buddyCells(i,o);
+  ctx.save();
+  if(o.rot){const cx=x+6*px,cy=y+7*px;ctx.translate(cx,cy);ctx.rotate(o.rot);ctx.translate(-cx,-cy);}
+  // soft drop shadow + chunky ink outline so the sprite pops at thumbnail size
+  const ol=Math.max(3,px*0.45);
+  ctx.fillStyle='rgba(20,25,60,.28)';
+  for(const [cx,cy,c] of cells){if(c.startsWith('rgba')||c==='#fff')continue;ctx.fillRect(x+cx*px-ol+px*0.35,y+cy*px-ol+px*0.55,px+2*ol,px+2*ol);}
+  ctx.fillStyle=INK;
+  for(const [cx,cy,c] of cells){if(c.startsWith('rgba'))continue;ctx.fillRect(x+cx*px-ol,y+cy*px-ol,px+2*ol,px+2*ol);}
+  for(const [cx,cy,c] of cells){ctx.fillStyle=c;ctx.fillRect(x+cx*px,y+cy*px,px+0.5,px+0.5);}
+  // glossy highlight
+  ctx.fillStyle='rgba(255,255,255,.55)';ctx.fillRect(x+2*px,y+2*px,px*2,px);ctx.fillRect(x+2*px,y+3*px,px,px);
+  ctx.restore();
+}
+const BH=14; // body rows incl. feet
+
+// ---------- props ----------
+function rr(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function glow(x,y,r,c){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,c.replace(/[\d.]+\)$/,'0)'));ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);}
+function key(x,y,s,rot=0){
+  glow(x,y,s*34,'rgba(255,220,90,.75)');
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(s,s);
+  ctx.lineJoin='round';
+  const shape=()=>{ctx.beginPath();ctx.arc(-6,0,6.5,0,7);ctx.rect(-1,-2.5,14,5);ctx.rect(8,2,3,5);ctx.rect(3,2,3,4);};
+  ctx.strokeStyle=INK;ctx.lineWidth=4.2;shape();ctx.stroke();
+  ctx.fillStyle='#ffc233';shape();ctx.fill();
+  ctx.fillStyle='#ffe38a';ctx.fillRect(0,-2,12,1.6);ctx.beginPath();ctx.arc(-8,-2.5,2.2,0,7);ctx.fill();
+  ctx.fillStyle='#c77c02';ctx.beginPath();ctx.arc(-6,0,2.5,0,7);ctx.fill();
+  ctx.restore();
+}
+function sparkle(x,y,r,c='#fff'){ctx.save();ctx.translate(x,y);ctx.fillStyle=c;ctx.beginPath();
+  for(let k=0;k<8;k++){const a=k*Math.PI/4,rr2=k%2?r*0.28:r;ctx.lineTo(Math.cos(a)*rr2,Math.sin(a)*rr2);}ctx.closePath();ctx.fill();ctx.restore();}
+function door(x,y,w,h,open=true){
+  if(open){ctx.save();ctx.beginPath();ctx.rect(0,0,W,y+h);ctx.clip();glow(x+w/2,y+h*0.55,w*1.9,'rgba(255,225,110,.7)');ctx.restore();}
+  const b=w*0.08;
+  ctx.fillStyle=INK;rr(x-b,y-b,w+2*b,h+2*b,w*0.18);ctx.fill();
+  ctx.fillStyle='#5a3e2b';rr(x,y,w,h,w*0.14);ctx.fill();
+  const ix=x+w*0.14,iy=y+w*0.16,iw=w*0.72,ih=h-w*0.16;
+  if(open){const g=ctx.createLinearGradient(0,iy,0,iy+ih);g.addColorStop(0,'#fff6c4');g.addColorStop(1,'#ffd84a');ctx.fillStyle=g;rr(ix,iy,iw,ih,w*0.08);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillRect(ix+iw*0.15,iy+ih*0.1,iw*0.12,ih*0.55);}
+  else{ctx.fillStyle='#8d6245';ctx.fillRect(ix,iy,iw,ih);}
+}
+function spikes(x,y,n,sw,sh){
+  for(let k=0;k<n;k++){const sx=x+k*sw;
+    ctx.fillStyle=INK;ctx.beginPath();ctx.moveTo(sx-3,y+3);ctx.lineTo(sx+sw/2,y-sh-6);ctx.lineTo(sx+sw+3,y+3);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#dfe4ea';ctx.beginPath();ctx.moveTo(sx+2,y);ctx.lineTo(sx+sw/2,y-sh);ctx.lineTo(sx+sw-2,y);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(sx+sw/2-2,y-sh+8);ctx.lineTo(sx+sw/2,y-sh);ctx.lineTo(sx+sw/2+1,y-sh*0.4);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#fa5252';ctx.fillRect(sx+sw/2-sw*0.08,y-sh+sh*0.12,sw*0.16,sh*0.14);}
+}
+// ground made of the game's tile look: dark checker + colored grass lip
+function ground(x,y,w,h,t,pal){
+  ctx.fillStyle=pal.tile;ctx.fillRect(x,y,w,h);
+  for(let cx=0;cx*t<w;cx++)for(let cy=0;cy*t<h;cy++)if((cx+cy)%2===0){ctx.fillStyle='rgba(255,255,255,.05)';ctx.fillRect(x+cx*t,y+cy*t,t,t);}
+  const lip=t*0.22;ctx.fillStyle=INK;ctx.fillRect(x-4,y-6,w+8,lip+10);
+  ctx.fillStyle=pal.top;ctx.fillRect(x,y-2,w,lip);ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(x,y-2,w,lip*0.28);
+  ctx.fillStyle='rgba(0,0,0,.15)';ctx.fillRect(x,y-2+lip,w,t*0.06);
+}
+function sky(pal,rays,cx,cy){
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,pal.b1);g.addColorStop(1,pal.b2);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  if(rays){ctx.save();ctx.translate(cx,cy);ctx.fillStyle=pal.ray||'rgba(255,255,255,.22)';const n=18,L=Math.hypot(W,H);
+    for(let k=0;k<n;k++){const a=k/n*Math.PI*2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*L,Math.sin(a)*L);ctx.lineTo(Math.cos(a+Math.PI/n)*L,Math.sin(a+Math.PI/n)*L);ctx.closePath();ctx.fill();}
+    ctx.restore();glow(cx,cy,Math.min(W,H)*0.55,pal.core||'rgba(255,255,255,.55)');}
+}
+function hills(pal,base,sc){
+  ctx.fillStyle=pal.hill2;for(let i=-1;i<W/(260*sc)+2;i++){ctx.beginPath();ctx.ellipse(i*260*sc+60*sc,base,190*sc,150*sc,0,Math.PI,0);ctx.fill();}
+  ctx.fillStyle=pal.hill;for(let i=-1;i<W/(180*sc)+2;i++){ctx.beginPath();ctx.ellipse(i*180*sc+130*sc,base+20*sc,120*sc,95*sc,0,Math.PI,0);ctx.fill();}
+}
+function cloud(x,y,s){ctx.fillStyle='rgba(255,255,255,.9)';ctx.beginPath();ctx.ellipse(x,y,38*s,14*s,0,0,7);ctx.ellipse(x+28*s,y-8*s,26*s,14*s,0,0,7);ctx.ellipse(x-22*s,y-4*s,20*s,11*s,0,0,7);ctx.fill();}
+function confetti(n,seed,box){let s=seed;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+  const cols=['#ff5d5d','#3d9bff','#ffc233','#3fc46b','#ff7eb6','#fff'];
+  for(let k=0;k<n;k++){const x=box[0]+r()*box[2],y=box[1]+r()*box[3],w=6+r()*10,h=10+r()*14;ctx.save();ctx.translate(x,y);ctx.rotate(r()*6);ctx.fillStyle=cols[k%cols.length];ctx.fillRect(-w/2,-h/2,w,h);ctx.restore();}}
+function motion(x,y,len,n,gap,vert=true){ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineCap='round';ctx.lineWidth=gap*0.35;
+  for(let k=0;k<n;k++){ctx.beginPath();if(vert){ctx.moveTo(x+k*gap,y);ctx.lineTo(x+k*gap,y+len*(k%2?0.7:1));}else{ctx.moveTo(x,y+k*gap);ctx.lineTo(x+len*(k%2?0.7:1),y+k*gap);}ctx.stroke();}}
+function rope(pts,w){
+  ctx.lineCap='round';ctx.lineJoin='round';
+  const path=()=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);if(pts.length===3)ctx.quadraticCurveTo(pts[1][0],pts[1][1],pts[2][0],pts[2][1]);else ctx.bezierCurveTo(pts[1][0],pts[1][1],pts[2][0],pts[2][1],pts[3][0],pts[3][1]);};
+  ctx.strokeStyle=INK;ctx.lineWidth=w+8;path();ctx.stroke();
+  ctx.strokeStyle='#c98a4b';ctx.lineWidth=w;path();ctx.stroke();
+  ctx.strokeStyle='#8a5a2b';ctx.lineWidth=w*0.35;ctx.setLineDash([w*0.5,w*0.9]);path();ctx.stroke();ctx.setLineDash([]);
+}
+
+// ---------- logo (same letter colors/tilts as the in-game title) ----------
+function logo(cx,cy,size,opt={}){
+  const parts=[['Ti','#ff5d5d',-4,0],['ny','#3d9bff',3,0.07],[' ',null,0,0],['Tan','#ffc233',-2,0],['dem','#3fc46b',4,0.05]];
+  ctx.font=`800 ${size}px ${FONT}`;ctx.textBaseline='alphabetic';
+  const sp=size*0.02;let tw=0;const ws=parts.map(p=>{const w=p[0]===' '?size*0.2:ctx.measureText(p[0]).width;tw+=w+sp;return w;});tw-=sp;
+  const lines=opt.stack?[[0,1],[3,4]]:[[0,1,2,3,4]];
+  lines.forEach((ln,li)=>{
+    let lw=0;ln.forEach(k=>lw+=ws[k]+sp);lw-=sp;
+    let x=cx-lw/2;const by=cy+(opt.stack?(li-0.5)*size*0.82:0)+size*0.32;
+    for(const k of ln){const [t,c,deg,dy]=parts[k];if(t===' '){x+=ws[k]+sp;continue;}
+      ctx.save();ctx.translate(x+ws[k]/2,by+dy*size);ctx.rotate(deg*Math.PI/180);
+      ctx.lineJoin='round';
+      ctx.fillStyle='rgba(20,25,60,.35)';ctx.fillText(t,-ws[k]/2,size*0.09);
+      ctx.strokeStyle=INK;ctx.lineWidth=size*0.2;ctx.strokeText(t,-ws[k]/2,0);
+      ctx.strokeStyle='#fff';ctx.lineWidth=size*0.1;ctx.strokeText(t,-ws[k]/2,0);
+      ctx.fillStyle=c;ctx.fillText(t,-ws[k]/2,0);
+      // top shine
+      ctx.save();ctx.beginPath();ctx.rect(-ws[k]/2,-size*0.72,ws[k],size*0.26);ctx.clip();ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillText(t,-ws[k]/2,0);ctx.restore();
+      ctx.restore();x+=ws[k]+sp;}
+  });
+}
+
+const SUN={b1:'#5fb8ff',b2:'#c9ecff',hill:'#8fd3a0',hill2:'#6fc08a',tile:'#2d3a5c',top:'#63cf85',ray:'rgba(255,255,255,.2)',core:'rgba(255,255,230,.8)'};
+const DUSK={b1:'#ff9a6b',b2:'#ffd9a8',hill:'#f7a07a',hill2:'#e9855f',tile:'#3b3251',top:'#ff9f43',ray:'rgba(255,240,200,.22)',core:'rgba(255,250,210,.85)'};
+
+// ---------- scenes ----------
+const SCENES={
+  // Hero: 3-buddy head-stack reaching the key, 4th cheering, door glowing.
+  land(){
+    const px=17,bh=BH*px,gy=920;
+    sky(SUN,true,1250,250);
+    hills(SUN,gy-10,2.1);
+    cloud(160,420,2.2);cloud(1720,140,1.8);cloud(900,560,1.4);
+    ground(0,gy,W,H-gy,150,SUN);
+    // spike pit strip foreground-left
+    // door
+    door(1690,gy-320,180,320,true);
+    // tower (bottom red, blue, yellow on top)
+    const tx=1030;
+    buddy(0,tx,gy-bh,px,{face:'grit',feet:0});
+    buddy(1,tx+px*0.5,gy-2*bh+px*0.4,px,{face:'grit',feet:2,flip:true});
+    buddy(2,tx-px*0.3,gy-3*bh+px*0.8,px,{face:'joy',feet:1,rot:-0.08});
+    key(tx+px*6+40,gy-3*bh-px*6.2,8.6,-0.35);
+    sparkle(tx+px*15,gy-3*bh-px*8,34);sparkle(tx-px*1.5,gy-3*bh-px*3,22);sparkle(tx+px*14,gy-3*bh+px*1.5,18);
+    // green buddy jumping in with motion lines
+    buddy(3,1360,gy-bh-170,px,{face:'shock',feet:2,rot:0.14,flip:true});
+    motion(1372,gy-bh-170+bh+14,90,4,44);
+    spikes(260,gy,6,70,78);
+    logo(520,215,196,{stack:true});
+  },
+  // Alt: rope rescue over a spike pit (world 4 "Tied Together" energy), dusk palette.
+  land2(){
+    const px=18,bh=BH*px,gy=820;
+    sky(DUSK,true,560,300);
+    hills(DUSK,gy-10,2.1);
+    cloud(240,140,1.6);
+    // left ledge
+    ground(0,gy,980,H-gy,140,DUSK);
+    // pit with spikes
+    ctx.fillStyle='#2a2140';ctx.fillRect(980,gy+40,W-980,H-gy);
+    spikes(990,H-8,13,72,120);
+    // right far ledge with door
+    ground(1600,gy-60,W-1600,H-gy+60,140,DUSK);
+    door(1700,gy-60-320,180,320,true);
+    // taut rope first so it reads as passing behind the pullers
+    const bx=1120,by=gy-110,rx=bx+6*px,ry=by-px*1.5;
+    rope([[300,gy-bh*0.45],[700,gy-bh*0.5],[rx,ry]],20);
+    // pullers on ledge, leaning back hard
+    buddy(3,340,gy-bh,px,{face:'grit',feet:1,rot:-0.2});
+    buddy(2,560,gy-bh,px,{face:'grit',feet:1,rot:-0.22});
+    buddy(0,780,gy-bh,px,{face:'grit',feet:1,rot:-0.24});
+    // dangling blue over the spikes, key just out of reach of the pit
+    buddy(1,bx,by,px,{face:'shock',feet:2,rot:0.3});
+    key(bx+px*16,by-px*3,8.5,0.5);
+    sparkle(bx+px*20,by-px*6,30);sparkle(bx+px*12.5,by-px*7,20);
+    // sweat drops
+    for(const [sx,sy] of [[bx-px*1.5,by+px*2],[bx-px*0.5,by-px*1]]){ctx.fillStyle=INK;ctx.beginPath();ctx.ellipse(sx,sy,px*0.75,px*1.05,0,0,7);ctx.fill();ctx.fillStyle='#bfe6ff';ctx.beginPath();ctx.ellipse(sx,sy,px*0.5,px*0.8,0,0,7);ctx.fill();}
+    logo(1350,190,176,{stack:false});
+  },
+  // Portrait: 4-tall buddy tower, key at the peak.
+  port(){
+    const px=12,bh=BH*px,gy=1100;
+    sky(SUN,true,400,300);
+    hills(SUN,gy-10,1.1);
+    cloud(120,560,1.3);cloud(690,470,1.1);
+    ground(0,gy,W,H-gy,100,SUN);
+    const tx=330;
+    buddy(0,tx,gy-bh,px,{face:'grit'});
+    buddy(1,tx+px*0.6,gy-2*bh+px*0.4,px,{face:'grit',feet:2,flip:true});
+    buddy(3,tx-px*0.5,gy-3*bh+px*0.8,px,{face:'grit',feet:2});
+    buddy(2,tx+px*0.4,gy-4*bh+px*1.2,px,{face:'joy',feet:1,rot:0.06,flip:true});
+    key(tx+px*6+12,gy-4*bh-px*5.2,5.8,-0.3);
+    sparkle(tx+px*14,gy-4*bh-px*7.5,24);sparkle(tx-px*2,gy-4*bh-px*3,16);
+    door(620,gy-190,110,190,true);
+    spikes(40,gy,3,52,58);
+    logo(400,165,132,{stack:true});
+  },
+  // Square: two big buddies, head-stack + key. Biggest faces for tiny tiles.
+  square(){
+    const px=16,bh=BH*px,gy=770;
+    sky(SUN,true,470,330);
+    hills(SUN,gy-10,1.2);
+    cloud(110,430,1.2);
+    ground(0,gy,W,H-gy,110,SUN);
+    const tx=330;
+    buddy(0,tx,gy-bh,px,{face:'grit'});
+    buddy(1,tx+px*0.5,gy-2*bh+px*0.4,px,{face:'joy',feet:1,rot:-0.07,flip:true});
+    key(tx+px*6+22,gy-2*bh-px*5.4,6.8,-0.35);
+    sparkle(tx+px*14,gy-2*bh-px*7,26);sparkle(tx-px*1.8,gy-2*bh-px*2,16);
+    buddy(2,640,gy-bh+px*1,px*0.62,{face:'shock',feet:2,flip:true});
+    buddy(3,70,gy-bh+px*2.4,px*0.62,{face:'joy',feet:1});
+    logo(400,120,112,{stack:false});
+  },
+};
+
+(async()=>{
+  try{await Promise.all([document.fonts.load(`800 100px "Baloo 2"`)]);}catch(e){}
+  SCENES[S]();
+  document.title='done';
+})();
+</script>
+</body>
+</html>

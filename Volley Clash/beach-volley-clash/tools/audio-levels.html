@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Beach Volley Clash — audio levels</title>
+<style>
+  body{font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#0f1626;color:#e8edf5;margin:0;padding:24px}
+  h1{font-size:16px;margin:0 0 4px}
+  p{color:#94a3b8;max-width:64ch;margin:0 0 18px}
+  table{border-collapse:collapse;margin-top:14px}
+  th,td{padding:4px 12px;text-align:right;border-bottom:1px solid #223}
+  th:first-child,td:first-child{text-align:left}
+  .bar{display:inline-block;height:10px;background:#4aa3ff;vertical-align:middle;border-radius:2px}
+  .hot{background:#e0392f}
+  .quiet{background:#5b6a86}
+  tr.tier td{padding-top:16px;color:#ffc31e;font-weight:700;border:0}
+</style>
+</head>
+<body>
+<h1>Audio cue levels</h1>
+<p>
+  Renders every cue in <code>AUDIO_KEYS</code> through the real mixer in an
+  OfflineAudioContext and measures it. Peak is what clips; RMS is what the ear
+  reads as loudness, so RMS is the column that matters for whether the bank
+  sounds level. Run this after changing any cue gain.
+</p>
+<div id="out">rendering…</div>
+
+<script type="module">
+import { audio } from '../src/core/audio.js';
+import { AUDIO_KEYS } from '../src/config.js';
+
+const SR = 48000;
+const TAIL = 2.5;          // long enough for the reverb on the biggest cue
+
+/** Renders one cue on its own and returns its peak and RMS in dBFS. */
+async function measure(key) {
+  const offline = new OfflineAudioContext(2, SR * TAIL, SR);
+  audio.buildGraph(offline);
+  audio.muted = false;
+  audio.platformMuted = false;
+  // The crowd bed runs continuously and would sit under every reading.
+  if (audio.crowdGain) audio.crowdGain.gain.value = 0;
+  audio.play(key, 1, 1);
+  const buf = await offline.startRendering();
+
+  let peak = 0, sum = 0, n = 0;
+  for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < d.length; i++) {
+      const a = Math.abs(d[i]);
+      if (a > peak) peak = a;
+      sum += d[i] * d[i];
+      n++;
+    }
+  }
+  const rms = Math.sqrt(sum / n);
+  const db = (v) => (v > 0 ? 20 * Math.log10(v) : -Infinity);
+  return { key, peak, rms, peakDb: db(peak), rmsDb: db(rms) };
+}
+
+const rows = [];
+for (const key of AUDIO_KEYS) rows.push(await measure(key));
+
+const fmt = (v) => (isFinite(v) ? v.toFixed(1) : '-inf');
+const loudest = Math.max(...rows.map((r) => r.rms));
+
+let html = `<table><tr><th>cue</th><th>peak</th><th>peak dB</th><th>rms dB</th><th>relative</th></tr>`;
+for (const r of rows.sort((a, b) => b.rms - a.rms)) {
+  const w = Math.round((r.rms / loudest) * 220);
+  const cls = r.peak > 0.99 ? 'hot' : r.rms < loudest / 8 ? 'quiet' : '';
+  html += `<tr><td>${r.key}</td><td>${r.peak.toFixed(3)}</td><td>${fmt(r.peakDb)}</td>` +
+          `<td>${fmt(r.rmsDb)}</td><td><span class="bar ${cls}" style="width:${w}px"></span></td></tr>`;
+}
+html += '</table>';
+
+const spread = rows[0].rmsDb - rows[rows.length - 1].rmsDb;
+html += `<p style="margin-top:18px">Loudest to quietest: <b>${spread.toFixed(1)} dB</b>. ` +
+        `Clipping cues (peak &ge; 0.99): <b>${rows.filter((r) => r.peak > 0.99).length}</b>.</p>`;
+
+document.getElementById('out').innerHTML = html;
+console.table(rows.map((r) => ({ cue: r.key, peak: +r.peak.toFixed(3), rmsDb: +r.rmsDb.toFixed(1) })));
+window.__levels = rows;
+</script>
+</body>
+</html>

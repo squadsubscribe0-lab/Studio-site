@@ -1,0 +1,36 @@
+GAME NAME
+Paddle Royale
+
+CATEGORY / TAGS
+Category: Casual (or Arcade)
+Tags: pong, multiplayer, battle royale, 2 player, paddle, ball, arcade, io, friends, team
+
+SHORT DESCRIPTION
+Pong meets battle royale! 8 paddles fight in one arena. Lose all your hearts and you're out. The last paddle standing wins.
+
+DESCRIPTION
+Paddle Royale is a fast pong battle royale where 8 paddles share one arena. Guard your goal and send the ball into your rivals' goals. Every goal you let in costs you a heart. When a player is knocked out, the arena shrinks. Knocked-out players can still drop Wells and Bars on the players who are left.
+
+Create a room and invite your friends with a link or a 5-letter code. Play free-for-all with up to 8 players or teams from 1v1 to 4v4, and bots fill any empty seats. You can also jump into a quick match against bots, or set up your own practice match. Grab power-ups like Grow, Multi-ball, Shield, Slow-mo and Reverse, and fight in 6 arenas with pillars, spinners, bumpers and gravity wells. Earn coins in every match and spend them on paddles, balls, trails and avatars in the shop.
+
+CONTROLS
+Mouse: move your paddle
+A / D or Left / Right arrow keys: move your paddle
+Touch: drag anywhere on the screen
+Esc / P: pause
+
+FEATURES
+- 8-paddle pong battle royale
+- Play with friends: private rooms, invite links and room codes
+- Quick preset chat (no free text)
+- Custom practice matches, including team games from 1v1 to 4v4
+- 8 power-ups and 6 arenas
+- Shop with paddle, ball, trail and avatar skins
+- Works on desktop and mobile, in portrait and landscape
+
+TECHNICAL (for the upload form)
+Engine: HTML5 (no engine)
+Orientation: Both
+Mobile friendly: Yes
+Multiplayer: Yes (private rooms with friends, peer-to-peer; Quick Play is vs bots)
+Upload: paddle-royale-game.zip (index.html is at the root of the zip)

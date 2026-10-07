@@ -1,0 +1,83 @@
+{
+  "_comment": "Drop your PNGs in this folder and point to them below. Every sprite key is OPTIONAL - anything missing is drawn procedurally from the palette, so the game always runs. Use either a single 'full' sprite (whole character, feet at the bottom edge) OR the separate parts (head/body/hat). Recommended sizes: full 220x260, head 120x120, body 110x150, hat 130x90. Transparent PNG, feet-down, facing RIGHT.",
+  "characters": [
+    {
+      "id": "kai",
+      "name": "Kai",
+      "palette": {
+        "skin": "#e8b184",
+        "hair": "#2b1a10",
+        "top": "#2f6fe0",
+        "bottom": "#14306b",
+        "shoe": "#ffffff",
+        "accent": "#ffd34d"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "luna",
+      "name": "Luna",
+      "palette": {
+        "skin": "#f4d0ae",
+        "hair": "#f0a91b",
+        "top": "#e0392f",
+        "bottom": "#7a1a14",
+        "shoe": "#111827",
+        "accent": "#ffe27a"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "rico",
+      "name": "Rico",
+      "palette": {
+        "skin": "#8d5a3b",
+        "hair": "#161616",
+        "top": "#37c24a",
+        "bottom": "#155e2b",
+        "shoe": "#ffffff",
+        "accent": "#c6ff8f"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "mei",
+      "name": "Mei",
+      "palette": {
+        "skin": "#f2c6a0",
+        "hair": "#5b21b6",
+        "top": "#a855f7",
+        "bottom": "#4c1d95",
+        "shoe": "#fde68a",
+        "accent": "#f5d0fe"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "surfer",
+      "name": "Surfer",
+      "palette": {
+        "skin": "#d99a6c",
+        "hair": "#f5e6a8",
+        "top": "#00b4d8",
+        "bottom": "#0077b6",
+        "shoe": "#ffb703",
+        "accent": "#caf0f8"
+      },
+      "sprites": {}
+    },
+    {
+      "id": "lifeguard",
+      "name": "Lifeguard",
+      "palette": {
+        "skin": "#f0bd94",
+        "hair": "#7c2d12",
+        "top": "#ef4444",
+        "bottom": "#fbbf24",
+        "shoe": "#ffffff",
+        "accent": "#fee2e2"
+      },
+      "sprites": {}
+    }
+  ]
+}

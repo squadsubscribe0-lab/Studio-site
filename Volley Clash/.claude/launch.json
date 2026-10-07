@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "beach-volley-clash",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["beach-volley-clash/.claude/dev-server.py", "8123", "beach-volley-clash"],
+      "port": 8123
+    }
+  ]
+}

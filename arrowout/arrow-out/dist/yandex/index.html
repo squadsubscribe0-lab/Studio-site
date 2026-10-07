@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#eef4fb">
+<title>Arrow Out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://yandex.ru/games/sdk/v2"></script>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loaderInner">
+    <div class="loaderMark">
+      <svg viewBox="0 0 64 24" aria-hidden="true">
+        <path d="M4 12h44" /><path d="M40 4l10 8-10 8" />
+      </svg>
+    </div>
+    <div class="loaderName">Arrow Out</div>
+    <div class="loaderBarWrap"><div class="loaderBar" id="loaderBar"></div></div>
+    <button class="btn" id="playBtn" hidden>Play</button>
+  </div>
+</div>
+
+<div id="app" hidden>
+
+  <div id="hud">
+    <header id="topbar">
+      <button class="iconbtn" id="backBtn" aria-label="Levels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+      </button>
+      <div class="spacer"></div>
+      <div class="hearts" id="hearts"></div>
+      <div class="spacer"></div>
+      <button class="iconbtn" id="gearBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.4 13a7.8 7.8 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.7 7.7 0 0 0-1.7-1L14 3.4h-4l-.3 2.6a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.4L5.6 11a7.8 7.8 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.8 1.7 1l.3 2.6h4l.3-2.6c.6-.2 1.2-.6 1.7-1l2.4 1 2-3.4-2-1.6ZM12 15.6A3.6 3.6 0 1 1 15.6 12 3.6 3.6 0 0 1 12 15.6Z"/></svg>
+      </button>
+    </header>
+
+    <div id="subbar">
+      <div class="chip">Level <b id="levelNum">1</b></div>
+      <div class="chip" id="timerChip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>
+        </svg>
+        <span id="timeLabel">00:00</span>
+      </div>
+      <div class="chip instChip" id="instChip">&#9834; Piano</div>
+      <div id="shapeName">Square</div>
+    </div>
+  </div>
+
+  <main id="stage">
+    <canvas id="cv"></canvas>
+    <canvas id="fx"></canvas>
+    <div id="flash"></div>
+    <div id="combo"><b id="comboNum">0</b><span>combo</span></div>
+  </main>
+
+  <footer id="controls">
+    <div class="progWrap">
+      <div class="progBar"><div class="progFill" id="progressBar"></div></div>
+      <div id="arrowsLeft">0 / 0</div>
+    </div>
+    <div class="powers">
+      <button class="bigbtn" id="hintBtn" aria-label="Hint">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2Zm-3 18h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1Z"/></svg>
+        <span class="badge" id="hintCount">3</span>
+      </button>
+      <button class="bigbtn bomb" id="bombBtn" aria-label="Blast one arrow">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 4.5 15 3l1.4 1.4L15 5.8l1.8 1.8a7 7 0 1 1-2.1 2.1L12.9 7.9 11.5 9.3 10 7.9l1.5-1.5ZM19 2l.9 1.6L21.5 4l-1.6.9L19 6.5l-.9-1.6L16.5 4l1.6-.9Z"/></svg>
+        <span class="badge" id="bombCount">2</span>
+      </button>
+      <button class="bigbtn reveal" id="revealBtn" aria-label="Reveal every open arrow">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7c-1.2-2.8-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>
+        <span class="badge" id="revealCount">1</span>
+      </button>
+    </div>
+    <div class="zoomgrp">
+      <button class="zbtn" id="zoomOut" aria-label="Zoom out">&minus;</button>
+      <button class="zbtn" id="zoomFit" aria-label="Fit board">&#9633;</button>
+      <button class="zbtn" id="zoomIn" aria-label="Zoom in">+</button>
+    </div>
+  </footer>
+</div>
+
+<!-- settings -->
+<div class="overlay" id="settingsOverlay">
+  <div class="panel">
+    <h2>Settings</h2>
+    <div class="row">Theme
+      <div class="seg" id="themeSeg">
+        <button data-t="neon" class="on">Neon</button>
+        <button data-t="paper">Paper</button>
+      </div>
+    </div>
+    <div class="row">Arrow colour
+      <div class="seg" id="colorSeg">
+        <button data-c="rainbow" class="on">Rainbow</button>
+        <button data-c="random">Random</button>
+        <button data-c="mono">Mono</button>
+      </div>
+    </div>
+    <div class="row">Colourblind friendly <button class="toggle" id="cvdToggle" aria-label="Colourblind friendly"></button></div>
+    <div class="row">Zen mode (no hearts, no clock) <button class="toggle" id="zenToggle" aria-label="Zen mode"></button></div>
+    <div class="row">Line width
+      <div class="seg" id="widthSeg">
+        <button data-w="0.13">Thin</button>
+        <button data-w="0.18" class="on">Normal</button>
+        <button data-w="0.24">Bold</button>
+      </div>
+    </div>
+    <div class="row">Sound effects <button class="toggle on" id="soundToggle" aria-label="Sound effects"></button></div>
+    <div class="row">Music <button class="toggle on" id="musicToggle" aria-label="Music"></button></div>
+    <div class="row">Show all open arrows <button class="toggle" id="hintToggle" aria-label="Show open arrows"></button></div>
+    <p class="howto">
+      Tap an arrow and it leaves the board tip first, its body following its own shape.
+      It only goes if the straight lane ahead of the tip is completely empty.<br><br>
+      Tap a blocked arrow and it crashes into whatever is in the way, costing a heart.<br><br>
+      Clearing an arrow only ever opens space, so you can't lock yourself out &mdash; the
+      challenge is reading the board, not move order.
+    </p>
+    <p class="saveNote" id="saveNote"></p>
+    <button class="btn ghost" id="restartBtn">Restart level</button>
+    <button class="btn ghost danger" id="resetBtn">Reset all progress</button>
+    <button class="btn" id="closeSettings">Back to game</button>
+  </div>
+</div>
+
+<!-- level select -->
+<div class="overlay" id="levelsOverlay">
+  <div class="panel">
+    <h2>Levels</h2>
+    <p>40 shapes. Every five levels the boards get bigger and the arrows shorter.</p>
+    <div class="lvGrid" id="lvGrid"></div>
+    <button class="btn" id="closeLevels">Close</button>
+  </div>
+</div>
+
+<!-- win -->
+<div class="overlay" id="winOverlay">
+  <div class="panel">
+    <div class="starRow" id="starRow"></div>
+    <h2 id="winTitle">Board cleared</h2>
+    <p id="winSub">Every arrow found its way out.</p>
+    <div class="stats">
+      <div class="stat"><b id="winTime">00:00</b><span>Time</span></div>
+      <div class="stat"><b id="winTaps">0</b><span>Taps</span></div>
+      <div class="stat"><b id="winCombo">0</b><span>Best combo</span></div>
+    </div>
+    <button class="btn" id="nextBtn">Next level</button>
+    <button class="btn ghost" id="replayBtn">Shuffle this shape</button>
+  </div>
+</div>
+
+<!-- lose -->
+<div class="overlay" id="loseOverlay">
+  <div class="panel">
+    <h2>Out of hearts</h2>
+    <p>Too many crashes. Keep going, or start the shape again.</p>
+    <button class="btn rewarded" id="reviveBtn" hidden>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      Watch ad for 2 hearts
+    </button>
+    <button class="btn ghost" id="retryBtn">Try again</button>
+  </div>
+</div>
+
+<audio id="bgm" src="audio/music.mp3" preload="auto" loop></audio>
+
+<script src="sdk.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

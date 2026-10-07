@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>BVC capture harness</title>
+<style>
+  body { margin:0; background:#0a1424; color:#fff; font:14px system-ui; }
+  #log { padding:12px; white-space:pre-wrap; }
+  canvas { display:block; margin:8px; border:1px solid #333; max-width:420px; }
+</style>
+</head>
+<body>
+<div id="log">idle</div>
+<canvas id="out"></canvas>
+
+<script type="module">
+// Store-asset capture harness. Not part of the shipped game - build-zip.py
+// only bundles index.html, so this file never reaches players.
+//
+// It drives the real simulation and the real renderer, so the covers and the
+// trailer are actual gameplay rather than a mock-up.
+
+import { VIEW, COURT, POWERS } from './src/config.js';
+import { loadAllAssets } from './src/core/assets.js';
+import { Match } from './src/game/match.js';
+import { Renderer } from './src/game/renderer.js';
+
+const SINK = 'http://localhost:8130/';
+const log = (m) => { document.getElementById('log').textContent = m; console.log(m); };
+
+const out = document.getElementById('out');
+const assets = await loadAllAssets(() => {});
+const renderer = new Renderer(out, assets);
+
+/** Point the renderer at a canvas of an arbitrary size and scale. */
+function target(w, h, scale) {
+  out.width = w; out.height = h;
+  renderer.dpr = 1;
+  renderer.rect = { x: 0, y: 0, w, h, scale };
+}
+
+async function send(name, canvas, type = 'image/png', quality) {
+  const blob = await new Promise((r) => canvas.toBlob(r, type, quality));
+  await fetch(SINK + name, { method: 'POST', body: blob });
+}
+
+/** Fresh AI-vs-AI match, powers on, so the shots are real rallies. */
+function newMatch(teamSize = 2, difficulty = 1.3) {
+  POWERS.enabled = true;
+  return new Match({
+    mode: 'ai', teamSize, difficulty,
+    pointsToWin: 999, matchSeconds: 0,
+    characters: { left: [], right: [] },
+    ballSkin: assets.balls[0], localSeats: []
+  }, assets);
+}
+
+const step = (m, n) => { for (let i = 0; i < n; i++) m.step(1 / 120, new Map()); };
+
+/**
+ * Runs the match until `test` says the moment is worth photographing, feeding
+ * events to the renderer as it goes so trails and particles are alive.
+ */
+function runUntil(m, test, maxSeconds = 40) {
+  for (let i = 0; i < maxSeconds * 120; i++) {
+    m.step(1 / 120, new Map());
+    const evs = m.drainEvents();
+    for (const ev of evs) feedEffects(m, ev);
+    renderer.updateEffects(1 / 120);
+    if (test(m, evs)) return true;
+  }
+  return false;
+}
+
+/** A trimmed copy of main.js's event handling - visuals only, no audio. */
+function feedEffects(m, ev) {
+  const R = renderer;
+  const col = { fire: '255,122,26', ice: '87,217,255', multi: '192,132,252' };
+  switch (ev.type) {
+    case 'hit':
+      R.burst(ev.x, ev.y, 6, 'rgba(255,255,255,ALPHA)', 220);
+      R.ring(ev.x, ev.y, { to: 60, life: 0.26, width: 4 });
+      break;
+    case 'spike':
+      R.shake = 1;
+      R.burst(ev.x, ev.y, 16, 'rgba(255,220,120,ALPHA)', 420, { glow: true });
+      R.ring(ev.x, ev.y, { to: 150, life: 0.35, width: 8, color: 'rgba(255,220,140,ALPHA)' });
+      break;
+    case 'orbTaken':
+      R.burst(ev.x, ev.y, 26, `rgba(${col[ev.power]},ALPHA)`, 460, { glow: true, shape: 'star', gravity: 200 });
+      R.ring(ev.x, ev.y, { to: 200, life: 0.5, width: 9, color: `rgba(${col[ev.power]},ALPHA)` });
+      break;
+    case 'powerFired':
+      R.shake = ev.power === 'fire' ? 1.4 : 1;
+      R.flash(ev.power === 'fire' ? '#ff7a1a' : ev.power === 'ice' ? '#57d9ff' : '#c084fc', 0.3, 0.26);
+      R.ring(ev.x, ev.y, { to: 260, life: 0.5, width: 12, color: `rgba(${col[ev.power]},ALPHA)` });
+      R.burst(ev.x, ev.y, 30, `rgba(${col[ev.power]},ALPHA)`, 620, {
+        glow: true, gravity: ev.power === 'fire' ? -200 : 400,
+        shape: ev.power === 'ice' ? 'shard' : 'flame'
+      });
+      break;
+    case 'frozen':
+      R.burst(ev.x, ev.y, 20, 'rgba(200,244,255,ALPHA)', 300, { shape: 'shard', glow: true });
+      R.ring(ev.x, ev.y, { to: 130, life: 0.45, width: 7, color: 'rgba(120,220,255,ALPHA)' });
+      break;
+    case 'multiStart':
+      R.shake = 0.7;
+      R.flash('#c084fc', 0.35, 0.3);
+      break;
+    case 'impact':
+      if (ev.kind === 'fire') {
+        R.shake = 1.3;
+        R.ring(ev.x, ev.y, { to: 240, life: 0.5, width: 12, color: 'rgba(255,140,40,ALPHA)', squash: 0.32 });
+        R.burst(ev.x, ev.y, 34, 'rgba(255,150,40,ALPHA)', 520, { glow: true, shape: 'flame', gravity: -140, angle: -Math.PI / 2, spread: Math.PI * 1.4 });
+      }
+      break;
+  }
+}
+
+/**
+ * The stacked logo, drawn to match the CSS treatment in the menu so the cover
+ * and the game look like the same product.
+ */
+function drawLogo(ctx, cx, cy, scale, align = 'center') {
+  const lines = [
+    { t: 'BEACH',  size: 64, color: '#f2d39b' },
+    { t: 'VOLLEY', size: 92, color: '#ffc31e' },
+    { t: 'CLASH',  size: 64, color: '#7fd6ff' }
+  ];
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(scale, scale);
+  ctx.textAlign = align;
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+  // Space each line against BOTH its own size and the next line's: advancing by
+  // the current size alone lets a small line collide with a large one below it.
+  const gaps = lines.map((l, i) => {
+    const next = lines[i + 1];
+    return next ? (l.size / 2 + next.size / 2) * 0.98 : 0;
+  });
+  const total = gaps.reduce((a, b) => a + b, 0);
+  let y = -total / 2;                       // centre the block on cy
+
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    ctx.font = `900 ${l.size}px "Baloo 2", "Fredoka", "Arial Black", system-ui, sans-serif`;
+    ctx.lineWidth = l.size * 0.30;
+    ctx.strokeStyle = '#05080f';
+    ctx.strokeText(l.t, 0, y);
+    // a soft drop shadow under the fill keeps it readable over bright sand
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillText(l.t, 0, y + l.size * 0.06);
+    ctx.fillStyle = l.color;
+    ctx.fillText(l.t, 0, y);
+    y += gaps[i];
+  }
+  ctx.restore();
+}
+
+/** Darkens the edges so the eye lands on the action, not the corners. */
+function vignette(ctx, w, h) {
+  const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.32, w / 2, h / 2, Math.max(w, h) * 0.72);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(1, 'rgba(4,10,24,0.5)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+}
+
+window.__cap = {
+  /** One 16:9 still at full landscape resolution. */
+  async landscape(name, m) {
+    target(1920, 1080, 1920 / VIEW.W);
+    renderer.shake = 0;
+    renderer.draw(m, 1 / 60);
+    await send(name, out);
+  },
+
+  /**
+   * Portrait and square covers: render wide, then crop the interesting slice
+   * of the court and letterbox it, so the composition is deliberate rather
+   * than a squashed 16:9 frame.
+   */
+  async crop(name, m, w, h, cropW, cropH, focusX) {
+    const big = document.createElement('canvas');
+    big.width = 3200; big.height = 1800;
+    const saveCanvas = renderer.canvas, saveCtx = renderer.ctx;
+    renderer.canvas = big; renderer.ctx = big.getContext('2d');
+    renderer.dpr = 1;
+    renderer.rect = { x: 0, y: 0, w: 3200, h: 1800, scale: 2 };
+    renderer.draw(m, 1 / 60);
+    renderer.canvas = saveCanvas; renderer.ctx = saveCtx;
+
+    out.width = w; out.height = h;
+    const ctx = out.getContext('2d');
+    const sx = Math.max(0, Math.min(3200 - cropW, focusX * 2 - cropW / 2));
+    ctx.drawImage(big, sx, 0, cropW, cropH, 0, 0, w, h);
+    await send(name, out);
+  },
+
+  /**
+   * A composed store cover: render the court big, crop tight on the action so
+   * it fills the frame, then lay the logo over the empty sky.
+   * `zoom` > 1 pushes in; focus is in world coordinates.
+   */
+  async cover(name, m, w, h, zoom, focusX, focusY, logo) {
+    const SS = 2;                                   // supersample for clean edges
+    const big = document.createElement('canvas');
+    big.width = VIEW.W * SS; big.height = VIEW.H * SS;
+    const saveCanvas = renderer.canvas, saveCtx = renderer.ctx;
+    renderer.canvas = big; renderer.ctx = big.getContext('2d');
+    renderer.dpr = 1;
+    renderer.rect = { x: 0, y: 0, w: big.width, h: big.height, scale: SS };
+    // Screen shake translates the whole scene and leaves the outer pixels
+    // unpainted, which crops out as black bars. Kill it for captures.
+    renderer.shake = 0;
+    // A power's full-screen colour flash reads as energy for two frames in
+    // motion, but frozen into a still it just looks like a washed-out photo.
+    renderer.flashes.length = 0;
+    renderer.draw(m, 1 / 60);
+    renderer.canvas = saveCanvas; renderer.ctx = saveCtx;
+
+    // Source rectangle: the requested aspect, scaled by zoom, centred on focus.
+    const aspect = w / h;
+    let cw = (VIEW.W * SS) / zoom;
+    let ch = cw / aspect;
+    if (ch > VIEW.H * SS) { ch = VIEW.H * SS; cw = ch * aspect; }
+    const sx = Math.max(0, Math.min(big.width - cw, focusX * SS - cw / 2));
+    const sy = Math.max(0, Math.min(big.height - ch, focusY * SS - ch / 2));
+
+    out.width = w; out.height = h;
+    const ctx = out.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(big, sx, sy, cw, ch, 0, 0, w, h);
+    vignette(ctx, w, h);
+    if (logo) drawLogo(ctx, logo.x * w, logo.y * h, logo.scale * (w / 1920));
+    await send(name, out);
+  },
+
+  /**
+   * Records a trailer.
+   *
+   * The rally is scripted rather than left to chance: a power is handed out
+   * every few seconds, cycling fire -> ice -> multi, so a 15 second clip is
+   * guaranteed to show all three instead of whatever the RNG felt like.
+   *
+   * `mode` 'wide'     - the whole court, 16:9
+   *        'portrait' - a 2:3 crop that tracks the ball, so the action stays
+   *                     in frame instead of drifting out of a static box.
+   */
+  beginTrailer(prefix, w, h, seconds, fps, mode) {
+    // Stills supersample for clean edges; video does not. Rendering a
+    // 3200x1800 canvas per frame dropped capture to ~1 fps, and the detail is
+    // invisible once it has been through a video codec anyway.
+    const SS = 1;
+    const big = document.createElement('canvas');
+    big.width = VIEW.W * SS; big.height = VIEW.H * SS;
+    out.width = w; out.height = h;
+    this.state = {
+      prefix, w, h, fps, mode, SS, big,
+      bigCtx: big.getContext('2d'),
+      ctx: out.getContext('2d'),
+      m: newMatch(2, 1.3),
+      frames: Math.round(seconds * fps),
+      stepsPerFrame: Math.round(120 / fps),
+      order: ['fire', 'ice', 'multi'],
+      nextGrant: 1.2, grantIdx: 0, t: 0,
+      camX: COURT.netX, f: 0, pending: []
+    };
+    return this.state.frames;
+  },
+
+  /** Records up to `budget` more frames. Returns progress. */
+  async chunk(budget) {
+    const S = this.state;
+    const { w, h, fps, mode, SS, big, bigCtx, ctx, m } = S;
+    const end = Math.min(S.frames, S.f + budget);
+
+    for (; S.f < end; S.f++) {
+      for (let i = 0; i < S.stepsPerFrame; i++) {
+        S.t += 1 / 120;
+        if (S.t >= S.nextGrant) {
+          // alternate which side gets it so both halves get screen time
+          m.powers.grant(S.grantIdx % 2, S.order[S.grantIdx % S.order.length], 'trailer');
+          S.grantIdx++;
+          S.nextGrant = S.t + 3.4;
+        }
+        m.step(1 / 120, new Map());
+        for (const ev of m.drainEvents()) feedEffects(m, ev);
+        renderer.updateEffects(1 / 120);
+      }
+
+      const saveCanvas = renderer.canvas, saveCtx = renderer.ctx;
+      renderer.canvas = big; renderer.ctx = bigCtx;
+      renderer.dpr = 1;
+      renderer.rect = { x: 0, y: 0, w: big.width, h: big.height, scale: SS };
+      renderer.shake = 0;                       // avoids unpainted edges
+      renderer.draw(m, 1 / fps);
+      renderer.canvas = saveCanvas; renderer.ctx = saveCtx;
+
+      if (mode === 'portrait') {
+        const aspect = w / h;
+        const ch = VIEW.H * SS;
+        const cw = ch * aspect;
+        // Follow the liveliest ball, easing so the camera never snaps.
+        const ball = m.balls.reduce((a, b) => (Math.abs(b.vx) > Math.abs(a.vx) ? b : a), m.balls[0]);
+        S.camX += ((ball ? ball.x : COURT.netX) - S.camX) * 0.12;
+        const sx = Math.max(0, Math.min(big.width - cw, S.camX * SS - cw / 2));
+        ctx.drawImage(big, sx, 0, cw, ch, 0, 0, w, h);
+      } else {
+        ctx.drawImage(big, 0, 0, big.width, big.height, 0, 0, w, h);
+      }
+
+      // toDataURL is SYNCHRONOUS. toBlob is not, and in a throttled background
+      // tab every await costs the better part of a second, which capped capture
+      // at about one frame per second. Encoding inline and shipping the whole
+      // chunk in a single request removes every per-frame await.
+      S.pending.push(out.toDataURL('image/jpeg', 0.9));
+    }
+
+    const start = S.f - S.pending.length;
+    const body = S.pending.join('\n');
+    S.pending = [];
+    await fetch(`${SINK}batch/${S.prefix}/${start}`, { method: 'POST', body });
+
+    log(`${S.prefix} ${S.f}/${S.frames}`);
+    return { frame: S.f, total: S.frames, done: S.f >= S.frames };
+  },
+
+  /** Frame sequence for the trailer. */
+  async record(prefix, m, seconds, fps, w, h, cropW, cropH) {
+    const frames = Math.round(seconds * fps);
+    const stepsPerFrame = Math.round(120 / fps);
+    for (let f = 0; f < frames; f++) {
+      for (let i = 0; i < stepsPerFrame; i++) {
+        m.step(1 / 120, new Map());
+        for (const ev of m.drainEvents()) feedEffects(m, ev);
+        renderer.updateEffects(1 / 120);
+      }
+      if (cropW) {
+        await this.crop(`${prefix}${String(f).padStart(4, '0')}.png`, m, w, h, cropW, cropH, COURT.netX);
+      } else {
+        target(w, h, w / VIEW.W);
+        renderer.shake = 0;
+        renderer.draw(m, 1 / 60);
+        await send(`${prefix}${String(f).padStart(4, '0')}.png`, out);
+      }
+      if (f % 30 === 0) log(`${prefix} ${f}/${frames}`);
+    }
+    log(`${prefix} done: ${frames} frames`);
+    return frames;
+  },
+
+  newMatch, runUntil, step, log, VIEW, COURT
+};
+
+log('harness ready');
+</script>
+</body>
+</html>

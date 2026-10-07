@@ -1,0 +1,11 @@
+{
+  "_comment": "Ball skins. 'sprites.ball' is optional: without it the ball is drawn from 'style' + 'colors'. Sprite should be a square transparent PNG, 128x128, the ball filling the frame. Styles: beach | volley | melon | plain.",
+  "balls": [
+    { "id": "beach",   "name": "Beach",      "style": "beach",  "colors": ["#ffffff", "#ff5252", "#ffd34d", "#4aa3ff"], "sprites": {} },
+    { "id": "classic", "name": "Classic",    "style": "volley", "colors": ["#ffffff", "#1e40af", "#facc15"], "sprites": {} },
+    { "id": "sunset",  "name": "Sunset",     "style": "beach",  "colors": ["#fff7e6", "#ff7a1a", "#ff2d75", "#7b2ff7"], "sprites": {} },
+    { "id": "melon",   "name": "Watermelon", "style": "melon",  "colors": ["#e8453c", "#2e8b3a", "#f4f4f4"], "sprites": {} },
+    { "id": "coconut", "name": "Coconut",    "style": "plain",  "colors": ["#8b5a2b", "#5b3a1a"], "sprites": {} },
+    { "id": "neon",    "name": "Neon",       "style": "volley", "colors": ["#0b1122", "#39ff14", "#00e5ff"], "sprites": {} }
+  ]
+}

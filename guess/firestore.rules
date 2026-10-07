@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection
+    match /users/{uid} {
+      // Only the authenticated user can read/write their own profile
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      // Name change: only allowed if nameChanged is currently false
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && (
+          // Allow any update except if trying to reset nameChanged back to false
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['nameChanged'])
+          || (
+            resource.data.nameChanged == false
+            && request.resource.data.nameChanged == true
+          )
+        );
+
+      // Daily results sub-collection
+      match /dailyResults/{date} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+        // Prevent overwriting a result once submitted
+        allow create: if request.auth != null && request.auth.uid == uid;
+        allow update: if false; // Results are immutable once saved
+      }
+    }
+
+    // Public leaderboard (read-only for all authenticated users)
+    match /leaderboard/{entry} {
+      allow read: if request.auth != null;
+      allow write: if false; // Written by Cloud Functions only
+    }
+  }
+}

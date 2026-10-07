@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Beach Volley Clash</title>
+<link rel="stylesheet" href="styles/main.css" />
+<!-- PLATFORM-SDK:START -->
+<!-- build.py rewrites everything between these two markers, once per portal.
+     The source checkout deliberately carries no portal SDK, so a plain static
+     server runs the game standalone with every ad call a no-op. -->
+<!-- PLATFORM-SDK:END -->
+<!-- PeerJS 1.5.4, bundled locally. It handles WebRTC signalling through a free
+     public broker, so online play costs nothing to run. It is vendored rather
+     than loaded from a CDN because CrazyGames requires every asset except their
+     own SDK to ship inside the game. If it fails to load the game still plays
+     offline and the lobby says so. -->
+<script src="vendor/peerjs.min.js"></script>
+</head>
+<body>
+
+<div id="stage">
+  <canvas id="game" width="1600" height="900"></canvas>
+
+  <!-- Everything below is positioned inside #overlay, which is kept exactly on top
+       of the letterboxed canvas rect by ui/layout logic in main.js -->
+  <div id="overlay">
+
+    <!-- ============ IN-MATCH HUD ============ -->
+    <div id="hud" class="hidden">
+      <div class="hud-left">
+        <button class="pill pill-flat" id="btnHudMenu">MENU</button>
+        <button class="pill pill-flat" id="btnPause">PAUSE [P]</button>
+        <button class="pill pill-flat" id="btnAudio">AUDIO: ON</button>
+      </div>
+
+      <div class="scoreboard">
+        <div class="score-box score-left"><span id="scoreLeft">0</span></div>
+        <div class="score-mid">
+          <div class="clock" id="clock">2:00</div>
+          <div class="target" id="target">FIRST TO 5</div>
+        </div>
+        <div class="score-box score-right"><span id="scoreRight">0</span></div>
+        <div class="name name-left" id="nameLeft">PLAYER</div>
+        <div class="name name-right" id="nameRight">DUMMY</div>
+
+        <!-- Charged super throw, one slot per side -->
+        <div class="charge charge-left empty" id="chargeLeft"><canvas width="56" height="56"></canvas><span></span></div>
+        <div class="charge charge-right empty" id="chargeRight"><canvas width="56" height="56"></canvas><span></span></div>
+      </div>
+
+      <div class="hud-right">
+        <div class="pill pill-coin"><i class="ic-coin"></i><span id="coins">525</span></div>
+        <div class="pill pill-crown"><i class="ic-crown"></i><span id="streak">0 (Best: 0)</span></div>
+        <div class="pill pill-trophy"><i class="ic-trophy"></i><span id="trophies">0</span></div>
+        <div class="pill pill-mult hidden" id="multiplier"><i class="ic-coin"></i><span id="multValue">X2</span></div>
+      </div>
+
+      <!-- Control legend for new players. It sits in a corner instead of over
+           the court, and disappears for good once the basics have been used.
+           The step-by-step prompts are drawn on the canvas beside the player. -->
+      <div class="coach hidden" id="coach">
+        <div class="coach-row keys-only"><span class="kc" data-key="KeyA">A</span><span class="kc" data-key="KeyD">D</span><em>Move</em></div>
+        <div class="coach-row keys-only"><span class="kc" data-key="KeyW">W</span><em>Jump</em></div>
+        <div class="coach-row keys-only"><span class="kc" data-key="KeyS">S</span><em>Spike &middot; dive</em></div>
+        <div class="coach-row keys-only"><span class="kc kc-wide" data-key="Space">SPACE</span><em>Serve</em></div>
+        <div class="coach-row touch-only"><span class="kc">&#9664;</span><span class="kc">&#9654;</span><em>Move</em></div>
+        <div class="coach-row touch-only"><span class="kc kc-wide">JUMP</span><em>Jump &middot; and serve</em></div>
+        <div class="coach-row touch-only"><span class="kc kc-wide">SPIKE</span><em>Spike &middot; dive</em></div>
+        <button class="coach-skip" id="btnSkip">SKIP TUTORIAL</button>
+      </div>
+
+      <!-- Super throw announcement -->
+      <div class="powertoast hidden" id="powerToast">
+        <canvas class="pt-icon" width="72" height="72"></canvas>
+        <div class="pt-text"><b id="ptTitle">FIREBALL</b><small id="ptBody">Charged!</small></div>
+      </div>
+
+      <div class="rally hidden" id="rallyToast"></div>
+      <div class="touchpips" id="touchPips"></div>
+
+      <!-- On-screen controls. Hidden until ui/touch.js decides the device wants
+           them. JUMP also serves, so there is no separate serve button. -->
+      <div class="touchpad hidden" id="touchPad">
+        <div class="tp-side tp-left">
+          <button class="tp-btn tp-move" data-act="left" aria-label="Move left">&#9664;</button>
+          <button class="tp-btn tp-move" data-act="right" aria-label="Move right">&#9654;</button>
+        </div>
+        <div class="tp-side tp-right">
+          <button class="tp-btn tp-spike" data-act="spike" aria-label="Spike or dive">SPIKE</button>
+          <button class="tp-btn tp-jump" data-act="jump" aria-label="Jump or serve">JUMP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SCREENS ============ -->
+    <div id="screens">
+
+      <!-- Loading -->
+      <section class="screen" id="scrLoading">
+        <div class="logo">
+          <span class="logo-a">BEACH</span>
+          <span class="logo-b">VOLLEY</span>
+          <span class="logo-c">CLASH</span>
+        </div>
+        <div class="loadbar"><div id="loadfill"></div></div>
+        <p class="loadmsg" id="loadmsg">Loading the beach…</p>
+      </section>
+
+      <!-- Main menu -->
+      <section class="screen hidden" id="scrMenu">
+        <div class="logo small">
+          <span class="logo-a">BEACH</span>
+          <span class="logo-b">VOLLEY</span>
+          <span class="logo-c">CLASH</span>
+        </div>
+        <div class="menu-col">
+          <button class="btn btn-lg btn-yellow" data-goto="modes">PLAY</button>
+          <button class="btn btn-blue" data-goto="characters">CHARACTERS</button>
+          <button class="btn btn-blue" data-goto="online">PLAY ONLINE</button>
+          <button class="btn btn-purple" data-goto="powers">SUPER THROWS</button>
+          <div class="row">
+            <button class="btn btn-grey" data-goto="controls">CONTROLS</button>
+            <button class="btn btn-grey" data-goto="settings">SETTINGS</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mode select -->
+      <section class="screen hidden" id="scrModes">
+        <h2 class="screen-title">Choose a match</h2>
+        <div class="mode-grid">
+          <button class="card" data-mode="ai" data-size="1"><b>1 v 1</b><small>vs computer</small></button>
+          <button class="card" data-mode="local" data-size="1"><b>1 v 1</b><small>two players, one keyboard</small></button>
+          <button class="card" data-mode="ai" data-size="2"><b>2 v 2</b><small>you + AI partner</small></button>
+          <button class="card" data-mode="ai" data-size="3"><b>3 v 3</b><small>you + 2 AI partners</small></button>
+          <button class="card" data-mode="ai" data-size="4"><b>4 v 4</b><small>full beach squad</small></button>
+          <button class="card" data-goto="online"><b>Online</b><small>play with friends</small></button>
+        </div>
+        <div class="row">
+          <label class="opt">Points to win
+            <select id="optPoints"><option>3</option><option selected>5</option><option>7</option><option>11</option></select>
+          </label>
+          <label class="opt">Match time
+            <select id="optTime"><option value="0">No limit</option><option value="90">1:30</option><option value="120" selected>2:00</option><option value="180">3:00</option></select>
+          </label>
+          <label class="opt">Difficulty
+            <select id="optDiff">
+              <option value="0.7">Easy</option>
+              <option value="1" selected>Normal</option>
+              <option value="1.3">Hard</option>
+            </select>
+          </label>
+          <label class="opt">Super throws
+            <select id="optPowers"><option value="1" selected>On</option><option value="0">Off</option></select>
+          </label>
+        </div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Super throw codex -->
+      <section class="screen hidden" id="scrPowers">
+        <h2 class="screen-title">Super throws</h2>
+        <p class="screen-lead">Glowing orbs drift into every rally. Hit one with the ball and
+          <b>your team</b> is charged — your next contact fires the super throw automatically.
+          Either side can steal an orb, so spike through it before they do.</p>
+        <div class="power-grid" id="powerGrid"></div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Character select -->
+      <section class="screen hidden" id="scrCharacters">
+        <h2 class="screen-title">Pick your player</h2>
+        <div class="wallet"><i class="ic-coin"></i><span id="shopCoins">0</span></div>
+        <div class="pick-grid" id="charGrid"></div>
+        <h3 class="screen-sub">Ball</h3>
+        <div class="pick-grid balls" id="ballGrid"></div>
+        <div class="shop-msg hidden" id="shopMsg"></div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Online lobby -->
+      <section class="screen hidden" id="scrOnline">
+        <h2 class="screen-title">Play online</h2>
+        <div class="online-box">
+          <p class="hint dim">Free peer-to-peer play — no server, no account. One player creates
+            a room and shares the code or the invite link.</p>
+          <label class="opt wide">Your name <input id="netName" maxlength="16" placeholder="Player" /><small class="hidden" id="netNameNote">Using your CrazyGames name</small></label>
+          <label class="opt wide">Room code <input id="netRoom" maxlength="8" placeholder="e.g. BEACH1" /></label>
+          <label class="opt">Team size
+            <select id="netSize"><option value="1" selected>1 v 1</option><option value="2">2 v 2</option><option value="3">3 v 3</option><option value="4">4 v 4</option></select>
+          </label>
+          <div class="row">
+            <button class="btn btn-yellow" id="btnCreate">CREATE ROOM</button>
+            <button class="btn btn-blue" id="btnJoin">JOIN ROOM</button>
+          </div>
+          <p class="hint" id="netStatus">Not connected. Empty slots are filled by AI.</p>
+          <div class="lobby-list" id="lobbyList"></div>
+          <div class="row">
+            <button class="btn btn-green hidden" id="btnStartNet">START MATCH</button>
+            <button class="btn btn-grey hidden" id="btnInvite">COPY INVITE LINK</button>
+          </div>
+        </div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Controls -->
+      <section class="screen hidden" id="scrControls">
+        <h2 class="screen-title">Controls</h2>
+        <div class="keys">
+          <div class="keys-only"><span class="key" data-key="KeyA">A</span><span class="key" data-key="KeyD">D</span> move left / right</div>
+          <div class="keys-only"><span class="key" data-key="KeyW">W</span> jump — hold at the top for a block</div>
+          <div class="keys-only"><span class="key" data-key="KeyS">S</span> dive on the ground, spike in the air</div>
+          <div class="keys-only"><span class="key" data-key="Space">SPACE</span> serve</div>
+          <div class="keys-only"><span class="key" data-key="KeyP">P</span> pause &nbsp; <span class="key" data-key="KeyM">M</span> mute</div>
+          <div class="touch-only"><span class="key">&#9664;</span><span class="key">&#9654;</span> move left / right</div>
+          <div class="touch-only"><span class="key">JUMP</span> jump — hold at the top for a block, and serve</div>
+          <div class="touch-only"><span class="key">SPIKE</span> dive on the sand, spike in the air</div>
+          <div class="dim">Super throws fire on their own: charge one by hitting an orb, then
+            just play the ball as normal.</div>
+          <div class="dim keys-only">Second local player: arrow keys, with <span class="key">↑</span> to jump and <span class="key">↓</span> to spike.</div>
+        </div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Settings -->
+      <section class="screen hidden" id="scrSettings">
+        <h2 class="screen-title">Settings</h2>
+        <div class="settings-box">
+          <label class="slider-row">
+            <span>Master</span>
+            <input type="range" id="volMaster" min="0" max="100" value="90" />
+            <b id="volMasterVal">90</b>
+          </label>
+          <label class="slider-row">
+            <span>Music</span>
+            <input type="range" id="volMusic" min="0" max="100" value="42" />
+            <b id="volMusicVal">42</b>
+          </label>
+          <label class="slider-row">
+            <span>Effects</span>
+            <input type="range" id="volSfx" min="0" max="100" value="85" />
+            <b id="volSfxVal">85</b>
+          </label>
+          <label class="slider-row">
+            <span>Screen shake</span>
+            <input type="range" id="optShake" min="0" max="100" value="100" />
+            <b id="optShakeVal">100</b>
+          </label>
+          <label class="slider-row check">
+            <span>Extra effects</span>
+            <input type="checkbox" id="optVfx" checked />
+            <b>particles &amp; flashes</b>
+          </label>
+        </div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Pause -->
+      <section class="screen hidden" id="scrPause">
+        <h2 class="screen-title">Paused</h2>
+        <div class="menu-col">
+          <button class="btn btn-yellow" id="btnResume">RESUME</button>
+          <button class="btn btn-blue" id="btnRestart">RESTART MATCH</button>
+          <button class="btn btn-grey" data-goto="settings">SETTINGS</button>
+          <button class="btn btn-grey" id="btnQuit">QUIT TO MENU</button>
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section class="screen hidden" id="scrResult">
+        <h2 class="screen-title" id="resultTitle">You win!</h2>
+        <p class="result-score" id="resultScore">5 – 3</p>
+        <p class="result-stats" id="resultStats"></p>
+        <div class="menu-col">
+          <!-- Rewarded video. Hidden unless the build's portal can actually
+               serve one, so a standalone build never shows a dead button. -->
+          <button class="btn btn-green hidden" id="btnReward">WATCH AD &middot; +250 COINS</button>
+          <button class="btn btn-yellow" id="btnAgain">PLAY AGAIN</button>
+          <button class="btn btn-grey" id="btnMenu">MAIN MENU</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Portrait on a phone letterboxes a 16:9 court down to an unplayable strip.
+     Ask for landscape rather than shipping a layout nobody can use. Lives
+     outside #stage so it covers the whole viewport, bars included. -->
+<div id="rotate" class="hidden">
+  <div class="rotate-card">
+    <div class="rotate-icon">&#128241;</div>
+    <b>Turn your device</b>
+    <span>Beach Volley Clash plays in landscape.</span>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

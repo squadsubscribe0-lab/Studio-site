@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<!-- Manifests are fetched document-relative; rebase so /tools/ does not 404
+     into the built-in fallback roster. Imports below are absolute to match. -->
+<base href="/" />
+<title>Beach Volley Clash — screenshots</title>
+<style>
+  body{font:14px/1.55 ui-monospace,Menlo,Consolas,monospace;background:#0f1626;color:#e8edf5;margin:0;padding:24px}
+  h1{font-size:16px;margin:0 0 4px}
+  p{color:#94a3b8;max-width:72ch;margin:0 0 16px}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px}
+  figure{margin:0}
+  figcaption{color:#94a3b8;margin-top:6px;font-size:12px}
+  canvas{border:1px solid #223;border-radius:6px;display:block}
+  #log{margin-top:16px;white-space:pre-wrap;color:#7dd3a0}
+  .err{color:#ff8f8f}
+</style>
+</head>
+<body>
+<h1>Screenshots</h1>
+<p>
+  One 1920&times;1080 still per thing the game does. Each is a real match object
+  posed on the frame that shows the feature, then drawn through the real
+  renderer — no mock-ups, so what the store shows is what the game does.
+</p>
+<div class="row" id="out"></div>
+<div id="log"></div>
+
+<script type="module">
+import { VIEW, COURT, TEAM, POWERS } from '/src/config.js';
+import { loadAllAssets } from '/src/core/assets.js';
+import { attachPowerIcons } from '/src/game/powers.js';
+import { Renderer } from '/src/game/renderer.js';
+import { Match } from '/src/game/match.js';
+
+const log = (m, bad) => {
+  document.getElementById('log').innerHTML += `<span class="${bad ? 'err' : ''}">${m}</span>\n`;
+};
+
+const W = 1920, H = 1080, SUPER = 2;
+
+function makeMatch(assets, teamSize, leftIdx, rightIdx) {
+  return new Match({
+    mode: 'ai', teamSize, pointsToWin: 5, matchSeconds: 120, difficulty: 1,
+    characters: {
+      left: leftIdx.map((i) => assets.characters[i]),
+      right: rightIdx.map((i) => assets.characters[i])
+    },
+    ballSkin: assets.balls[0],
+    localSeats: [{ team: TEAM.LEFT, slot: 0, controller: 'human0', name: 'You' }]
+  }, assets);
+}
+
+/** Each shot poses a match and returns it. */
+const SHOTS = [
+  {
+    name: 'screenshot-1-spike.png',
+    caption: 'Spike at the net',
+    build: (a) => {
+      const m = makeMatch(a, 1, [0], [1]);
+      m.state = 'rally'; m.score = [3, 2];
+      const [l, r] = m.players;
+      l.x = 700; l.y = 470; l.onGround = false; l.spikeHeld = true; l.facing = 1;
+      r.x = 1010; r.y = COURT.groundY; r.facing = -1; r.vx = -200; r.animTime = 0.4;
+      const b = m.ball;
+      b.x = 858; b.y = 392; b.vx = 1100; b.vy = 420; b.rot = 0.9;
+      b.trail.length = 0;
+      for (let i = 0; i < 9; i++) b.trail.push({ x: b.x - i * 30, y: b.y - i * 12 });
+      return m;
+    }
+  },
+  {
+    name: 'screenshot-2-fireball.png',
+    caption: 'Fireball super throw',
+    build: (a) => {
+      const m = makeMatch(a, 1, [2], [5]);
+      m.state = 'rally'; m.score = [4, 3];
+      const [l, r] = m.players;
+      l.x = 560; l.y = COURT.groundY; l.facing = 1; l.animTime = 0.2;
+      r.x = 1180; r.y = COURT.groundY; r.facing = -1; r.burning = 0.7;
+      const b = m.ball;
+      b.kind = 'fire';
+      b.x = 1010; b.y = 470; b.vx = 2100; b.vy = 620; b.rot = 1.4;
+      b.trail.length = 0;
+      for (let i = 0; i < 12; i++) b.trail.push({ x: b.x - i * 44, y: b.y - i * 15 });
+      return m;
+    }
+  },
+  {
+    name: 'screenshot-3-iceball.png',
+    caption: 'Ice ball freezes the defence',
+    build: (a) => {
+      const m = makeMatch(a, 2, [3, 0], [4, 1]);
+      m.state = 'rally'; m.score = [2, 2];
+      const p = m.players;
+      p[0].x = 520; p[0].y = COURT.groundY; p[0].facing = 1;
+      p[1].x = 300; p[1].y = COURT.groundY; p[1].facing = 1;
+      p[2].x = 1090; p[2].y = COURT.groundY; p[2].facing = -1; p[2].frozen = 1.4;
+      p[3].x = 1340; p[3].y = COURT.groundY; p[3].facing = -1; p[3].frozen = 1.1;
+      const b = m.ball;
+      b.kind = 'ice';
+      b.x = 980; b.y = 430; b.vx = 1500; b.vy = 300; b.rot = 0.4;
+      b.trail.length = 0;
+      for (let i = 0; i < 10; i++) b.trail.push({ x: b.x - i * 38, y: b.y - i * 10 });
+      return m;
+    }
+  },
+  {
+    name: 'screenshot-4-multiball.png',
+    caption: 'Multi ball — three at once',
+    build: (a) => {
+      const m = makeMatch(a, 2, [0, 4], [2, 3]);
+      m.state = 'rally'; m.score = [3, 3];
+      const p = m.players;
+      p[0].x = 640; p[0].y = 520; p[0].onGround = false; p[0].facing = 1;
+      p[1].x = 330; p[1].y = COURT.groundY; p[1].facing = 1;
+      p[2].x = 1060; p[2].y = COURT.groundY; p[2].facing = -1; p[2].vx = -150;
+      p[3].x = 1360; p[3].y = COURT.groundY; p[3].facing = -1;
+      const b = m.ball;
+      b.x = 880; b.y = 360; b.vx = 900; b.vy = 260;
+      // Two extras, exactly as the power spawns them.
+      for (const [dx, dy, vy] of [[120, 90, -120], [-90, 150, 180]]) {
+        const extra = Object.create(Object.getPrototypeOf(b));
+        Object.assign(extra, b, { primary: false, trail: [] });
+        extra.x = b.x + dx; extra.y = b.y + dy; extra.vy = vy;
+        m.balls.push(extra);
+      }
+      m.powers.multiTimer = 6;
+      m.powers.multiTeam = TEAM.LEFT;
+      return m;
+    }
+  },
+  {
+    name: 'screenshot-5-squad.png',
+    caption: '4v4 full beach squad',
+    build: (a) => {
+      const m = makeMatch(a, 4, [0, 1, 2, 3], [4, 5, 0, 1]);
+      m.state = 'rally'; m.score = [1, 4];
+      m.players.forEach((p, i) => {
+        p.y = COURT.groundY;
+        p.animTime = i * 0.3;
+        p.vx = (i % 2 ? 120 : -120);
+      });
+      m.players[2].y = 540; m.players[2].onGround = false; m.players[2].spikeHeld = true;
+      const b = m.ball;
+      b.x = 830; b.y = 400; b.vx = 700; b.vy = 200;
+      b.trail.length = 0;
+      for (let i = 0; i < 8; i++) b.trail.push({ x: b.x - i * 26, y: b.y - i * 8 });
+      return m;
+    }
+  },
+  {
+    name: 'screenshot-6-orbs.png',
+    caption: 'Hit an orb to charge a super throw',
+    build: (a) => {
+      const m = makeMatch(a, 1, [5], [3]);
+      m.state = 'rally'; m.score = [2, 1];
+      const [l, r] = m.players;
+      l.x = 600; l.y = COURT.groundY; l.facing = 1; l.animTime = 0.5; l.vx = 180;
+      r.x = 1120; r.y = COURT.groundY; r.facing = -1;
+      const b = m.ball;
+      b.x = 700; b.y = 330; b.vx = 1000; b.vy = -180; b.rot = 0.3;
+      b.trail.length = 0;
+      for (let i = 0; i < 9; i++) b.trail.push({ x: b.x - i * 32, y: b.y + i * 6 });
+      m.powers.orbs.length = 0;
+      m.powers.orbs.push({ id: 1, type: 'fire', x: 980, y: 250, r: 34, age: 0, life: 999, vx: 0, vy: 0 });
+      m.powers.orbs.push({ id: 2, type: 'multi', x: 1280, y: 400, r: 34, age: 0, life: 999, vx: 0, vy: 0 });
+      return m;
+    }
+  }
+];
+
+(async () => {
+  try {
+    log('loading assets…');
+    const assets = await loadAllAssets();
+    attachPowerIcons(assets.powerIcons);
+    POWERS.enabled = true;
+
+    // Drawn at 2x and downsampled, same as the covers: the outlines are thick
+    // strokes and they alias badly rendered straight to size.
+    const big = document.createElement('canvas');
+    big.width = VIEW.W * SUPER;
+    big.height = VIEW.H * SUPER;
+    const renderer = new Renderer(big, assets);
+    renderer.dpr = 1;
+    renderer.rect = { x: 0, y: 0, w: big.width, h: big.height, scale: SUPER };
+
+    for (const shot of SHOTS) {
+      renderer.time = 6.2;
+      renderer.particles.length = 0;
+      renderer.rings.length = 0;
+      renderer.popups.length = 0;
+      const match = shot.build(assets);
+
+      renderer.draw(match, 0.016);
+      renderer.updateEffects(0.016);
+      renderer.draw(match, 0.016);
+
+      const out = document.createElement('canvas');
+      out.width = W; out.height = H;
+      const ctx = out.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(big, 0, 0, W, H);
+
+      const fig = document.createElement('figure');
+      const prev = document.createElement('canvas');
+      prev.width = 300; prev.height = Math.round(300 * H / W);
+      prev.getContext('2d').drawImage(out, 0, 0, prev.width, prev.height);
+      const cap = document.createElement('figcaption');
+      cap.textContent = shot.caption;
+      fig.append(prev, cap);
+      document.getElementById('out').append(fig);
+
+      const blob = await new Promise((res) => out.toBlob(res, 'image/png'));
+      const r = await fetch(`/__save?name=${shot.name}`, { method: 'POST', body: blob });
+      log(`${r.ok ? 'saved' : 'FAILED'}  ${shot.name}  ${(blob.size / 1024).toFixed(0)} KB`, !r.ok);
+    }
+    log('done');
+    window.__shotsDone = true;
+  } catch (e) {
+    log('ERROR ' + e.message, true);
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>

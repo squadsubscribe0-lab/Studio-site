@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Beach Volley Clash</title>
+<link rel="stylesheet" href="styles/main.css" />
+<!-- CrazyGames HTML5 v3 SDK. Must load before the game boots. -->
+<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+</head>
+<body>
+
+<div id="stage">
+  <canvas id="game" width="1600" height="900"></canvas>
+
+  <!-- Everything below is positioned inside #overlay, which is kept exactly on top
+       of the letterboxed canvas rect by ui/layout logic in main.js -->
+  <div id="overlay">
+
+    <!-- ============ IN-MATCH HUD ============ -->
+    <div id="hud" class="hidden">
+      <div class="hud-left">
+        <button class="pill pill-flat" id="btnAudio">AUDIO: ON</button>
+        <button class="pill pill-flat" id="btnPause">PAUSE [P]</button>
+      </div>
+
+      <div class="scoreboard">
+        <div class="score-box score-left"><span id="scoreLeft">0</span></div>
+        <div class="score-mid">
+          <div class="clock" id="clock">2:00</div>
+          <div class="target" id="target">FIRST TO 5</div>
+        </div>
+        <div class="score-box score-right"><span id="scoreRight">0</span></div>
+        <div class="name name-left" id="nameLeft">PLAYER</div>
+        <div class="name name-right" id="nameRight">DUMMY</div>
+      </div>
+
+      <div class="hud-right">
+        <div class="pill pill-coin"><i class="ic-coin"></i><span id="coins">525</span></div>
+        <div class="pill pill-crown"><i class="ic-crown"></i><span id="streak">0 (Best: 0)</span></div>
+        <div class="pill pill-trophy"><i class="ic-trophy"></i><span id="trophies">0</span></div>
+        <div class="pill pill-mult" id="multiplier"><i class="ic-coin"></i>X2</div>
+      </div>
+
+      <div class="banner hidden" id="banner">
+        <button class="skip" id="btnSkip">SKIP &raquo;</button>
+        <div class="banner-title"><span class="tag" id="lessonTag">LESSON 1</span><span id="bannerTitle">SERVE</span></div>
+        <div class="banner-body" id="bannerBody">Press SPACE to serve the ball.</div>
+      </div>
+
+      <div class="rally hidden" id="rallyToast"></div>
+      <div class="touchpips" id="touchPips"></div>
+    </div>
+
+    <!-- ============ SCREENS ============ -->
+    <div id="screens">
+
+      <!-- Loading -->
+      <section class="screen" id="scrLoading">
+        <div class="logo">
+          <span class="logo-a">BEACH</span>
+          <span class="logo-b">VOLLEY</span>
+          <span class="logo-c">CLASH</span>
+        </div>
+        <div class="loadbar"><div id="loadfill"></div></div>
+        <p class="loadmsg" id="loadmsg">Loading the beach…</p>
+      </section>
+
+      <!-- Main menu -->
+      <section class="screen hidden" id="scrMenu">
+        <div class="logo small">
+          <span class="logo-a">BEACH</span>
+          <span class="logo-b">VOLLEY</span>
+          <span class="logo-c">CLASH</span>
+        </div>
+        <div class="menu-col">
+          <button class="btn btn-lg btn-yellow" data-goto="modes">PLAY</button>
+          <button class="btn btn-blue" data-goto="characters">CHARACTERS</button>
+          <button class="btn btn-blue" data-goto="online">PLAY ONLINE</button>
+          <button class="btn btn-grey" data-goto="controls">CONTROLS</button>
+        </div>
+      </section>
+
+      <!-- Mode select -->
+      <section class="screen hidden" id="scrModes">
+        <h2 class="screen-title">Choose a match</h2>
+        <div class="mode-grid">
+          <button class="card" data-mode="ai" data-size="1"><b>1 v 1</b><small>vs computer</small></button>
+          <button class="card" data-mode="local" data-size="1"><b>1 v 1</b><small>two players, one keyboard</small></button>
+          <button class="card" data-mode="ai" data-size="2"><b>2 v 2</b><small>you + AI partner</small></button>
+          <button class="card" data-mode="ai" data-size="3"><b>3 v 3</b><small>you + 2 AI partners</small></button>
+          <button class="card" data-mode="ai" data-size="4"><b>4 v 4</b><small>full beach squad</small></button>
+          <button class="card" data-goto="online"><b>Online</b><small>play with friends</small></button>
+        </div>
+        <div class="row">
+          <label class="opt">Points to win
+            <select id="optPoints"><option>3</option><option selected>5</option><option>7</option><option>11</option></select>
+          </label>
+          <label class="opt">Match time
+            <select id="optTime"><option value="0">No limit</option><option value="90">1:30</option><option value="120" selected>2:00</option><option value="180">3:00</option></select>
+          </label>
+          <label class="opt">Difficulty
+            <select id="optDiff"><option value="0.7">Easy</option><option value="1" selected>Normal</option><option value="1.3">Hard</option></select>
+          </label>
+        </div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Character select -->
+      <section class="screen hidden" id="scrCharacters">
+        <h2 class="screen-title">Pick your player</h2>
+        <div class="pick-grid" id="charGrid"></div>
+        <h3 class="screen-sub">Ball</h3>
+        <div class="pick-grid balls" id="ballGrid"></div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Online lobby -->
+      <section class="screen hidden" id="scrOnline">
+        <h2 class="screen-title">Play online</h2>
+        <div class="online-box">
+          <label class="opt wide">Your name <input id="netName" maxlength="12" placeholder="Player" /></label>
+          <label class="opt wide">Room code <input id="netRoom" maxlength="8" placeholder="e.g. BEACH1" /></label>
+          <label class="opt">Team size
+            <select id="netSize"><option value="1" selected>1 v 1</option><option value="2">2 v 2</option><option value="3">3 v 3</option><option value="4">4 v 4</option></select>
+          </label>
+          <div class="row">
+            <button class="btn btn-yellow" id="btnCreate">CREATE ROOM</button>
+            <button class="btn btn-blue" id="btnJoin">JOIN ROOM</button>
+          </div>
+          <p class="hint" id="netStatus">Not connected. Empty slots are filled by AI.</p>
+          <div class="lobby-list" id="lobbyList"></div>
+          <div class="row">
+            <button class="btn btn-green hidden" id="btnStartNet">START MATCH</button>
+            <button class="btn btn-grey hidden" id="btnInvite">COPY INVITE LINK</button>
+          </div>
+        </div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Controls -->
+      <section class="screen hidden" id="scrControls">
+        <h2 class="screen-title">Controls</h2>
+        <div class="keys">
+          <div><span class="key">A</span><span class="key">D</span> move left / right</div>
+          <div><span class="key">W</span> jump — hold at the top for a block</div>
+          <div><span class="key">S</span> dive on the ground, spike in the air</div>
+          <div><span class="key">SPACE</span> serve</div>
+          <div><span class="key">P</span> pause &nbsp; <span class="key">M</span> mute</div>
+          <div class="dim">Second local player: arrow keys, with <span class="key">↑</span> to jump and <span class="key">↓</span> to spike.</div>
+        </div>
+        <button class="btn btn-grey" data-goto="menu">BACK</button>
+      </section>
+
+      <!-- Pause -->
+      <section class="screen hidden" id="scrPause">
+        <h2 class="screen-title">Paused</h2>
+        <div class="menu-col">
+          <button class="btn btn-yellow" id="btnResume">RESUME</button>
+          <button class="btn btn-blue" id="btnRestart">RESTART MATCH</button>
+          <button class="btn btn-grey" id="btnQuit">QUIT TO MENU</button>
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section class="screen hidden" id="scrResult">
+        <h2 class="screen-title" id="resultTitle">You win!</h2>
+        <p class="result-score" id="resultScore">5 – 3</p>
+        <div class="menu-col">
+          <button class="btn btn-yellow" id="btnAgain">PLAY AGAIN</button>
+          <button class="btn btn-grey" id="btnMenu">MAIN MENU</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

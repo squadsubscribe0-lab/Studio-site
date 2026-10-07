@@ -1,0 +1,301 @@
+{
+  "_readme": [
+    "Per-portal build configuration for build.py.",
+    "",
+    "Fill in `credentials` with the ids each portal issues you. Anything left",
+    "blank still builds - the placeholder is written through verbatim and the",
+    "build prints a warning - so you can generate every zip before you have",
+    "every account, then rebuild the one target once its id arrives.",
+    "",
+    "`head` is injected into index.html between the PLATFORM-SDK markers.",
+    "`options` becomes window.__PLATFORM_OPTIONS__, read by the adapter.",
+    "{{TOKENS}} in either are replaced from `credentials`."
+  ],
+  "credentials": {
+    "GD_GAME_ID": "c6d37f6c6bd64d0281b1b49c081f472f",
+    "GAMEMONETIZE_GAME_ID": "",
+    "GAMEPIX_SDK_URL": "https://gamepix.blob.core.windows.net/gpxlib/dev/gamepix.js",
+    "Y8_APP_ID": "",
+    "Y8_GAME_ID": "",
+    "LAGGED_DEV_ID": "",
+    "LAGGED_PUBLISHER_ID": "",
+    "NEWGROUNDS_APP_ID": "",
+    "NEWGROUNDS_MEDAL_ID": "",
+    "NEWGROUNDS_SCOREBOARD_ID": "",
+    "PLAYGAMA_GAME_ID": "",
+    "MONETAG_SDK_DOMAIN": "",
+    "MONETAG_ZONE_ID": ""
+  },
+  "platforms": [
+    {
+      "id": "crazygames",
+      "label": "CrazyGames",
+      "site": "https://developer.crazygames.com",
+      "docs": "https://docs.crazygames.com/sdk/html5-v3/intro",
+      "revshare": "Up to 70% net ad revenue (rises with exclusivity)",
+      "submission": "zip, index.html at root",
+      "head": [
+        "<!-- CrazyGames HTML5 v3 SDK. Must load before the game boots. -->",
+        "<script src=\"https://sdk.crazygames.com/crazygames-sdk-v3.js\"></script>"
+      ],
+      "options": {
+        "adsEnabled": false,
+        "midgameCooldownMs": 0
+      },
+      "notes": [
+        "Only portal here with a native invite/room API - the online lobby uses it.",
+        "Every asset except this SDK must ship inside the zip; no other CDN calls.",
+        "adsEnabled stays false for Basic Launch, where CrazyGames serves no ads and QA rejects a rewarded button that does nothing. Set it to true for the Full Launch build.",
+        "midgameCooldownMs is 0 because the CrazyGames SDK enforces ad frequency itself (max one midgame per 3 minutes) and drops early requests silently."
+      ]
+    },
+    {
+      "id": "poki",
+      "label": "Poki",
+      "site": "https://developers.poki.com",
+      "docs": "https://developers.poki.com/guide/sdk-html5",
+      "revshare": "~50% on Poki-sourced players, 100% on players you bring",
+      "submission": "Poki for Developers upload (zip or Git)",
+      "head": [
+        "<script src=\"https://game-cdn.poki.com/scripts/v2/poki-sdk.js\"></script>"
+      ],
+      "options": {
+        "debug": false
+      },
+      "notes": [
+        "Poki decides ad timing - the adapter disables our own interstitial cooldown.",
+        "Mobile/touch support is effectively mandatory for approval.",
+        "No external links, no other ad SDKs, no third-party analytics."
+      ]
+    },
+    {
+      "id": "gamedistribution",
+      "label": "GameDistribution",
+      "site": "https://developer.gamedistribution.com",
+      "docs": "https://github.com/GameDistribution/GD-HTML5/wiki/SDK-Implementation",
+      "revshare": "~33% of net ad + IAP revenue, EUR 100 payout floor",
+      "submission": "zip upload; game id issued on creation",
+      "head": [
+        "<script>",
+        "  // Defined before the SDK loads. The adapter attaches __forward once it",
+        "  // boots; anything the SDK fires before then is buffered, not lost.",
+        "  window.GD_OPTIONS = {",
+        "    gameId: \"{{GD_GAME_ID}}\",",
+        "    onEvent: function (event) {",
+        "      var o = window.GD_OPTIONS;",
+        "      if (o.__forward) o.__forward(event);",
+        "      else (o.__buffered = o.__buffered || []).push(event);",
+        "    }",
+        "  };",
+        "</script>",
+        "<script src=\"https://html5.api.gamedistribution.com/main.min.js\"></script>"
+      ],
+      "options": {},
+      "notes": [
+        "Turn on the REWARDED ADS flag in the dashboard or rewarded requests are refused.",
+        "Syndicates onward to thousands of small portals - widest reach per upload."
+      ]
+    },
+    {
+      "id": "gamemonetize",
+      "label": "GameMonetize",
+      "site": "https://gamemonetize.com/dashboard",
+      "docs": "https://github.com/GameMonetize/GameMonetize.com-SDK",
+      "revshare": "Ad revenue share, published rate varies by deal",
+      "submission": "hosted URL or zip; game id issued on creation",
+      "head": [
+        "<script>",
+        "  window.SDK_OPTIONS = {",
+        "    gameId: \"{{GAMEMONETIZE_GAME_ID}}\",",
+        "    advertisementSettings: { autoplay: false },",
+        "    onEvent: function (event) {",
+        "      var o = window.SDK_OPTIONS;",
+        "      if (o.__forward) o.__forward(event);",
+        "      else (o.__buffered = o.__buffered || []).push(event);",
+        "    }",
+        "  };",
+        "</script>",
+        "<script src=\"https://api.gamemonetize.com/sdk.js\"></script>"
+      ],
+      "options": {},
+      "notes": [
+        "Same engine as GameDistribution, separate account and payout."
+      ]
+    },
+    {
+      "id": "yandex",
+      "label": "Yandex Games",
+      "site": "https://games.yandex.ru/console",
+      "docs": "https://yandex.com/dev/games/doc/en/sdk/sdk-about",
+      "revshare": "Ad revenue share via Yandex Advertising Network",
+      "submission": "zip upload through the developer console",
+      "head": [
+        "<script src=\"https://sdk.games.s3.yandex.net/sdk.js\"></script>"
+      ],
+      "options": {},
+      "notes": [
+        "Real cloud saves: progress follows a logged-in player across devices.",
+        "LoadingAPI.ready() must fire or the portal loader stays over the game.",
+        "A Russian-language build scores much better in their catalogue."
+      ]
+    },
+    {
+      "id": "gamepix",
+      "label": "GamePix",
+      "site": "https://partners.gamepix.com",
+      "docs": "https://partners.gamepix.com/developers",
+      "revshare": "45% revenue share",
+      "submission": "zip upload from the partner dashboard",
+      "head": [
+        "<!-- Replace with the per-game snippet from your GamePix dashboard;",
+        "     the default below is their public dev/stub library. -->",
+        "<script src=\"{{GAMEPIX_SDK_URL}}\"></script>"
+      ],
+      "options": {},
+      "notes": [
+        "The adapter feature-detects both the legacy and current GamePix APIs.",
+        "The stub library shows placeholder breaks only - it never serves real ads."
+      ]
+    },
+    {
+      "id": "y8",
+      "label": "Y8",
+      "site": "https://developer.y8.com",
+      "docs": "https://github.com/Y8Games/y8-afp-ads-sdk-javascript",
+      "revshare": "50% of in-game ad revenue, or direct AdSense (AFP)",
+      "submission": "https://www.y8.com/upload",
+      "head": [
+        "<script>",
+        "  // y8sdk.ready fires exactly once and can beat our modules, so latch it.",
+        "  window.__y8Ready = new Promise(function (resolve) {",
+        "    window.addEventListener('y8sdk.ready', function () { resolve(window.y8); }, { once: true });",
+        "  });",
+        "</script>",
+        "<script src=\"https://cdn.y8.com/minimal-sdk/2-0/y8.min.js\" async></script>"
+      ],
+      "options": {
+        "appId": "{{Y8_APP_ID}}",
+        "gameId": "{{Y8_GAME_ID}}"
+      },
+      "notes": [
+        "Ads are Google AFP; register the app at https://account.y8.com/applications/.",
+        "AFP mode pays you through your own AdSense account instead of Y8 invoicing."
+      ]
+    },
+    {
+      "id": "lagged",
+      "label": "Lagged",
+      "site": "https://lagged.dev",
+      "docs": "https://lagged.dev/sdk",
+      "revshare": "50% AdSense revenue share",
+      "submission": "Lagged developer dashboard",
+      "head": [
+        "<script src=\"https://lagged.com/api/rev-share/lagged.js\"></script>"
+      ],
+      "options": {
+        "devId": "{{LAGGED_DEV_ID}}",
+        "publisherId": "{{LAGGED_PUBLISHER_ID}}"
+      },
+      "notes": [
+        "Rewarded is a two-step handshake: availability first, then playback.",
+        "Interstitials give no callback on a no-fill, so the adapter times them out."
+      ]
+    },
+    {
+      "id": "playgama",
+      "label": "Playgama Bridge (multi-platform)",
+      "site": "https://playgama.com/partners",
+      "docs": "https://wiki.playgama.com/playgama/bridge-sdk",
+      "revshare": "Varies by downstream platform",
+      "submission": "one build, distributed to ~25 destinations",
+      "head": [
+        "<script src=\"https://bridge.playgama.com/v2/stable/playgama-bridge.js\"></script>"
+      ],
+      "options": {
+        "interstitialPlacement": "between_matches",
+        "rewardedPlacement": "coins"
+      },
+      "extraFiles": {
+        "playgama-bridge-config.json": {
+          "gameId": "{{PLAYGAMA_GAME_ID}}",
+          "platforms": {}
+        }
+      },
+      "notes": [
+        "One integration fronts VK, OK, Telegram/Playdeck, YouTube Playables, MSN and more.",
+        "Reward only on state 'rewarded' - 'closed' also fires for skips.",
+        "Do not ship this build to a portal that has its own adapter here; use that one."
+      ]
+    },
+    {
+      "id": "newgrounds",
+      "label": "Newgrounds",
+      "site": "https://www.newgrounds.com/projects/games",
+      "docs": "https://www.newgrounds.io/help/",
+      "revshare": "Site-wrapper ad share + Supporter pool, $50 payout floor",
+      "submission": "project upload, zip",
+      "head": [
+        "<!-- Newgrounds serves its own ads around the game frame: there is no ad",
+        "     SDK to embed. Medals and scoreboards go over plain HTTP instead. -->"
+      ],
+      "options": {
+        "appId": "{{NEWGROUNDS_APP_ID}}",
+        "medalId": "{{NEWGROUNDS_MEDAL_ID}}",
+        "scoreboardId": "{{NEWGROUNDS_SCOREBOARD_ID}}"
+      },
+      "notes": [
+        "Leave the ids blank to ship a clean, fully offline build."
+      ]
+    },
+    {
+      "id": "selfhost",
+      "label": "Self-hosted / Netlify (Monetag)",
+      "site": "https://app.netlify.com/",
+      "docs": "https://docs.monetag.com/docs/sdk-reference/",
+      "revshare": "You keep 100% of whatever the ad network pays you",
+      "submission": "drag dist/selfhost into Netlify, or `netlify deploy --prod`",
+      "head": [
+        "<!-- Monetag SDK. Only this promise-based SDK is wired into the game. If you",
+        "     also paste a page-level Monetag tag (vignette / in-page push), put it",
+        "     here as well — it runs on its own and needs nothing from the game. -->",
+        "<script src=\"https://{{MONETAG_SDK_DOMAIN}}/sdk.js\" data-zone=\"{{MONETAG_ZONE_ID}}\" data-sdk=\"show_{{MONETAG_ZONE_ID}}\"></script>"
+      ],
+      "options": {
+        "zoneId": "{{MONETAG_ZONE_ID}}",
+        "inAppSettings": {
+          "frequency": 2,
+          "capping": 1,
+          "interval": 60,
+          "timeout": 15,
+          "everyPage": false
+        }
+      },
+      "extraFiles": {
+        "netlify.toml": "# Netlify config for the self-hosted build.\n#\n# The game ships unbundled ES modules with no content hashing, so index.html,\n# src/ and styles/ MUST revalidate on every load. Cache those hard and a deploy\n# goes out while players keep running yesterday's JavaScript.\n\n[build]\n  publish = \".\"\n\n[[headers]]\n  for = \"/*.html\"\n  [headers.values]\n    Cache-Control = \"public, max-age=0, must-revalidate\"\n\n[[headers]]\n  for = \"/src/*\"\n  [headers.values]\n    Cache-Control = \"public, max-age=0, must-revalidate\"\n\n[[headers]]\n  for = \"/styles/*\"\n  [headers.values]\n    Cache-Control = \"public, max-age=0, must-revalidate\"\n\n# Vendored and version-pinned: safe to cache for a year.\n[[headers]]\n  for = \"/vendor/*\"\n  [headers.values]\n    Cache-Control = \"public, max-age=31536000, immutable\"\n\n[[headers]]\n  for = \"/assets/*\"\n  [headers.values]\n    Cache-Control = \"public, max-age=604800\"\n"
+      },
+      "notes": [
+        "Monetag's promise SDK (show_XXX) is documented for Telegram Mini Apps. If it",
+        "does not load on your domain the game runs ad-free and the rewarded button",
+        "hides itself; any page-level Monetag tag still earns independently.",
+        "Never ship this build to a game portal - their contracts forbid outside ad code."
+      ]
+    },
+    {
+      "id": "standalone",
+      "label": "Standalone (itch.io / self-hosted / Discord / Telegram)",
+      "site": "https://itch.io",
+      "docs": "",
+      "revshare": "You keep everything; itch.io's cut is whatever you set (10% default)",
+      "submission": "zip, index.html at root, 'This file will be played in the browser'",
+      "head": [
+        "<!-- No portal SDK. This build is the one to hand to itch.io, a Discord",
+        "     Activity, a Telegram Mini App, a games-site licensee, or your own domain. -->"
+      ],
+      "options": {},
+      "notes": [
+        "No ads and no network calls beyond the P2P lobby - safe to embed anywhere.",
+        "Also the right base for a paid or licensed build."
+      ]
+    }
+  ]
+}
