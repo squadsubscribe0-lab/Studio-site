@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Tiny Dungeon Keeper</title>
+<link rel="icon" href="assets/sprites/monster_idle1.png">
+<meta name="description" content="Build traps, guard your treasure and outsmart heroes that learn from every trap.">
+<style>
+  html, body { margin: 0; height: 100%; background: #07050d; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  canvas { position: absolute; display: block; }
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; color: #ffad5c; font: 700 22px system-ui, sans-serif; }
+  #rotate { display: none; position: fixed; inset: 0; background: #07050d; color: #ffd7a8; font: 700 20px system-ui, sans-serif; text-align: center; place-items: center; padding: 24px; z-index: 2; }
+  @media (orientation: portrait) and (pointer: coarse) { #rotate { display: grid; } }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="loading">Loading the dungeon…</div>
+<div id="rotate">Turn your phone sideways to play 🔄</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
