@@ -32,6 +32,7 @@ export const GAMES = [
   { slug: 'endless-puncher', from: 'endless puncher/dist' },
   { slug: 'jungle-ladder', from: 'jungle-ladder/builds/standalone' },
   { slug: 'meow-bag-cat-mafia', from: 'Meow Bag Cat Mafia' },
+  { slug: 'tiny-dungeon-keeper', from: 'tiny-dungeon-keeper', skip: ['art', 'marketing'] },
 ];
 
 const outDir = join(root, 'play');

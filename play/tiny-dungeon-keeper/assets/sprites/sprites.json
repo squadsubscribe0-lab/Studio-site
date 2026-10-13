@@ -1,0 +1,258 @@
+{
+"monster_idle1": [
+126,
+101
+],
+"monster_idle2": [
+126,
+104
+],
+"monster_lever": [
+131,
+102
+],
+"monster_laugh": [
+125,
+105
+],
+"monster_angry": [
+126,
+102
+],
+"monster_surprised": [
+123,
+107
+],
+"monster_celebrate": [
+127,
+107
+],
+"monster_sad": [
+122,
+101
+],
+"hero_walk1": [
+102,
+119
+],
+"hero_walk2": [
+100,
+120
+],
+"hero_walk3": [
+101,
+120
+],
+"hero_walk4": [
+97,
+120
+],
+"hero_walk5": [
+98,
+119
+],
+"hero_walk6": [
+96,
+119
+],
+"hero_jump": [
+101,
+112
+],
+"hero_dizzy": [
+102,
+134
+],
+"knight_walk1": [
+102,
+132
+],
+"knight_walk2": [
+101,
+132
+],
+"knight_walk3": [
+101,
+133
+],
+"knight_walk4": [
+101,
+133
+],
+"knight_walk5": [
+101,
+132
+],
+"knight_walk6": [
+101,
+131
+],
+"knight_block": [
+115,
+127
+],
+"knight_dizzy": [
+108,
+134
+],
+"thief_walk1": [
+103,
+114
+],
+"thief_walk2": [
+103,
+113
+],
+"thief_walk3": [
+100,
+114
+],
+"thief_walk4": [
+101,
+114
+],
+"thief_walk5": [
+99,
+114
+],
+"thief_walk6": [
+102,
+113
+],
+"thief_sneak": [
+97,
+108
+],
+"thief_dizzy": [
+100,
+125
+],
+"barb_walk1": [
+122,
+119
+],
+"barb_walk2": [
+120,
+118
+],
+"barb_walk3": [
+121,
+118
+],
+"barb_walk4": [
+123,
+118
+],
+"barb_walk5": [
+121,
+118
+],
+"barb_walk6": [
+123,
+119
+],
+"barb_swing": [
+135,
+114
+],
+"barb_dizzy": [
+105,
+127
+],
+"wizard_walk1": [
+108,
+112
+],
+"wizard_walk2": [
+108,
+113
+],
+"wizard_walk3": [
+109,
+112
+],
+"wizard_walk4": [
+108,
+113
+],
+"wizard_walk5": [
+108,
+110
+],
+"wizard_walk6": [
+109,
+110
+],
+"wizard_cast": [
+125,
+114
+],
+"wizard_dizzy": [
+107,
+118
+],
+"trap_spikes": [
+111,
+90
+],
+"trap_axe": [
+104,
+109
+],
+"trap_slime": [
+123,
+86
+],
+"trap_fire": [
+95,
+104
+],
+"trap_rock": [
+104,
+91
+],
+"trap_spring": [
+84,
+82
+],
+"trap_wheel": [
+122,
+94
+],
+"trap_cage": [
+103,
+114
+],
+"tile_floor": [
+100,
+98
+],
+"tile_wall": [
+101,
+99
+],
+"torch": [
+47,
+106
+],
+"door": [
+99,
+109
+],
+"chest": [
+118,
+110
+],
+"coin": [
+66,
+70
+],
+"gem": [
+67,
+89
+],
+"heart": [
+96,
+87
+]
+}
