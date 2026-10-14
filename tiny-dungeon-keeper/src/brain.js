@@ -92,10 +92,10 @@ export class Brain {
     return votes[a] > 0 ? ACTIONS[a] : 'walk on';
   }
 
-  iq() {
+  iq(total = 16) {
     const kinds = Object.values(this.mastery);
     if (!kinds.length) return 0;
-    return Math.round((kinds.reduce((s, m) => s + m.ema, 0) / 11) * 100);
+    return Math.round((kinds.reduce((s, m) => s + m.ema, 0) / total) * 100);
   }
 
   save() {

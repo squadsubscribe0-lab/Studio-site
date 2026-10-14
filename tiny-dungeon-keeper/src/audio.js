@@ -1,7 +1,37 @@
-// Tiny synthesized sound effects — no audio files needed.
-let ctx = null;
-let master = null;
-export const sound = { muted: false };
+/**
+ * Sound effects and music.
+ *
+ * Every effect is a real recording / hand-made sound from Kenney's CC0
+ * packs (see assets/sfx/SOURCES.txt and CREDITS.txt) — nothing is
+ * synthesised or AI generated. Music: "The Villain's Blueprints"
+ * (assets/music), supplied by the studio.
+ */
+const NAMES = [
+  'jump', 'jump2', 'step1', 'step2', 'stepc1', 'stepc2', 'coin', 'defeat', 'hurt', 'spikes', 'spring', 'slime',
+  'fire', 'rock', 'saw', 'axe', 'bomb', 'fuse', 'wheel', 'cannon', 'fireball', 'iceshot', 'freeze', 'log',
+  'spikeball', 'cage', 'latch', 'chomp', 'splash', 'place', 'block', 'sell', 'click', 'select', 'error',
+  'castle', 'learn', 'laugh', 'sad', 'wavestart', 'fight', 'wavedone', 'flawless', 'win', 'youwin', 'lose',
+  'youlose', 'unlock', 'reward', 'magic', 'clang',
+];
+
+// default volume per sound, and the shortest gap between two plays (crowds!)
+const VOL = { step1: 0.25, step2: 0.25, stepc1: 0.25, stepc2: 0.25, jump: 0.35, jump2: 0.35, coin: 0.35, hurt: 0.45, defeat: 0.4, fire: 0.5, music: 0.38 };
+const GAP = { step1: 0.12, step2: 0.12, stepc1: 0.12, stepc2: 0.12, jump: 0.07, jump2: 0.07, coin: 0.06, hurt: 0.05, defeat: 0.06, spikes: 0.05, saw: 0.08, fire: 0.25, laugh: 3.5, sad: 2.5, castle: 0.15 };
+
+let ctx = null, master = null, sfxGain = null;
+const buffers = {};
+const lastPlay = {};
+let musicEl = null;
+
+const prefs = { music: true, sfx: true };
+try { Object.assign(prefs, JSON.parse(localStorage.getItem('tdk_audio') || '{}')); } catch (e) {}
+const savePrefs = () => { try { localStorage.setItem('tdk_audio', JSON.stringify(prefs)); } catch (e) {} };
+
+export const sound = {
+  get music() { return prefs.music; },
+  get sfx() { return prefs.sfx; },
+  ducked: false,
+};
 
 function ac() {
   if (!ctx) {
@@ -9,69 +39,73 @@ function ac() {
     if (!AC) return null;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = 0.35;
     master.connect(ctx.destination);
+    sfxGain = ctx.createGain();
+    sfxGain.gain.value = prefs.sfx ? 1 : 0;
+    sfxGain.connect(master);
   }
-  if (ctx.state === 'suspended') ctx.resume();
   return ctx;
 }
 
+/** Load every effect. onProgress(doneCount, total). */
+export async function loadAudio(onProgress) {
+  const c = ac();
+  let done = 0;
+  await Promise.all(NAMES.map(async (n) => {
+    try {
+      const res = await fetch(`assets/sfx/${n}.mp3`);
+      const data = await res.arrayBuffer();
+      if (c) buffers[n] = await new Promise((ok, bad) => c.decodeAudioData(data, ok, bad));
+    } catch (e) { /* a missing sound must never break the game */ }
+    onProgress?.(++done, NAMES.length);
+  }));
+  musicEl = new Audio('assets/music/villains-blueprints.mp3');
+  musicEl.loop = true;
+  musicEl.preload = 'auto';
+  musicEl.volume = VOL.music;
+}
+
 export function unlockAudio() {
-  ac();
-}
-
-function tone(freq, dur, { type = 'square', to = null, vol = 0.3, delay = 0 } = {}) {
-  if (sound.muted) return;
   const c = ac();
-  if (!c) return;
-  const t = c.currentTime + delay;
-  const o = c.createOscillator();
-  const g = c.createGain();
-  o.type = type;
-  o.frequency.setValueAtTime(freq, t);
-  if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
-  g.gain.setValueAtTime(vol, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  o.connect(g).connect(master);
-  o.start(t);
-  o.stop(t + dur + 0.02);
+  if (c && c.state === 'suspended') c.resume();
+  if (prefs.music && musicEl && musicEl.paused && !sound.ducked) musicEl.play().catch(() => {});
 }
 
-function noise(dur, { vol = 0.25, freq = 1200, delay = 0 } = {}) {
-  if (sound.muted) return;
-  const c = ac();
-  if (!c) return;
-  const t = c.currentTime + delay;
-  const len = Math.floor(c.sampleRate * dur);
-  const buf = c.createBuffer(1, len, c.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
-  const s = c.createBufferSource();
-  s.buffer = buf;
-  const f = c.createBiquadFilter();
-  f.type = 'lowpass';
-  f.frequency.value = freq;
-  const g = c.createGain();
-  g.gain.value = vol;
-  s.connect(f).connect(g).connect(master);
-  s.start(t);
+export function play(name, { vol = 1, rate = 1, detune = 0 } = {}) {
+  if (!prefs.sfx || sound.ducked) return;
+  const c = ctx, b = buffers[name];
+  if (!c || !b || c.state !== 'running') return;
+  const now = c.currentTime;
+  if (now - (lastPlay[name] || -1) < (GAP[name] ?? 0.03)) return;
+  lastPlay[name] = now;
+  const src = c.createBufferSource();
+  src.buffer = b;
+  src.playbackRate.value = rate * (1 + (Math.random() - 0.5) * 0.08) * Math.pow(2, detune / 12);
+  const gn = c.createGain();
+  gn.gain.value = (VOL[name] ?? 0.6) * vol;
+  src.connect(gn).connect(sfxGain);
+  src.start();
 }
 
-export const sfx = {
-  place: () => tone(520, 0.08, { type: 'triangle', to: 780, vol: 0.25 }),
-  sell: () => tone(700, 0.1, { type: 'triangle', to: 350, vol: 0.2 }),
-  jump: () => tone(380, 0.12, { type: 'square', to: 760, vol: 0.06 }),
-  boing: () => tone(180, 0.35, { type: 'sine', to: 620, vol: 0.3 }),
-  defeat: () => { tone(640, 0.35, { type: 'square', to: 120, vol: 0.12 }); noise(0.15, { vol: 0.15, freq: 2500 }); },
-  coin: () => { tone(988, 0.07, { type: 'square', vol: 0.08 }); tone(1319, 0.12, { type: 'square', vol: 0.08, delay: 0.07 }); },
-  fire: () => noise(0.4, { vol: 0.18, freq: 700 }),
-  crash: () => noise(0.3, { vol: 0.35, freq: 400 }),
-  clang: () => { tone(220, 0.25, { type: 'sawtooth', vol: 0.12 }); noise(0.1, { vol: 0.2, freq: 3000 }); },
-  steal: () => { tone(500, 0.15, { type: 'triangle', vol: 0.2 }); tone(380, 0.25, { type: 'triangle', vol: 0.2, delay: 0.15 }); },
-  magic: () => { [0, 1, 2, 3].forEach((i) => tone(880 + i * 220, 0.08, { type: 'sine', vol: 0.12, delay: i * 0.05 })); },
-  learn: () => { tone(660, 0.1, { type: 'sine', vol: 0.15 }); tone(990, 0.18, { type: 'sine', vol: 0.15, delay: 0.1 }); },
-  lever: () => { tone(160, 0.15, { type: 'square', vol: 0.15 }); [523, 659, 784].forEach((f, i) => tone(f, 0.14, { type: 'triangle', vol: 0.18, delay: 0.15 + i * 0.1 })); },
-  win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, { type: 'triangle', vol: 0.2, delay: i * 0.12 })),
-  lose: () => [392, 330, 262, 196].forEach((f, i) => tone(f, 0.3, { type: 'triangle', vol: 0.2, delay: i * 0.18 })),
-  click: () => tone(900, 0.04, { type: 'square', vol: 0.06 }),
-};
+export function setMusic(on) {
+  prefs.music = on;
+  savePrefs();
+  if (!musicEl) return;
+  if (on && !sound.ducked) musicEl.play().catch(() => {});
+  else musicEl.pause();
+}
+export function setSfx(on) {
+  prefs.sfx = on;
+  savePrefs();
+  if (sfxGain) sfxGain.gain.value = on ? 1 : 0;
+}
+
+/** Silence everything while an ad plays (portal requirement). */
+export function duck(on) {
+  sound.ducked = on;
+  if (master) master.gain.value = on ? 0 : 1;
+  if (musicEl) {
+    if (on) musicEl.pause();
+    else if (prefs.music) musicEl.play().catch(() => {});
+  }
+}

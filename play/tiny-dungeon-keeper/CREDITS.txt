@@ -1,0 +1,19 @@
+TINY DUNGEON KEEPER — credits
+=============================
+
+Game, code, design, characters and traps art: Loopkind
+
+Music
+  "The Villain's Blueprints" — supplied by the studio for this game.
+
+Sound effects — all by Kenney (https://kenney.nl), released under
+Creative Commons Zero (CC0 1.0). No sound in this game is synthesised
+or AI generated. Packs used:
+  Impact Sounds · RPG Audio · Sci-fi Sounds · Interface Sounds ·
+  Digital Audio · Music Jingles · Voiceover Pack: Fighter
+  (copies taken from github.com/kapishdima/soundcn, assets/kenney_*,
+   commit 7cbfbb3; the exact file used for every effect is listed in
+   assets/sfx/SOURCES.txt in the source repository)
+
+Font
+  Space Grotesk — SIL Open Font License 1.1

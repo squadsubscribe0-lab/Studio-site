@@ -99,11 +99,37 @@ export default {
   //        <image>-{640,960,1280}.{avif,webp} — `npm run images` creates them.
   games: [
     {
+      slug: 'tiny-dungeon-keeper',
+      title: 'Tiny Dungeon Keeper',
+      tags: ['Strategy', 'Tower Defense', 'Casual'],
+      status: 'development',
+      featured: true,
+      image: 'assets/img/games/tiny-dungeon-keeper',
+      imageAlt:
+        'Tiny Dungeon Keeper gameplay: a crowd of tiny heroes runs at spike balls and a fire cannon while the green monster laughs on top of his castle',
+      description:
+        'Be the villain: build a level full of traps and stop crowds of heroes from reaching your treasure — but they learn from every trap that gets them.',
+      about: [
+        'Tiny Dungeon Keeper flips the platformer around. You are the monster on the castle, and every wave a crowd of heroes tries to run, jump and dash their way to your gold.',
+        'Spend your coins on spikes, springs, slime, swinging axes, mid-air spike balls, fire and ice cannons, log launchers and a very hungry crocodile. Then press Start Wave and watch.',
+        'The twist: the heroes share a learning brain. Every hero that falls to a trap teaches the rest how to beat it — jump it, wait it out or sprint past — so you have to keep changing your plan.',
+      ],
+      features: [
+        '17 traps, including mid-air traps and projectile cannons',
+        'Heroes that learn from every trap using a real reinforcement-learning brain',
+        '7 levels across a dungeon world and a sunny overworld',
+        'Crowds of up to 200 heroes, heatmap, castle health and wave reports',
+        'Built for web portals: CrazyGames, GameDistribution and Playgama builds',
+      ],
+      platforms: ['Web'],
+      engine: 'HTML5',
+      links: { play: 'https://squadsubscribe0-lab.github.io/Studio-site/play/tiny-dungeon-keeper/', googlePlay: '' },
+    },
+    {
       slug: 'idle-shape-shooter',
       title: 'Idle Shape Shooter',
       tags: ['Idle', 'Shooter', 'Casual'],
       status: 'live',
-      featured: true,
       image: 'assets/img/games/idle-shape-shooter',
       imageAlt:
         'Idle Shape Shooter key art: a glowing turret firing at waves of geometric shapes',
