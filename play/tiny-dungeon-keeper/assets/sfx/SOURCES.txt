@@ -1,0 +1,51 @@
+jump kenney_digital-audio/phaseJump1.ogg
+jump2 kenney_digital-audio/phaseJump3.ogg
+step1 kenney_impact-sounds/footstep_grass_000.ogg
+step2 kenney_impact-sounds/footstep_grass_002.ogg
+stepc1 kenney_impact-sounds/footstep_concrete_000.ogg
+stepc2 kenney_impact-sounds/footstep_concrete_002.ogg
+coin kenney_digital-audio/pepSound2.ogg
+defeat kenney_digital-audio/lowDown.ogg
+hurt kenney_impact-sounds/impactPunch_medium_000.ogg
+spikes kenney_impact-sounds/impactMetal_light_001.ogg
+spring kenney_interface-sounds/pluck_001.ogg
+slime kenney_sci-fi-sounds/slime_000.ogg
+fire kenney_sci-fi-sounds/thrusterFire_000.ogg
+rock kenney_impact-sounds/impactMining_001.ogg
+saw kenney_rpg-audio/knifeSlice2.ogg
+axe kenney_rpg-audio/chop.ogg
+bomb kenney_sci-fi-sounds/lowFrequency_explosion_000.ogg
+fuse kenney_interface-sounds/tick_001.ogg
+wheel kenney_impact-sounds/impactWood_heavy_000.ogg
+cannon kenney_sci-fi-sounds/explosionCrunch_000.ogg
+fireball kenney_sci-fi-sounds/thrusterFire_002.ogg
+iceshot kenney_sci-fi-sounds/forceField_000.ogg
+freeze kenney_impact-sounds/impactGlass_light_000.ogg
+log kenney_impact-sounds/impactWood_medium_000.ogg
+spikeball kenney_impact-sounds/impactMetal_medium_000.ogg
+cage kenney_impact-sounds/impactMetal_heavy_000.ogg
+latch kenney_rpg-audio/metalLatch.ogg
+chomp kenney_impact-sounds/impactPunch_heavy_000.ogg
+splash kenney_sci-fi-sounds/slime_001.ogg
+place kenney_interface-sounds/drop_002.ogg
+block kenney_interface-sounds/drop_001.ogg
+sell kenney_interface-sounds/back_001.ogg
+click kenney_interface-sounds/click_001.ogg
+select kenney_interface-sounds/select_001.ogg
+error kenney_interface-sounds/error_001.ogg
+castle kenney_impact-sounds/impactBell_heavy_000.ogg
+learn kenney_interface-sounds/question_001.ogg
+laugh kenney_music-jingles/Pizzicato jingles/jingles_PIZZI03.ogg
+sad kenney_music-jingles/8-Bit jingles/jingles_NES07.ogg
+wavestart kenney_music-jingles/8-Bit jingles/jingles_NES00.ogg
+fight kenney_voiceover-pack-fighter/fight.ogg
+wavedone kenney_music-jingles/8-Bit jingles/jingles_NES03.ogg
+flawless kenney_voiceover-pack-fighter/flawless_victory.ogg
+win kenney_music-jingles/8-Bit jingles/jingles_NES05.ogg
+youwin kenney_voiceover-pack-fighter/you_win.ogg
+lose kenney_music-jingles/8-Bit jingles/jingles_NES08.ogg
+youlose kenney_voiceover-pack-fighter/you_lose.ogg
+unlock kenney_digital-audio/powerUp2.ogg
+reward kenney_digital-audio/powerUp5.ogg
+magic kenney_digital-audio/phaserUp3.ogg
+clang kenney_impact-sounds/impactMetal_heavy_002.ogg
