@@ -95,7 +95,7 @@ export class Brain {
   iq() {
     const kinds = Object.values(this.mastery);
     if (!kinds.length) return 0;
-    return Math.round((kinds.reduce((s, m) => s + m.ema, 0) / 8) * 100);
+    return Math.round((kinds.reduce((s, m) => s + m.ema, 0) / 11) * 100);
   }
 
   save() {
