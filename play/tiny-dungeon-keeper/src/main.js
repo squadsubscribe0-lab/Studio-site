@@ -1,7 +1,8 @@
 import { Brain, ACTIONS } from './brain.js';
 import { LEVELS, THEMES, WORLDS } from './levels.js';
 import { t as tx, detectLang, setLang, getLang, LANGS } from './i18n.js';
-import { play, sound, loadAudio, unlockAudio, setMusic, setSfx, duck, setSdkMute } from './audio.js';
+import { play, sound, loadAudio, unlockAudio, setMusic, setSfx, duck, setSdkMute, loadPrefs } from './audio.js';
+import { kv } from './storage.js';
 
 /* ═════════════════════════ constants ═════════════════════════ */
 const W = 1280, H = 720;
@@ -202,19 +203,23 @@ function tinted(name, color) {
 const brain = new Brain();
 // progress v4 stores stars by level name, so adding levels never mixes them up
 let progress = { unlocked: 1, stars: {}, seen: {} };
-try {
-  const v4 = JSON.parse(localStorage.getItem('tdk_progress4') || 'null');
-  if (v4) progress = { ...progress, ...v4 };
-  else {
-    const v3 = JSON.parse(localStorage.getItem('tdk_progress3') || 'null');
-    if (v3) {
-      const old = ['The Old Cellar', 'Bumpy Halls', 'The Long Vault', 'Green Meadow', 'Rolling Hills', 'Sunset Bridges', 'Starry Tunnels'];
-      for (const [i, st] of Object.entries(v3.stars || {})) if (old[i]) progress.stars[old[i]] = st;
-      progress.unlocked = (v3.unlocked || 1) <= 3 ? v3.unlocked || 1 : v3.unlocked + 2;
+function loadProgress() {
+  progress = { unlocked: 1, stars: {}, seen: {} };
+  try {
+    const v4 = JSON.parse(kv.get('tdk_progress4') || 'null');
+    if (v4) progress = { ...progress, ...v4 };
+    else {
+      const v3 = JSON.parse(kv.get('tdk_progress3') || 'null');
+      if (v3) {
+        const old = ['The Old Cellar', 'Bumpy Halls', 'The Long Vault', 'Green Meadow', 'Rolling Hills', 'Sunset Bridges', 'Starry Tunnels'];
+        for (const [i, st] of Object.entries(v3.stars || {})) if (old[i]) progress.stars[old[i]] = st;
+        progress.unlocked = (v3.unlocked || 1) <= 3 ? v3.unlocked || 1 : v3.unlocked + 2;
+      }
     }
-  }
-} catch (e) {}
-const saveProgress = () => { try { localStorage.setItem('tdk_progress4', JSON.stringify(progress)); } catch (e) {} };
+  } catch (e) {}
+}
+loadProgress();
+const saveProgress = () => kv.set('tdk_progress4', JSON.stringify(progress));
 const starsOf = (i) => progress.stars[LEVELS[i].name] || 0;
 
 const S = {
@@ -2890,6 +2895,13 @@ function drawHUD() {
   text(`${S.hp}/${S.maxHp}`, 1106, 43, 16, '#fff');
 }
 
+/** Touch screens have no mouse wheel: small zoom buttons above the bottom bar. */
+function drawZoomButtons() {
+  if (!isTouch() || (S.screen !== 'build' && S.screen !== 'wave') || S.paused) return;
+  button('zoom:in', W - 76, BAR - 128, 64, 56, '+', { size: 30, color: '#2c2645' });
+  button('zoom:out', W - 76, BAR - 66, 64, 56, '−', { size: 30, color: '#2c2645' });
+}
+
 function drawBar() {
   g.fillStyle = '#0d0a18'; g.fillRect(0, BAR, W, H - BAR);
   g.fillStyle = 'rgba(255,122,26,.3)'; g.fillRect(0, BAR, W, 2);
@@ -2914,6 +2926,7 @@ function drawBar() {
     button('reroll', 806, BAR + 12, 112, 64, tx('Restock 3'), { disabled: S.coins < 3, size: 15 });
     button('sell', 924, BAR + 12, 84, 64, tx('Sell'), { active: S.sellMode, size: 16 });
     button('start', 1014, BAR + 12, 254, 64, tx('START WAVE ▶'), { color: '#e8641a', size: 22 });
+    if (!S.selected && isTouch() && S.traps.length) text(tx('Hold a trap to sell it'), W / 2, BAR - 18, 15, '#ffe9cf');
     if (S.selected) {
       const fav = S.selected !== 'block' && brain.favourite(S.selected);
       text(tx(TRAPS[S.selected].tip) + (fav ? tx('  ·  Heroes have learned to {action} it', { action: tx(fav).toUpperCase() }) : ''), W / 2, BAR - 18, 15, '#ffe9cf', 'center', 700, W - 30);
@@ -2924,7 +2937,7 @@ function drawBar() {
     const st = S.waveStats;
     text(tx('Killed {a}/{b}', { a: st.killed, b: st.total }), 260, BAR + 44, 20, '#9dff9d', 'left');
     text(tx('Damage taken {n}', { n: st.damage }), 470, BAR + 44, 18, '#ff9d9d', 'left', 600, 230);
-    text(tx('Drag or WASD to look around · Z/X or wheel to zoom · H heatmap'), 1250, BAR + 44, 14, '#9fe3ff', 'right', 500, 540);
+    text(isTouch() ? tx('Drag to look around · pinch or +/− to zoom · hold a trap to sell') : tx('Drag or WASD to look around · Z/X or wheel to zoom · H heatmap'), 1250, BAR + 44, 14, '#9fe3ff', 'right', 500, 540);
   }
 }
 
@@ -3262,6 +3275,7 @@ function render() {
   drawHUD();
   drawBar();
   if (S.screen === 'build') { drawNextUp(); drawAdOffers(); drawTutorial(); }
+  drawZoomButtons();
   if (S.showBrain) drawBrainPanel();
   if (S.screen === 'summary') drawSummary();
   drawToasts();
@@ -3290,13 +3304,43 @@ function jumpMinimap(p) {
   clampCam();
 }
 
+// touch: two fingers pinch-zoom and pan, a long press sells a trap
+const touches = new Map();
+let pinch = null, longPress = null;
+const isTouch = () => matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+function pinchInfo() {
+  const [a, b] = [...touches.values()];
+  return { d: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+function sellAt(c, r) {
+  const t = trapAtCell(c, r);
+  if (!t) return false;
+  S.traps = S.traps.filter((x) => x !== t);
+  if (t.kind === 'block') removeBlock(t.c, t.r);
+  S.coins += Math.floor(TRAPS[t.kind].price * 0.6);
+  poof(t.cx, r * T + T / 2, 8);
+  play('sell');
+  return true;
+}
+
 canvas.addEventListener('pointermove', (e) => {
   const p = toLocal(e);
+  if (touches.has(e.pointerId)) touches.set(e.pointerId, p);
+  if (pinch && touches.size >= 2) {
+    const n = pinchInfo();
+    if (S.screen !== 'title' && S.screen !== 'loading') {
+      zoomAt(n.d / Math.max(1, pinch.d), n.x, n.y);
+      S.cam.x -= (n.x - pinch.x) / S.cam.z; S.cam.y -= (n.y - pinch.y) / S.cam.z;
+      S.cam.follow = false; clampCam();
+    }
+    pinch = n;
+    return;
+  }
   S.hover = p;
   if (!drag) return;
   if (drag.mini) return jumpMinimap(p);
   const dx = p.x - drag.x, dy = p.y - drag.y;
-  if (!drag.moved && Math.hypot(dx, dy) > 8) drag.moved = true;
+  if (!drag.moved && Math.hypot(dx, dy) > (e.pointerType === 'touch' ? 16 : 8)) { drag.moved = true; clearTimeout(longPress); }
   if (drag.moved) {
     S.cam.x = drag.camX - dx / S.cam.z;
     S.cam.y = drag.camY - dy / S.cam.z;
@@ -3304,7 +3348,8 @@ canvas.addEventListener('pointermove', (e) => {
     clampCam();
   }
 });
-canvas.addEventListener('pointerleave', () => { S.hover = null; });
+canvas.addEventListener('pointerleave', (e) => { if (e.pointerType !== 'touch') S.hover = null; });
+canvas.addEventListener('pointercancel', (e) => { touches.delete(e.pointerId); if (touches.size < 2) pinch = null; drag = null; clearTimeout(longPress); });
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 canvas.addEventListener('wheel', (e) => {
   e.preventDefault();
@@ -3317,32 +3362,39 @@ canvas.addEventListener('pointerdown', (e) => {
   unlockAudio();
   if (S.adBusy || S.screen === 'loading') return;
   const p = toLocal(e);
+  if (e.pointerType === 'touch') {
+    touches.set(e.pointerId, p);
+    if (touches.size === 2) { pinch = pinchInfo(); clearTimeout(longPress); if (drag) drag.moved = true; return; }
+  }
   S.hover = p;
-  const b = [...buttons].reverse().find((b) => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
+  // fingers are less precise than a mouse: give buttons a little extra reach
+  const pad = e.pointerType === 'touch' ? 8 : 0;
+  const b = [...buttons].reverse().find((b) => p.x >= b.x - pad && p.x <= b.x + b.w + pad && p.y >= b.y - pad && p.y <= b.y + b.h + pad);
   if (b) { if (!b.disabled) onButton(b.id); return; }
   if (S.screen === 'title' || S.paused || p.y < TOP || p.y >= BAR) return;
   if (overMinimap(p)) { drag = { mini: true }; jumpMinimap(p); return; }
   drag = { x: p.x, y: p.y, camX: S.cam.x, camY: S.cam.y, moved: false, button: e.button };
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+  clearTimeout(longPress);
+  if (S.screen === 'build') {
+    const wp = toWorld(p.x, p.y);
+    longPress = setTimeout(() => {
+      if (drag && !drag.moved && sellAt(Math.floor(wp.x / T), Math.floor(wp.y / T))) { drag.moved = true; try { navigator.vibrate?.(30); } catch (err) {} }
+    }, 550);
+  }
 });
 canvas.addEventListener('pointerup', (e) => {
+  touches.delete(e.pointerId);
+  clearTimeout(longPress);
+  if (pinch) { if (touches.size < 2) pinch = null; drag = null; return; }
+  if (e.pointerType === 'touch') setTimeout(() => { if (!touches.size) S.hover = null; }, 400);
   const d = drag;
   drag = null;
   if (!d || d.moved || d.mini || S.screen !== 'build') return;
   const p = toLocal(e);
   const wp = toWorld(p.x, p.y);
   const c = Math.floor(wp.x / T), r = Math.floor(wp.y / T);
-  if (S.sellMode || d.button === 2) {
-    const t = trapAtCell(c, r);
-    if (t) {
-      S.traps = S.traps.filter((x) => x !== t);
-      if (t.kind === 'block') removeBlock(t.c, t.r);
-      S.coins += Math.floor(TRAPS[t.kind].price * 0.6);
-      poof(t.cx, r * T + T / 2, 8);
-      play('sell');
-    }
-    return;
-  }
+  if (S.sellMode || d.button === 2) { sellAt(c, r); return; }
   if (!S.selected) return;
   if (!canPlace(S.selected, c, r)) {
     if (crowdedAt(S.selected, c, r)) toast(tx('Max 2 {name} traps close together — spread them out!', { name: tx(TRAPS[S.selected].name) }), 2);
@@ -3376,6 +3428,8 @@ async function onButton(id) {
     case 'follow': S.cam.follow = !S.cam.follow; break;
     case 'music': setMusic(!sound.music); break;
     case 'sfx': setSfx(!sound.sfx); break;
+    case 'zoom:in': zoomAt(1.2); S.cam.follow = false; break;
+    case 'zoom:out': zoomAt(1 / 1.2); break;
     case 'lang': {
       const i = LANGS.findIndex((l) => l.code === getLang());
       setLang(LANGS[(i + 1) % LANGS.length].code, true);
@@ -3453,7 +3507,7 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-window.__tdk = { S, brain, CLASSES, spawnHero, makeBridge, progress, loadLevel, startWave, makeTrap, canPlace, update, TRAPS, maxTraps, placeBlock, toBuild, LEVELS, onButton };
+window.__tdk = { S, brain, CLASSES, spawnHero, makeBridge, get progress() { return progress; }, loadLevel, startWave, makeTrap, canPlace, update, TRAPS, maxTraps, placeBlock, toBuild, LEVELS, onButton };
 
 /** The few HTML texts outside the canvas. */
 function localizePage() {
@@ -3468,10 +3522,9 @@ function localizePage() {
   requestAnimationFrame(frame);
   pcall('loadingStart');
   await loadAssets();
-  // portal SDKs (Playgama, CrazyGames) may know the player's language; give the bridge up to 2s to start
-  if (window.bridge?.initialize && !window.bridge.isInitialized) {
-    await new Promise((res) => { const t0 = Date.now(); const id = setInterval(() => { if (window.bridge.isInitialized || Date.now() - t0 > 2000) { clearInterval(id); res(); } }, 50); });
-  }
+  // portal SDKs (Playgama, CrazyGames) bring the player's language and cloud saves; give them up to 3s
+  if (P().whenReady) await Promise.race([P().whenReady, new Promise((r) => setTimeout(r, 3000))]);
+  if (P().storage) { loadProgress(); brain.load(); loadPrefs(); }
   detectLang();
   localizePage();
   pcall('loadingStop');

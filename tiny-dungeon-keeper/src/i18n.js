@@ -3,6 +3,7 @@
  * [Español, Português, Français, Deutsch, Русский, Türkçe, Bahasa Indonesia].
  * Missing entries fall back to English. {name} style placeholders are filled by t().
  */
+import { kv } from './storage.js';
 export const LANGS = [
   { code: 'en', name: 'English' },
   { code: 'es', name: 'Español' },
@@ -71,6 +72,8 @@ const D = {
   "Killed {a}/{b}": ["Eliminados {a}/{b}", "Derrotados {a}/{b}", "Vaincus {a}/{b}", "Besiegt {a}/{b}", "Побеждено {a}/{b}", "Yenilen {a}/{b}", "Dikalahkan {a}/{b}"],
   "Damage taken {n}": ["Daño recibido {n}", "Dano sofrido {n}", "Dégâts subis {n}", "Schaden {n}", "Урон {n}", "Alınan hasar {n}", "Kerusakan {n}"],
   "Drag or WASD to look around · Z/X or wheel to zoom · H heatmap": ["Arrastra o WASD para mirar · Z/X o rueda para zoom · H mapa de calor", "Arraste ou WASD para olhar · Z/X ou roda para zoom · H mapa de calor", "Glisse ou ZQSD pour regarder · Z/X ou molette pour zoomer · H carte", "Ziehen oder WASD zum Umsehen · Z/X oder Rad zum Zoomen · H Heatmap", "Тяните или WASD — обзор · Z/X или колесо — зум · H — тепловая карта", "Bakmak için sürükle/WASD · Yakınlaştırma Z/X/teker · H ısı haritası", "Seret atau WASD untuk melihat · Z/X atau roda untuk zoom · H peta panas"],
+  "Drag to look around · pinch or +/− to zoom · hold a trap to sell": ["Arrastra para mirar · pellizca o +/− para zoom · mantén una trampa para venderla", "Arraste para olhar · pinça ou +/− para zoom · segure uma armadilha para vender", "Glisse pour regarder · pince ou +/− pour zoomer · maintiens un piège pour le vendre", "Ziehen zum Umsehen · Zwei Finger oder +/− zum Zoomen · Falle halten zum Verkaufen", "Тяните для обзора · щипок или +/− — зум · удерживайте ловушку, чтобы продать", "Bakmak için sürükle · yakınlaştırmak için iki parmak ya da +/− · satmak için tuzağa basılı tut", "Seret untuk melihat · cubit atau +/− untuk zoom · tahan jebakan untuk menjual"],
+  "Hold a trap to sell it": ["Mantén una trampa para venderla", "Segure uma armadilha para vender", "Maintiens un piège pour le vendre", "Falle halten zum Verkaufen", "Удерживайте ловушку, чтобы продать", "Satmak için tuzağa basılı tut", "Tahan jebakan untuk menjual"],
   "+2 Trap slots": ["+2 huecos", "+2 espaços", "+2 emplacements", "+2 Fallenplätze", "+2 места", "+2 tuzak yeri", "+2 slot"],
   "🎁 Lucky Crate": ["🎁 Caja suerte", "🎁 Caixa da Sorte", "🎁 Caisse chance", "🎁 Glückskiste", "🎁 Удачный ящик", "🎁 Şans Kutusu", "🎁 Peti Hoki"],
   "NEXT UP · INBOUND": ["PRÓXIMOS · EN CAMINO", "PRÓXIMOS · A CAMINHO", "À VENIR · EN APPROCHE", "ALS NÄCHSTES", "СЛЕДУЮЩИЕ", "SIRADAKİLER", "BERIKUTNYA"],
@@ -276,7 +279,7 @@ export function setLang(code, save = false) {
   const i = LANGS.findIndex((l) => l.code === code);
   lang = i >= 0 ? code : 'en';
   idx = i - 1; // English has no column
-  if (save) try { localStorage.setItem(STORE, lang); } catch (e) {}
+  if (save) kv.set(STORE, lang);
   try { document.documentElement.lang = lang; } catch (e) {}
 }
 export const getLang = () => lang;
@@ -284,7 +287,7 @@ export const getLang = () => lang;
 /** Saved choice → portal SDK language → browser language → English. */
 export function detectLang() {
   let saved = null;
-  try { saved = localStorage.getItem(STORE); } catch (e) {}
+  saved = kv.get(STORE);
   const sdk = (() => {
     try { return window.bridge?.platform?.language || window.CrazyGames?.SDK?.user?.systemInfo?.locale || null; } catch (e) { return null; }
   })();

@@ -89,12 +89,15 @@ Platform._safe(function(){
     CG = window.CrazyGames.SDK;
     cgInit = Promise.resolve(CG.init()).then(function(){
       cgReady = true;
+      // progress is saved with the CrazyGames Data Module (cloud save for logged-in players)
+      if(CG.data && CG.data.getItem) Platform.storage = CG.data;
       cgMute(CG.game.settings);
       CG.game.addSettingsChangeListener(cgMute);
     }, function(){});
   }
 });
 // every SDK call waits for init() (SDK v3 rejects calls made before it)
+Platform.whenReady = cgInit;
 var cg = function(fn){ cgInit.then(function(){ if(cgReady) Platform._safe(fn); }); };
 Platform.loadingStart  = function(){ cg(function(){ CG.game.loadingStart(); }); };
 Platform.loadingStop   = function(){ cg(function(){ CG.game.loadingStop(); }); };
@@ -408,6 +411,7 @@ Platform._safe(function(){
   }
 });
 // platform messages are only allowed once the bridge is initialised
+Platform.whenReady = bridgeInit;
 var pgSend = function(msg){
   bridgeInit.then(function(){
     Platform._safe(function(){ if(bridgeReady) window.bridge.platform.sendMessage(msg); });

@@ -25,8 +25,9 @@
  *   · danger sense — at a trap that keeps killing heroes they explore more
  *     and try new tricks (passed in by the game as an exploration boost).
  *
- * The memory is saved in localStorage, so heroes remember between sessions.
+ * The memory is saved (localStorage, or the portal's cloud save), so heroes remember between sessions.
  */
+import { kv } from './storage.js';
 export const ACTIONS = ['go', 'jump', 'wait', 'dash'];
 const STORE = 'tdk_brain_v2';
 const GAMMA = 0.85;
@@ -144,17 +145,17 @@ export class Brain {
     if (!this.dirty) return;
     this.dirty = false;
     try {
-      localStorage.setItem(STORE, JSON.stringify({ q: this.q, visits: this.visits, mastery: this.mastery, memory: this.memory.slice(-200), studied: this.studied }));
+      kv.set(STORE, JSON.stringify({ q: this.q, visits: this.visits, mastery: this.mastery, memory: this.memory.slice(-200), studied: this.studied }));
     } catch (e) {}
   }
 
   load() {
     try {
-      const d = JSON.parse(localStorage.getItem(STORE) || 'null');
+      const d = JSON.parse(kv.get(STORE) || 'null');
       if (d) Object.assign(this, { q: d.q || {}, visits: d.visits || {}, mastery: d.mastery || {}, memory: d.memory || [], studied: d.studied || 0 });
       else {
         // carry over what v1 heroes already knew about each trap
-        const old = JSON.parse(localStorage.getItem('tdk_brain_v1') || 'null');
+        const old = JSON.parse(kv.get('tdk_brain_v1') || 'null');
         if (old && old.mastery) this.mastery = old.mastery;
       }
     } catch (e) {}

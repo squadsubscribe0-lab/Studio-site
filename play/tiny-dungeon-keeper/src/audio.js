@@ -6,6 +6,7 @@
  * synthesised or AI generated. Music: "The Villain's Blueprints"
  * (assets/music), supplied by the studio.
  */
+import { kv } from './storage.js';
 const NAMES = [
   'jump', 'jump2', 'step1', 'step2', 'stepc1', 'stepc2', 'coin', 'defeat', 'hurt', 'spikes', 'spring', 'slime',
   'fire', 'rock', 'saw', 'axe', 'bomb', 'fuse', 'wheel', 'cannon', 'fireball', 'iceshot', 'freeze', 'log',
@@ -25,8 +26,10 @@ const lastPlay = {};
 let musicEl = null;
 
 const prefs = { music: true, sfx: true };
-try { Object.assign(prefs, JSON.parse(localStorage.getItem('tdk_audio') || '{}')); } catch (e) {}
-const savePrefs = () => { try { localStorage.setItem('tdk_audio', JSON.stringify(prefs)); } catch (e) {} };
+/** (Re)read the saved music/sfx choice — called again once portal cloud saves are ready. */
+export function loadPrefs() { try { Object.assign(prefs, JSON.parse(kv.get('tdk_audio') || '{}')); } catch (e) {} if (sfxGain) sfxGain.gain.value = prefs.sfx ? 1 : 0; }
+loadPrefs();
+const savePrefs = () => kv.set('tdk_audio', JSON.stringify(prefs));
 
 export const sound = {
   get music() { return prefs.music; },
