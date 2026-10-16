@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: SG; src: url(../../assets/fonts/space-grotesk-latin.woff2); font-weight: 300 700; }
+html, body { margin: 0; background: #000; }
+#c { position: relative; overflow: hidden; font-family: SG, sans-serif; }
+.bg { position: absolute; background-size: cover; }
+.shade { position: absolute; inset: 0; }
+.logo { position: absolute; text-align: center; line-height: .9; font-weight: 700; letter-spacing: -1px; }
+.logo span { display: block; -webkit-text-stroke: var(--sw) #1b1f3b; paint-order: stroke fill; filter: drop-shadow(0 calc(var(--sw) * .6) 0 #1b1f3b); }
+.l1 { color: #ff8a2a; } .l2 { color: #ffd34d; }
+.tag { position: absolute; background: #1b1f3b; color: #fff; font-weight: 700; border-radius: 999px; border: 4px solid #ffad5c; white-space: nowrap; transform: translateX(-50%); }
+.tag b { color: #ffd34d; }
+img.s { position: absolute; image-rendering: auto; filter: drop-shadow(0 6px 0 rgba(0,0,0,.35)); }
+.ribbon { position: absolute; background: #ff7a1a; color: #fff; font-weight: 700; border: 4px solid #1b1f3b; border-radius: 16px; -webkit-text-stroke: 2px #1b1f3b; paint-order: stroke fill; }
+</style></head><body><div id="c"></div>
+<script>
+const P = new URLSearchParams(location.search), kind = P.get('k');
+const c = document.getElementById('c');
+const add = (h) => c.insertAdjacentHTML('beforeend', h);
+const S = '../../assets/sprites/';
+const L = { land: [1920, 1080], square: [800, 800], portrait: [1080, 1920] }[kind];
+c.style.width = L[0] + 'px'; c.style.height = L[1] + 'px';
+const heroes = (list, y, h, x0, step) => list.forEach((n, i) => add(`<img class="s" src="${S}${n}.png" style="left:${x0 + i * step}px;bottom:${y}px;height:${h}px">`));
+if (kind === 'land') {
+  add(`<div class="bg" style="inset:0;background-image:url(halloween.jpg);background-position:72% 100%"></div>`);
+  add(`<div class="shade" style="background:linear-gradient(90deg,rgba(12,6,24,.85) 0%,rgba(12,6,24,.55) 38%,rgba(12,6,24,0) 60%)"></div>`);
+  add(`<div class="logo" style="left:60px;top:80px;--sw:13px;width:1000px;white-space:nowrap"><span class="l1" style="font-size:128px">TINY DUNGEON</span><span class="l2" style="font-size:190px">KEEPER</span></div>`);
+  add(`<div class="tag" style="left:560px;top:450px;font-size:40px;padding:16px 34px">The heroes <b>LEARN</b>. Outsmart them!</div>`);
+  add(`<img class="s" src="${S}monster_laugh.png" style="left:150px;bottom:110px;height:330px;transform:rotate(-6deg)">`);
+  heroes(['archer_walk2', 'orc_walk1', 'witch_act1', 'paladin_walk3', 'icemage_walk1'], 120, 150, 520, 120);
+  add(`<div class="ribbon" style="right:60px;top:50px;font-size:44px;padding:12px 30px;transform:rotate(4deg)">🎃 Halloween update!</div>`);
+} else if (kind === 'square') {
+  add(`<div class="bg" style="inset:0;background-image:url(halloween.jpg);background-position:93% 100%"></div>`);
+  add(`<div class="shade" style="background:linear-gradient(180deg,rgba(12,6,24,.9) 0%,rgba(12,6,24,.35) 45%,rgba(12,6,24,0) 70%)"></div>`);
+  add(`<div class="logo" style="left:0;right:0;top:40px;--sw:9px"><span class="l1" style="font-size:96px">TINY DUNGEON</span><span class="l2" style="font-size:132px">KEEPER</span></div>`);
+  add(`<img class="s" src="${S}monster_laugh.png" style="left:50%;margin-left:-160px;bottom:150px;height:270px">`);
+  heroes(['archer_walk2', 'witch_act1', 'orc_walk1'], 40, 120, 40, 110);
+  heroes(['icemage_walk1', 'viking_walk2', 'paladin_walk3'], 40, 120, 450, 110);
+} else {
+  add(`<div class="bg" style="left:0;right:0;top:0;height:1100px;background-image:url(halloween.jpg);background-position:88% 0;background-size:auto 1300px"></div>`);
+  add(`<div class="bg" style="left:0;right:0;bottom:0;height:840px;background-image:url(lava.jpg);background-position:30% 100%;background-size:auto 1300px;border-top:8px solid #1b1f3b"></div>`);
+  add(`<div class="shade" style="background:linear-gradient(180deg,rgba(12,6,24,.9) 0%,rgba(12,6,24,.2) 30%,rgba(12,6,24,0) 45%)"></div>`);
+  add(`<div class="logo" style="left:0;right:0;top:110px;--sw:12px"><span class="l1" style="font-size:132px">TINY DUNGEON</span><span class="l2" style="font-size:180px">KEEPER</span></div>`);
+  add(`<div class="tag" style="left:50%;top:420px;font-size:42px;padding:16px 34px">The heroes <b>LEARN</b>. Outsmart them!</div>`);
+  add(`<img class="s" src="${S}monster_laugh.png" style="left:50%;margin-left:-210px;top:700px;height:350px">`);
+  heroes(['archer_walk2', 'orc_walk1', 'witch_act1', 'icemage_walk1'], 70, 170, 60, 250);
+}
+</script></body></html>
