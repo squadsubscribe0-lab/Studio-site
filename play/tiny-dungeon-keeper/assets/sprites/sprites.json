@@ -254,5 +254,457 @@
 "heart": [
 96,
 87
+],
+"archer_walk1": [
+86,
+99
+],
+"archer_walk2": [
+86,
+101
+],
+"archer_walk3": [
+84,
+100
+],
+"archer_walk4": [
+83,
+100
+],
+"archer_walk5": [
+83,
+99
+],
+"archer_act1": [
+109,
+101
+],
+"archer_act2": [
+135,
+100
+],
+"archer_dizzy": [
+87,
+111
+],
+"assassin_walk1": [
+93,
+107
+],
+"assassin_walk2": [
+99,
+107
+],
+"assassin_walk3": [
+94,
+108
+],
+"assassin_walk4": [
+93,
+106
+],
+"assassin_walk5": [
+99,
+107
+],
+"assassin_act1": [
+124,
+107
+],
+"assassin_act2": [
+90,
+103
+],
+"assassin_dizzy": [
+82,
+111
+],
+"paladin_walk1": [
+98,
+112
+],
+"paladin_walk2": [
+92,
+110
+],
+"paladin_walk3": [
+94,
+109
+],
+"paladin_walk4": [
+105,
+108
+],
+"paladin_walk5": [
+103,
+108
+],
+"paladin_act1": [
+116,
+108
+],
+"paladin_act2": [
+108,
+107
+],
+"paladin_dizzy": [
+89,
+114
+],
+"firemage_walk1": [
+77,
+101
+],
+"firemage_walk2": [
+80,
+101
+],
+"firemage_walk3": [
+96,
+101
+],
+"firemage_walk4": [
+108,
+102
+],
+"firemage_walk5": [
+119,
+102
+],
+"firemage_act1": [
+130,
+101
+],
+"firemage_act2": [
+76,
+100
+],
+"firemage_dizzy": [
+83,
+105
+],
+"druid_walk1": [
+96,
+108
+],
+"druid_walk2": [
+96,
+108
+],
+"druid_walk3": [
+93,
+107
+],
+"druid_walk4": [
+102,
+109
+],
+"druid_walk5": [
+117,
+107
+],
+"druid_act1": [
+110,
+107
+],
+"druid_act2": [
+108,
+107
+],
+"druid_dizzy": [
+81,
+105
+],
+"icemage_walk1": [
+102,
+104
+],
+"icemage_walk2": [
+102,
+104
+],
+"icemage_walk3": [
+100,
+104
+],
+"icemage_walk4": [
+101,
+104
+],
+"icemage_walk5": [
+121,
+103
+],
+"icemage_act1": [
+120,
+104
+],
+"icemage_act2": [
+109,
+104
+],
+"icemage_dizzy": [
+86,
+108
+],
+"viking_walk1": [
+100,
+92
+],
+"viking_walk2": [
+100,
+93
+],
+"viking_walk3": [
+97,
+91
+],
+"viking_walk4": [
+103,
+92
+],
+"viking_walk5": [
+123,
+95
+],
+"viking_act1": [
+113,
+92
+],
+"viking_act2": [
+114,
+93
+],
+"viking_dizzy": [
+78,
+104
+],
+"witch_walk1": [
+94,
+96
+],
+"witch_walk2": [
+92,
+95
+],
+"witch_walk3": [
+88,
+94
+],
+"witch_walk4": [
+88,
+94
+],
+"witch_walk5": [
+110,
+90
+],
+"witch_act1": [
+102,
+94
+],
+"witch_act2": [
+93,
+93
+],
+"witch_dizzy": [
+73,
+91
+],
+"darkknight_walk1": [
+92,
+88
+],
+"darkknight_walk2": [
+94,
+87
+],
+"darkknight_walk3": [
+97,
+88
+],
+"darkknight_walk4": [
+97,
+87
+],
+"darkknight_walk5": [
+111,
+86
+],
+"darkknight_act1": [
+98,
+85
+],
+"darkknight_act2": [
+107,
+86
+],
+"darkknight_dizzy": [
+83,
+91
+],
+"orc_walk1": [
+113,
+82
+],
+"orc_walk2": [
+109,
+82
+],
+"orc_walk3": [
+106,
+79
+],
+"orc_walk4": [
+101,
+82
+],
+"orc_walk5": [
+104,
+80
+],
+"orc_act1": [
+99,
+83
+],
+"orc_act2": [
+110,
+83
+],
+"orc_dizzy": [
+88,
+92
+],
+"x_spikes_red": [
+105,
+92
+],
+"x_spikes_ice": [
+106,
+93
+],
+"x_spikes_gold": [
+105,
+90
+],
+"x_spikes_purple": [
+103,
+98
+],
+"x_spikes_grey": [
+105,
+90
+],
+"x_pend_mace": [
+78,
+114
+],
+"x_pend_ball": [
+89,
+123
+],
+"x_pend_saw": [
+92,
+118
+],
+"x_crane_saw": [
+102,
+125
+],
+"x_acid_idle": [
+106,
+95
+],
+"x_acid_spout": [
+90,
+97
+],
+"x_acid_skull": [
+99,
+97
+],
+"x_flamethrower": [
+98,
+76
+],
+"x_flame_wall": [
+99,
+84
+],
+"x_fire_ring": [
+92,
+106
+],
+"x_crusher": [
+77,
+100
+],
+"x_crusher2": [
+77,
+99
+],
+"x_roller": [
+105,
+78
+],
+"x_pad_red": [
+81,
+95
+],
+"x_pad_blue": [
+81,
+95
+],
+"x_pad_ice": [
+90,
+94
+],
+"x_wheel_spiked": [
+88,
+85
+],
+"x_boulder": [
+83,
+88
+],
+"x_lavaball": [
+86,
+86
+],
+"x_barrel": [
+91,
+85
+],
+"x_cage_skull": [
+57,
+99
+],
+"x_arrowwall": [
+95,
+57
+],
+"x_crossbow": [
+84,
+98
+],
+"x_saw_floor": [
+90,
+76
+],
+"x_saw_spin": [
+91,
+78
+],
+"x_spear": [
+96,
+86
+],
+"x_spikelog": [
+94,
+75
+],
+"x_lavapit": [
+93,
+86
 ]
 }
