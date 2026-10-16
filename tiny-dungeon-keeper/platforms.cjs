@@ -383,32 +383,30 @@ Platform.rewarded = function(){
   /* ---------------- Playgama ---------------- */
   playgama: {
     label: "Playgama Bridge",
-    head: '<script src="https://bridge.playgama.com/v1/stable/playgama-bridge.js"></script>',
+    head: '<script src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>',
     sdk: `
-/* Docs: https://docs.playgama.com/bridge
+/* Docs: https://wiki.playgama.com/playgama/bridge-sdk/getting-started
+   Bridge v2 (the Playgama sandbox requires 2.2.0 or newer).
    The bridge normalises many portals behind one API. */
 Platform.name = "playgama";
 Platform.hasRewarded = true;
 
 var bridgeReady = false;
+var bridgeInit = Promise.resolve();
 Platform._safe(function(){
   if(window.bridge && window.bridge.initialize){
-    window.bridge.initialize().then(function(){ bridgeReady = true; });
+    bridgeInit = window.bridge.initialize().then(function(){ bridgeReady = true; }, function(){});
   }
 });
-
-Platform.ready = function(){
-  Platform._safe(function(){
-    if(window.bridge && window.bridge.platform && window.bridge.platform.sendMessage)
-      window.bridge.platform.sendMessage("game_ready");
+// platform messages are only allowed once the bridge is initialised
+var pgSend = function(msg){
+  bridgeInit.then(function(){
+    Platform._safe(function(){ if(bridgeReady) window.bridge.platform.sendMessage(msg); });
   });
 };
-Platform.gameplayStart = function(){
-  Platform._safe(function(){ window.bridge.platform.sendMessage("gameplay_started"); });
-};
-Platform.gameplayStop = function(){
-  Platform._safe(function(){ window.bridge.platform.sendMessage("gameplay_stopped"); });
-};
+Platform.ready = function(){ pgSend("game_ready"); };
+Platform.gameplayStart = function(){ pgSend("gameplay_started"); };
+Platform.gameplayStop = function(){ pgSend("gameplay_stopped"); };
 
 Platform.interstitial = function(){
   return new Promise(function(resolve){

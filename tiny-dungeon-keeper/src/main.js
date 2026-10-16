@@ -3467,7 +3467,10 @@ function localizePage() {
   requestAnimationFrame(frame);
   pcall('loadingStart');
   await loadAssets();
-  // portal SDKs (Playgama, CrazyGames) are ready by now and may know the player's language
+  // portal SDKs (Playgama, CrazyGames) may know the player's language; give the bridge up to 2s to start
+  if (window.bridge?.initialize && !window.bridge.isInitialized) {
+    await new Promise((res) => { const t0 = Date.now(); const id = setInterval(() => { if (window.bridge.isInitialized || Date.now() - t0 > 2000) { clearInterval(id); res(); } }, 50); });
+  }
   detectLang();
   localizePage();
   pcall('loadingStop');
