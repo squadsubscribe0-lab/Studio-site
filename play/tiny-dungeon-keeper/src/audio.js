@@ -11,12 +11,13 @@ const NAMES = [
   'fire', 'rock', 'saw', 'axe', 'bomb', 'fuse', 'wheel', 'cannon', 'fireball', 'iceshot', 'freeze', 'log',
   'spikeball', 'cage', 'latch', 'chomp', 'splash', 'place', 'block', 'sell', 'click', 'select', 'error',
   'castle', 'learn', 'laugh', 'sad', 'wavestart', 'fight', 'wavedone', 'flawless', 'win', 'youwin', 'lose',
-  'youlose', 'unlock', 'reward', 'magic', 'clang',
+  'youlose', 'unlock', 'reward', 'magic', 'clang', 'arrow', 'spear', 'crush', 'heal', 'dodge', 'bridge',
+  'rage', 'glide', 'steps1', 'steps2', 'launch',
 ];
 
 // default volume per sound, and the shortest gap between two plays (crowds!)
-const VOL = { step1: 0.25, step2: 0.25, stepc1: 0.25, stepc2: 0.25, jump: 0.35, jump2: 0.35, coin: 0.35, hurt: 0.45, defeat: 0.4, fire: 0.5, music: 0.38 };
-const GAP = { step1: 0.12, step2: 0.12, stepc1: 0.12, stepc2: 0.12, jump: 0.07, jump2: 0.07, coin: 0.06, hurt: 0.05, defeat: 0.06, spikes: 0.05, saw: 0.08, fire: 0.25, laugh: 3.5, sad: 2.5, castle: 0.15 };
+const VOL = { step1: 0.25, step2: 0.25, stepc1: 0.25, stepc2: 0.25, steps1: 0.3, steps2: 0.3, jump: 0.35, jump2: 0.35, coin: 0.35, hurt: 0.45, defeat: 0.4, fire: 0.5, music: 0.38 };
+const GAP = { step1: 0.12, step2: 0.12, stepc1: 0.12, stepc2: 0.12, steps1: 0.12, steps2: 0.12, arrow: 0.06, heal: 0.3, jump: 0.07, jump2: 0.07, coin: 0.06, hurt: 0.05, defeat: 0.06, spikes: 0.05, saw: 0.08, fire: 0.25, laugh: 3.5, sad: 2.5, castle: 0.15 };
 
 let ctx = null, master = null, sfxGain = null;
 const buffers = {};
