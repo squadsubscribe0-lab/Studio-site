@@ -256,7 +256,7 @@ function loadLevel(i) {
   S.traps = []; S.heroes = []; S.balls = []; S.particles = []; S.coinsFly = []; S.floaters = [];
   S.bridges = []; S.smashed = [];
   findPits();
-  S.coins = 45 + Math.min(i, 8) * 10;
+  S.coins = 45 + Math.min(i, 8) * 10 + (L.hard?.coins || 0);
   S.hp = S.maxHp = 100;
   S.wave = 0; S.kills = 0; S.escaped = 0; S.lastKillRate = null; S.waveStats = null;
   S.selected = null; S.sellMode = false; S.freeTrap = null; S.bonusSlots = 0; S.slotsAdUsed = false; S.crateUsed = false;
@@ -334,7 +334,12 @@ const maxTraps = () => Math.min(18, 5 + S.wave + Math.floor(S.levelIndex / 2)) +
 const trapAtCell = (c, r) => S.traps.find((t) => t.c === c && t.r === r);
 const priceOf = (k) => (k === S.freeTrap ? 0 : TRAPS[k].price);
 
+/** No spamming: at most 2 traps of the same kind close to each other. */
+const SPREAD = 4;
+const crowdedAt = (kind, c, r) => kind !== 'block' && S.traps.filter((t) => t.kind === kind && Math.abs(t.c - c) <= SPREAD && Math.abs(t.r - r) <= 3).length >= 2;
+
 function canPlace(kind, c, r) {
+  if (crowdedAt(kind, c, r)) return false;
   if (c < 1 || c >= S.cols - 1 || r < 1 || r >= S.rows) return false;
   if (solidAt(c, r) || trapAtCell(c, r)) return false;
   const mount = TRAPS[kind].mount;
@@ -414,7 +419,8 @@ function removeBlock(c, r) {
 const THEME_HEROES = { lava: ['firemage', 'orc'], snow: ['icemage', 'viking'], halloween: ['witch', 'darkknight', 'assassin'], night: ['witch', 'assassin'], desert: ['archer', 'orc'], ruins: ['druid', 'archer'] };
 function planWave() {
   const w = S.wave + 1, L = S.levelIndex;
-  const total = Math.min(200, Math.round((6 + w * 5 + w * w * 1.2) * (L === 0 ? 0.68 : Math.min(2.4, 0.8 + L * 0.15))));
+  const hard = LEVELS[L].hard?.crowd || 1;
+  const total = Math.min(200, Math.round((6 + w * 5 + w * w * 1.2) * (L === 0 ? 0.68 : Math.min(2.4, 0.8 + L * 0.15)) * hard));
   // a new class joins roughly every wave; later levels start with more of them
   const n = Math.min(CLASS_ORDER.length, 1 + Math.floor((w - 1) * 0.8 + L * 1.4));
   const pool = CLASS_ORDER.slice(0, n);
@@ -459,7 +465,7 @@ function spawnHero(cls) {
   const y = S.door.r * T + T - C.h;
   S.heroes.push({
     id: nextId++, cls, C, x, y, w: C.w, h: C.h, vx: 0, vy: 0, dir: 1,
-    hp: C.hp, hpShowT: 0, grounded: false, alive: true, gone: false, anim: Math.random() * 10,
+    hp: Math.round(C.hp * (LEVELS[S.levelIndex].hard?.hp || 1)), maxHp: Math.round(C.hp * (LEVELS[S.levelIndex].hard?.hp || 1)), hpShowT: 0, grounded: false, alive: true, gone: false, anim: Math.random() * 10,
     action: 'go', decisionT: 0, lastKey: null, enc: new Map(), hitCd: new Map(),
     slimeT: 0, stunT: 0, springCd: 0, forceGoT: 0, bounces: 0, life: 0, freezeT: 0, burnT: 0, burnTick: 0,
     shield: cls === 'knight' || cls === 'paladin', castT: 0, wizardCd: 1.5, swingT: 0, flashT: 0,
@@ -834,11 +840,11 @@ function ability(h, dt) {
     }
     case 'paladin': case 'druid': {
       if (h.abCd > 0) break;
-      const hurt = S.heroes.filter((o) => o.alive && o.hp < o.C.hp && Math.hypot(o.x + o.w / 2 - cx, o.y + o.h / 2 - cy) < 110);
+      const hurt = S.heroes.filter((o) => o.alive && o.hp < o.maxHp && Math.hypot(o.x + o.w / 2 - cx, o.y + o.h / 2 - cy) < 110);
       if (!hurt.length) break;
       const amt = h.cls === 'paladin' ? 35 : 25;
       for (const o of hurt) {
-        o.hp = Math.min(o.C.hp, o.hp + amt); o.hpShowT = 1.2;
+        o.hp = Math.min(o.maxHp, o.hp + amt); o.hpShowT = 1.2;
         floater(o.x + o.w / 2, o.y - 10, `+${amt}`, '#7dff9a', 14);
       }
       h.abCd = h.cls === 'paladin' ? 5 : 6; h.actT = 0.5; h.ring = { t: 0, color: h.cls === 'paladin' ? '#ffe680' : '#8cf05a' };
@@ -873,7 +879,7 @@ function ability(h, dt) {
       break;
     }
     case 'viking': {
-      if (!h.rage && h.hp < h.C.hp * 0.5) {
+      if (!h.rage && h.hp < h.maxHp * 0.5) {
         h.rage = true; h.speedMul *= 1.45; h.actT = 0.6;
         floater(cx, h.y - 16, 'RAGE!', '#ff4d4d', 18);
         play('rage', { vol: 0.7 });
@@ -1074,7 +1080,7 @@ function damage(h, amount, trap, how) {
   h.hpShowT = 1.5;
   h.flashT = 0.16;
   const e = trap && h.enc.get(trap.id);
-  if (e) e.dmg += amount / h.C.hp;
+  if (e) e.dmg += amount / h.maxHp;
   floater(h.x + h.w / 2 + (Math.random() - 0.5) * 16, h.y - 6, String(Math.min(amount, 999)), amount >= 100 ? '#fff' : '#ffd36b', amount >= 100 ? 18 : 15);
   if (h.hp <= 0) defeat(h, trap, how);
   else if (onScreen(h.x, h.y)) play('hurt');
@@ -2581,7 +2587,7 @@ function drawHero(h) {
     roundRect(h.x - 4, h.y - 8, h.w + 8, h.h + 10, 6); g.fill(); g.stroke();
   }
   if (h.hpShowT > 0 && h.alive) {
-    const k = Math.max(0, h.hp / h.C.hp);
+    const k = Math.max(0, h.hp / h.maxHp);
     g.fillStyle = 'rgba(15,10,30,.8)'; g.fillRect(x - 15, h.y - 8, 30, 5);
     g.fillStyle = k > 0.5 ? '#6ee7b7' : k > 0.25 ? '#ffc04d' : '#ff6b6b'; g.fillRect(x - 14, h.y - 7, 28 * k, 3);
   }
@@ -3281,7 +3287,11 @@ canvas.addEventListener('pointerup', (e) => {
     return;
   }
   if (!S.selected) return;
-  if (!canPlace(S.selected, c, r)) { play('error'); return; }
+  if (!canPlace(S.selected, c, r)) {
+    if (crowdedAt(S.selected, c, r)) toast(`Max 2 ${TRAPS[S.selected].name} traps close together — spread them out!`, 2);
+    play('error');
+    return;
+  }
   const price = priceOf(S.selected);
   if (S.coins < price) { toast('Not enough coins', 1); play('error'); return; }
   if (S.traps.length >= maxTraps()) { toast(`Trap limit reached (${maxTraps()}). Sell one or start the wave.`, 1.6); play('error'); return; }

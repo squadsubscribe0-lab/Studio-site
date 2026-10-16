@@ -162,7 +162,7 @@ export const LEVELS = [
     }),
   },
   {
-    name: 'The Lava Pit', theme: 'lava', waves: 8, world: 0,
+    name: 'The Lava Pit', theme: 'lava', waves: 8, world: 0, hard: { crowd: 1.45, hp: 1.3, coins: -25 },
     map: build(64, 12, (L) => {
       L.ground(0, 63, 9);
       L.ceil(0, 63, 2);
