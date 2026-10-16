@@ -778,30 +778,31 @@ function smashBlocks(h, c, footRow) {
 
 /**
  * Teamwork: when a wall is too tall and keeps sending heroes back, a hero
- * builds a crate step in front of it and climbs on; for a 4-tall wall a second
- * hero adds another. The guild remembers such walls (for this level), so in
- * later waves the first hero to reach one starts building right away.
+ * drops a crate right where it stands and climbs on. Repeating that builds a
+ * staircase of any height: once the crate pile itself gets too tall, the next
+ * heroes build in front of it, and so on (2-step stairs, up to 8 tiles high).
+ * The guild remembers such walls for the level, so later waves start building
+ * at once.
  */
+const MAX_CRATES = 40;
 function buildStep(h, pc, footRow) {
   let top = footRow;
   while (top - 1 >= 0 && solidAt(pc, top - 1)) top--;
   const tall = footRow - top + 1;
-  if (tall < 3 || tall > 4 || top < 1) return false;
-  const key = `${pc},${footRow},${h.dir}`;
+  if (tall < 3 || tall > 8 || top < 2 || solidAt(pc, top - 2) || S.crates.length >= MAX_CRATES) return false;
+  const key = `${pc},${h.dir}`;
+  const known = S.wallMemory.has(key) || S.grid[footRow][pc] === 5;
   const n = (S.walls[key] = (S.walls[key] || 0) + 1);
-  if (n < (S.wallMemory.has(key) ? 1 : 3)) return false;
-  const bc = pc - h.dir;
-  if (bc < 1 || bc >= S.cols - 1) return false;
-  let r = footRow;
-  while (r >= footRow - 1 && S.grid[r][bc]) r--;
-  if (footRow - r >= tall - 2 || r < footRow - 1 || solidAt(bc, r - 1) || solidAt(bc, r - 2)) return false;
+  if (n < (known ? 1 : 3)) return false;
+  const bc = pc - h.dir, r = footRow;
+  if (bc < 1 || bc >= S.cols - 1 || S.grid[r][bc] || solidAt(bc, r - 1) || solidAt(bc, r - 2)) return false;
   S.grid[r][bc] = 5;
   S.crates.push([bc, r]);
   S.wallMemory.add(key);
   S.walls[key] = 0;
   // everyone standing there climbs on top of the new crate
   for (const o of S.heroes) if (o.alive && rectHit(o, bc * T, r * T, T, T)) { o.y = r * T - o.h - 0.01; o.vy = 0; }
-  h.castT = 0.6; h.actT = 0.6;
+  h.castT = 0.5; h.actT = 0.5;
   floater(h.x + h.w / 2, h.y - 14, 'BUILD!', '#ffd34d', 15);
   for (let i = 0; i < 6; i++) shard(bc * T + T / 2, r * T + 10, '#c98a4b');
   play('block');
