@@ -1,6 +1,6 @@
 import { Brain, ACTIONS } from './brain.js';
 import { LEVELS, THEMES, WORLDS } from './levels.js';
-import { t, detectLang, setLang, getLang, LANGS } from './i18n.js';
+import { t as tx, detectLang, setLang, getLang, LANGS } from './i18n.js';
 import { play, sound, loadAudio, unlockAudio, setMusic, setSfx, duck } from './audio.js';
 
 /* ═════════════════════════ constants ═════════════════════════ */
@@ -103,7 +103,7 @@ async function showRewarded() {
   let ok = false;
   try { ok = !!(await P().rewarded()); } catch (e) {}
   S.adBusy = false;
-  if (!ok) toast(t('No ad available right now — try again later'), 1.8);
+  if (!ok) toast(tx('No ad available right now — try again later'), 1.8);
   return ok;
 }
 const adLabel = () => (P().name === 'standalone' || P().name === 'selfhost' ? 'FREE' : 'AD');
@@ -277,11 +277,11 @@ function loadLevel(i) {
   planWave();
   rollOffers(true);
   buildMinimap();
-  say(t('Build your traps!'), 2.5);
-  toast(t('Level {n}: {name}', { n: i + 1, name: t(L.name) }), 2.5);
+  say(tx('Build your traps!'), 2.5);
+  toast(tx('Level {n}: {name}', { n: i + 1, name: tx(L.name) }), 2.5);
   introduceHeroes();
-  if (S.pits.length) setTimeout(() => S.levelIndex === i && S.screen === 'build' && toast(t('The pits are full of {fluid} — drop a Croc, Lava Bubble or Acid Geyser in them!', { fluid: t(FLUID[S.theme.fluid].name) }), 3.6), 2600);
-  if (S.theme.ice) setTimeout(() => S.levelIndex === i && toast(t("Ice level: heroes slip and slide — they can't stop on a dime!"), 3), 6400);
+  if (S.pits.length) setTimeout(() => S.levelIndex === i && S.screen === 'build' && toast(tx('The pits are full of {fluid} — drop a Croc, Lava Bubble or Acid Geyser in them!', { fluid: tx(FLUID[S.theme.fluid].name) }), 3.6), 2600);
+  if (S.theme.ice) setTimeout(() => S.levelIndex === i && toast(tx("Ice level: heroes slip and slide — they can't stop on a dime!"), 3), 6400);
 }
 
 /* ═════════════════════════ pits & fluids ═════════════════════════ */
@@ -451,7 +451,7 @@ function startWave() {
   for (const t of S.traps) { t.broken = false; t.disabledT = 0; t.kills = (t.kills || 0) * 0.5; resetTrap(t); }
   S.cam.follow = true;
   mood('laugh', 1.2, 1);
-  say(t('Release the heroes!'), 1.6);
+  say(tx('Release the heroes!'), 1.6);
   play('wavestart');
   setTimeout(() => play('fight'), 350);
   pcall('gameplayStart');
@@ -514,7 +514,7 @@ function endWave() {
     S.screen = 'win';
     S.winStars = stars;
     mood('celebrate', 99, 5);
-    say(t('The gold is safe! Mwahaha!'), 4);
+    say(tx('The gold is safe! Mwahaha!'), 4);
     play('win');
     setTimeout(() => play('youwin'), 700);
     pcall('happyTime');
@@ -533,7 +533,7 @@ async function toBuild() {
   planWave();
   rollOffers(true);
   if (5 + S.levelIndex * 2 + S.wave <= UNLOCK.length) {
-    toast(t('New trap unlocked: {name}!', { name: t(TRAPS[unlockedKinds().at(-1)].name) }), 2.4);
+    toast(tx('New trap unlocked: {name}!', { name: tx(TRAPS[unlockedKinds().at(-1)].name) }), 2.4);
     play('unlock');
   }
   introduceHeroes();
@@ -544,7 +544,7 @@ function introduceHeroes() {
   const fresh = [...new Set(S.nextWave)].filter((c) => !progress.seen[c] && c !== 'hero');
   fresh.slice(0, 2).forEach((c, i) => {
     progress.seen[c] = 1;
-    setTimeout(() => toast(t('New hero: {name} — {tip}', { name: t(CLASSES[c].name), tip: t(CLASSES[c].tip) }), 3.6), 900 + i * 3700);
+    setTimeout(() => toast(tx('New hero: {name} — {tip}', { name: tx(CLASSES[c].name), tip: tx(CLASSES[c].tip) }), 3.6), 900 + i * 3700);
   });
   if (fresh.length) saveProgress();
 }
@@ -695,10 +695,10 @@ function finishEncounter(h, t, reward) {
   const { before, after } = brain.record(kind, reward > 0);
   if (before < 0.7 && after >= 0.7 && brain.mastery[kind].seen >= 10 && S.time - (S.learnToastT || -99) > 6) {
     S.learnToastT = S.time;
-    toast(t('Heroes figured out the {name}! Mix it up!', { name: t(TRAPS[kind].name) }), 3);
+    toast(tx('Heroes figured out the {name}! Mix it up!', { name: tx(TRAPS[kind].name) }), 3);
     play('learn');
     mood('angry', 1.8, 3);
-    say(t('They learned it?!'), 1.8);
+    say(tx('They learned it?!'), 1.8);
   }
 }
 
@@ -778,7 +778,7 @@ function smashBlocks(h, c, footRow) {
   h.swingT = 0.4; h.actT = 0.4;
   play('rock');
   S.shake = Math.max(S.shake, 3);
-  floater(h.x + h.w / 2, h.y - 14, t('SMASH!'), '#ffd34d', 15);
+  floater(h.x + h.w / 2, h.y - 14, tx('SMASH!'), '#ffd34d', 15);
   refreshTraps();
   return true;
 }
@@ -810,10 +810,10 @@ function buildStep(h, pc, footRow) {
   // everyone standing there climbs on top of the new crate
   for (const o of S.heroes) if (o.alive && rectHit(o, bc * T, r * T, T, T)) { o.y = r * T - o.h - 0.01; o.vy = 0; }
   h.castT = 0.5; h.actT = 0.5;
-  floater(h.x + h.w / 2, h.y - 14, t('BUILD!'), '#ffd34d', 15);
+  floater(h.x + h.w / 2, h.y - 14, tx('BUILD!'), '#ffd34d', 15);
   for (let i = 0; i < 6; i++) shard(bc * T + T / 2, r * T + 10, '#c98a4b');
   play('block');
-  if (!S.builtToast) { S.builtToast = true; toast(t('The heroes are building steps over your wall!'), 2.4); mood('angry', 1.5, 3); }
+  if (!S.builtToast) { S.builtToast = true; toast(tx('The heroes are building steps over your wall!'), 2.4); mood('angry', 1.5, 3); }
   refreshTraps();
   return true;
 }
@@ -934,7 +934,7 @@ function ability(h, dt) {
     case 'viking': {
       if (!h.rage && h.hp < h.maxHp * 0.5) {
         h.rage = true; h.speedMul *= 1.45; h.actT = 0.6;
-        floater(cx, h.y - 16, t('RAGE!'), '#ff4d4d', 18);
+        floater(cx, h.y - 16, tx('RAGE!'), '#ff4d4d', 18);
         play('rage', { vol: 0.7 });
       }
       break;
@@ -1069,7 +1069,7 @@ function updateHero(h, dt) {
   if (gl) {
     const gx = gl.c * T + T / 2, gy = gl.r * T + T;
     const near = Math.abs(h.x + h.w / 2 - gx);
-    if (near < 4 * T && Math.abs(h.y + h.h - gy) < 2 * T && S.mood === 'idle' && !S.speech) { mood('surprised', 0.8, 2); if (Math.random() < 0.3) say(t('Uh-oh…'), 0.9); }
+    if (near < 4 * T && Math.abs(h.y + h.h - gy) < 2 * T && S.mood === 'idle' && !S.speech) { mood('surprised', 0.8, 2); if (Math.random() < 0.3) say(tx('Uh-oh…'), 0.9); }
     if (near < 26 && Math.abs(h.y + h.h - gy) < 24) {
       h.alive = false; h.gone = true;
       S.hp = Math.max(0, S.hp - C.dmg);
@@ -1080,7 +1080,7 @@ function updateHero(h, dt) {
       floater(gx, gy - 70, `-${C.dmg}`, '#ff6b6b', 22);
       S.shake = Math.max(S.shake, 4);
       mood('sad', 1.8, 3);
-      if (Math.random() < 0.5 || !S.speech) say(t(SADS[(Math.random() * SADS.length) | 0]), 1.4);
+      if (Math.random() < 0.5 || !S.speech) say(tx(SADS[(Math.random() * SADS.length) | 0]), 1.4);
       play('castle');
       play('sad');
     }
@@ -1111,7 +1111,7 @@ function damage(h, amount, trap, how) {
   if (trap && h.hitCd.get(trap.id) > S.time) return;
   if (immune(h, how)) {
     if (trap) h.hitCd.set(trap.id, S.time + 0.6);
-    if (Math.random() < 0.3) floater(h.x + h.w / 2, h.y - 6, t('IMMUNE'), '#9fe3ff', 12);
+    if (Math.random() < 0.3) floater(h.x + h.w / 2, h.y - 6, tx('IMMUNE'), '#9fe3ff', 12);
     return;
   }
   // the Assassin shadow-steps out of the first heavy hit
@@ -1123,7 +1123,7 @@ function damage(h, amount, trap, how) {
     if (!solidPx(to + h.w / 2, h.y + h.h / 2) && !pitAtX(to + h.w / 2) && solidPx(to + h.w / 2, h.y + h.h + 4)) h.x = to;
     else { h.x -= h.dir * T; h.dir = -h.dir; h.lastKey = null; }
     h.actT = 0.4;
-    floater(h.x + h.w / 2, h.y - 8, t('DODGE!'), '#c08cff', 14);
+    floater(h.x + h.w / 2, h.y - 8, tx('DODGE!'), '#c08cff', 14);
     play('dodge');
     return;
   }
@@ -1163,7 +1163,7 @@ function defeat(h, trap, how) {
   if (S.time - S.laughT > 1.6) {
     S.laughT = S.time;
     mood(Math.random() < 0.6 ? 'laugh' : 'celebrate', 1.1);
-    if (Math.random() < 0.45) { say(t(LAUGHS[(Math.random() * LAUGHS.length) | 0]), 1.2); play('laugh', { vol: 0.7 }); }
+    if (Math.random() < 0.45) { say(tx(LAUGHS[(Math.random() * LAUGHS.length) | 0]), 1.2); play('laugh', { vol: 0.7 }); }
   }
   if (how === 'caged') { h.caged = trap; h.vy = 0; h.vx = 0; }
 }
@@ -1761,7 +1761,7 @@ function update(dt) {
       }
     }
     if (S.hp <= 0) {
-      S.screen = 'lose'; mood('sad', 99, 9); say(t('My treasure… noooo!'), 4);
+      S.screen = 'lose'; mood('sad', 99, 9); say(tx('My treasure… noooo!'), 4);
       play('lose'); setTimeout(() => play('youlose'), 600);
       pcall('gameplayStop');
       brain.save();
@@ -2186,7 +2186,7 @@ function drawKeeper(x, y, hgt, bubbleScale = 1) {
   } else if (S.mood === 'laugh') {
     const k = (S.time * 1.5) % 1;
     g.globalAlpha = 1 - k;
-    text(t(Math.floor(S.time * 1.5) % 2 ? 'HA!' : 'HA HA!'), fx + hgt * (0.55 + k * 0.2), fy - hgt * (0.7 + k * 0.4), 14 * bubbleScale, '#ffd34d');
+    text(tx(Math.floor(S.time * 1.5) % 2 ? 'HA!' : 'HA HA!'), fx + hgt * (0.55 + k * 0.2), fy - hgt * (0.7 + k * 0.4), 14 * bubbleScale, '#ffd34d');
   } else if (S.mood === 'surprised') {
     text('!', fx + hgt * 0.36, fy - hgt * 1.02 - Math.abs(Math.sin(S.time * 10)) * 4, 26 * bubbleScale, '#ffd34d');
   } else if (S.mood === 'celebrate') {
@@ -2866,7 +2866,7 @@ function drawHUD() {
   const L = LEVELS[S.levelIndex];
   const box = (x, label, val, w = 110) => {
     g.fillStyle = '#05040a'; roundRect(x, 10, w, 52, 8); g.fill();
-    text(t(label), x + w / 2, 22, 12, '#c9c3e6', 'center', 600, w - 6);
+    text(tx(label), x + w / 2, 22, 12, '#c9c3e6', 'center', 600, w - 6);
     text(val, x + w / 2, 45, 22, '#fff');
   };
   box(140, 'Wave', `${Math.min(L.waves, Math.max(1, S.wave + (S.screen === 'build' ? 1 : 0)))}/${L.waves}`);
@@ -2875,13 +2875,13 @@ function drawHUD() {
   g.fillStyle = '#05040a'; roundRect(372, 10, 112, 52, 8); g.fill();
   spr('coin', 398, 47, 24);
   text(String(S.coins), 418, 36, 22, '#ffe07a', 'left');
-  text(t('Traps {a}/{b}', { a: S.traps.length, b: maxTraps() }), 500, 24, 14, S.traps.length >= maxTraps() ? '#ff9d9d' : '#ffe9cf', 'left', 600);
-  text(t('Hero Brain IQ {n}', { n: brain.iq(BRAIN_KINDS.length) }), 500, 48, 14, '#9fe3ff', 'left', 600, 145);
-  button('brain', 652, 14, 96, 44, t('Brain'), { icon: 'gem', iconH: 22, active: S.showBrain, size: 15 });
-  button('heat', 754, 14, 72, 44, t('Heat'), { active: S.showHeat, size: 15 });
+  text(tx('Traps {a}/{b}', { a: S.traps.length, b: maxTraps() }), 500, 24, 14, S.traps.length >= maxTraps() ? '#ff9d9d' : '#ffe9cf', 'left', 600);
+  text(tx('Hero Brain IQ {n}', { n: brain.iq(BRAIN_KINDS.length) }), 500, 48, 14, '#9fe3ff', 'left', 600, 145);
+  button('brain', 652, 14, 96, 44, tx('Brain'), { icon: 'gem', iconH: 22, active: S.showBrain, size: 15 });
+  button('heat', 754, 14, 72, 44, tx('Heat'), { active: S.showHeat, size: 15 });
   button('music', 832, 14, 48, 44, sound.music ? '♫' : '♫̸', { size: 18, active: sound.music });
   button('sfx', 886, 14, 48, 44, sound.sfx ? '🔊' : '🔇', { size: 16 });
-  text(t('Castle'), 1103, 17, 13, '#c9c3e6', 'center', 600);
+  text(tx('Castle'), 1103, 17, 13, '#c9c3e6', 'center', 600);
   g.fillStyle = '#05040a'; roundRect(946, 28, 320, 30, 8); g.fill();
   const grd = g.createLinearGradient(950, 0, 1262, 0);
   grd.addColorStop(0, '#ff4d4d'); grd.addColorStop(1, '#ff7ab8');
@@ -2903,27 +2903,27 @@ function drawBar() {
       const free = k === S.freeTrap;
       button('offer:' + k, x, BAR + 12, 150, 64, '', { active: sel, disabled: !afford, color: free ? '#6b3fb0' : undefined });
       iconTrap(k, x + 30, BAR + 64);
-      text(t(info.name), x + 56, BAR + 32, 14, sel ? '#2a1400' : afford ? '#fff' : '#9a95b5', 'left', 700, 80);
-      if (free) text(t('FREE!'), x + 58, BAR + 55, 14, sel ? '#2a1400' : '#9dff9d', 'left');
+      text(tx(info.name), x + 56, BAR + 32, 14, sel ? '#2a1400' : afford ? '#fff' : '#9a95b5', 'left', 700, 80);
+      if (free) text(tx('FREE!'), x + 58, BAR + 55, 14, sel ? '#2a1400' : '#9dff9d', 'left');
       else { spr('coin', x + 64, BAR + 64, 15); text(String(price), x + 75, BAR + 55, 14, sel ? '#2a1400' : '#ffe07a', 'left'); }
       const fav = k !== 'block' && brain.favourite(k);
-      if (fav && !free) { g.fillStyle = sel ? 'rgba(90,44,0,.25)' : 'rgba(159,227,255,.15)'; roundRect(x + 100, BAR + 46, 44, 18, 9); g.fill(); text(t(fav), x + 122, BAR + 55, 10, sel ? '#5a2c00' : '#9fe3ff', 'center', 600); }
+      if (fav && !free) { g.fillStyle = sel ? 'rgba(90,44,0,.25)' : 'rgba(159,227,255,.15)'; roundRect(x + 100, BAR + 46, 44, 18, 9); g.fill(); text(tx(fav), x + 122, BAR + 55, 10, sel ? '#5a2c00' : '#9fe3ff', 'center', 600); }
       text(String(i + 1), x + 142, BAR + 22, 11, sel ? '#5a2c00' : '#77729a', 'right', 600);
     });
-    button('reroll', 806, BAR + 12, 112, 64, t('Restock 3'), { disabled: S.coins < 3, size: 15 });
-    button('sell', 924, BAR + 12, 84, 64, t('Sell'), { active: S.sellMode, size: 16 });
-    button('start', 1014, BAR + 12, 254, 64, t('START WAVE ▶'), { color: '#e8641a', size: 22 });
+    button('reroll', 806, BAR + 12, 112, 64, tx('Restock 3'), { disabled: S.coins < 3, size: 15 });
+    button('sell', 924, BAR + 12, 84, 64, tx('Sell'), { active: S.sellMode, size: 16 });
+    button('start', 1014, BAR + 12, 254, 64, tx('START WAVE ▶'), { color: '#e8641a', size: 22 });
     if (S.selected) {
       const fav = S.selected !== 'block' && brain.favourite(S.selected);
-      text(t(TRAPS[S.selected].tip) + (fav ? t('  ·  Heroes have learned to {action} it', { action: t(fav).toUpperCase() }) : ''), W / 2, BAR - 18, 15, '#ffe9cf', 'center', 700, W - 30);
+      text(tx(TRAPS[S.selected].tip) + (fav ? tx('  ·  Heroes have learned to {action} it', { action: tx(fav).toUpperCase() }) : ''), W / 2, BAR - 18, 15, '#ffe9cf', 'center', 700, W - 30);
     }
   } else if (S.screen === 'wave') {
     button('speed', 12, BAR + 14, 90, 60, `${S.speed}×`, { size: 20 });
-    button('follow', 110, BAR + 14, 120, 60, t('Follow'), { active: S.cam.follow, size: 16 });
+    button('follow', 110, BAR + 14, 120, 60, tx('Follow'), { active: S.cam.follow, size: 16 });
     const st = S.waveStats;
-    text(t('Killed {a}/{b}', { a: st.killed, b: st.total }), 260, BAR + 44, 20, '#9dff9d', 'left');
-    text(t('Damage taken {n}', { n: st.damage }), 470, BAR + 44, 18, '#ff9d9d', 'left', 600, 230);
-    text(t('Drag or WASD to look around · Z/X or wheel to zoom · H heatmap'), 1250, BAR + 44, 14, '#9fe3ff', 'right', 500, 540);
+    text(tx('Killed {a}/{b}', { a: st.killed, b: st.total }), 260, BAR + 44, 20, '#9dff9d', 'left');
+    text(tx('Damage taken {n}', { n: st.damage }), 470, BAR + 44, 18, '#ff9d9d', 'left', 600, 230);
+    text(tx('Drag or WASD to look around · Z/X or wheel to zoom · H heatmap'), 1250, BAR + 44, 14, '#9fe3ff', 'right', 500, 540);
   }
 }
 
@@ -2932,8 +2932,8 @@ function drawAdOffers() {
   if (S.screen !== 'build') return;
   let y = (minimapShown() ? MM.y + MM.h + 22 : TOP + 22);
   const x = 12;
-  if (!S.slotsAdUsed) { button('ad:slots', x, y, 190, 40, t('+2 Trap slots'), { color: '#4a2f78', size: 14 }); adBadge(x + 150, y - 9); y += 52; }
-  if (!S.crateUsed && !S.freeTrap) { button('ad:crate', x, y, 190, 40, t('🎁 Lucky Crate'), { color: '#4a2f78', size: 14 }); adBadge(x + 150, y - 9); }
+  if (!S.slotsAdUsed) { button('ad:slots', x, y, 190, 40, tx('+2 Trap slots'), { color: '#4a2f78', size: 14 }); adBadge(x + 150, y - 9); y += 52; }
+  if (!S.crateUsed && !S.freeTrap) { button('ad:crate', x, y, 190, 40, tx('🎁 Lucky Crate'), { color: '#4a2f78', size: 14 }); adBadge(x + 150, y - 9); }
 }
 
 function drawNextUp() {
@@ -2944,41 +2944,41 @@ function drawNextUp() {
   const more = all.length - rows.length;
   if (more) rows.push('more');
   const x = W - 262, y = TOP + 12, w = 250, h = 112 + rows.length * 30;
-  panel(x, y, w, h, t('NEXT UP · INBOUND'));
+  panel(x, y, w, h, tx('NEXT UP · INBOUND'));
   rows.forEach((c, i) => {
     const yy = y + 52 + i * 30;
-    if (c === 'more') { text(t('+ {n} more hero types', { n: more }), x + 46, yy, 14, '#c9c3e6', 'left', 600); return; }
+    if (c === 'more') { text(tx('+ {n} more hero types', { n: more }), x + 46, yy, 14, '#c9c3e6', 'left', 600); return; }
     spr(c + '_walk1', x + 26, yy + 14, 28);
-    text(t(CLASSES[c].name), x + 46, yy, 15, '#fff', 'left', 600, 150);
+    text(tx(CLASSES[c].name), x + 46, yy, 15, '#fff', 'left', 600, 150);
     text(String(counts[c]), x + w - 16, yy, 16, '#ffd7a8', 'right');
   });
   const py = y + 58 + rows.length * 30;
   g.fillStyle = 'rgba(255,255,255,.1)'; g.fillRect(x + 14, py - 8, w - 28, 1);
-  text(t('Payout'), x + 16, py + 12, 14, '#c9c3e6', 'left', 600);
-  text(t('+{n} base · 1–3 per kill', { n: 10 + (S.wave + 1) * 2 }), x + w - 16, py + 12, 13, '#ffe07a', 'right', 600, 150);
-  text(t('Perfect wave bonus +8'), x + w - 16, py + 34, 12, '#9dff9d', 'right', 500, 220);
+  text(tx('Payout'), x + 16, py + 12, 14, '#c9c3e6', 'left', 600);
+  text(tx('+{n} base · 1–3 per kill', { n: 10 + (S.wave + 1) * 2 }), x + w - 16, py + 12, 13, '#ffe07a', 'right', 600, 150);
+  text(tx('Perfect wave bonus +8'), x + w - 16, py + 34, 12, '#9dff9d', 'right', 500, 220);
 }
 
 function drawBrainPanel() {
   const n = BRAIN_KINDS.length, half = Math.ceil(n / 2);
   const x = 12, y = TOP + 8, colW = 300, w = colW * 2 + 24, rowH = 24, h = 112 + half * rowH + 48;
-  panel(x, y, w, h, t('Hero Guild Brain v2'));
-  text(t('IQ {iq}  ·  {s} situations  ·  {m} memories  ·  {g} hero tactics', { iq: brain.iq(n), s: brain.states(), m: brain.memory.length, g: brain.groups() }), x + w - 16, y + 22, 12, '#9fe3ff', 'right', 600, 360);
-  text(t('Learns per trap, per hero type, and spots trap combos. Studies old fights between waves;'), x + 16, y + 46, 12, '#c9c3e6', 'left', 500, w - 32);
-  text(t('at traps that keep killing them, heroes try brand-new tricks (danger sense).'), x + 16, y + 64, 12, '#c9c3e6', 'left', 500, w - 32);
+  panel(x, y, w, h, tx('Hero Guild Brain v2'));
+  text(tx('IQ {iq}  ·  {s} situations  ·  {m} memories  ·  {g} hero tactics', { iq: brain.iq(n), s: brain.states(), m: brain.memory.length, g: brain.groups() }), x + w - 16, y + 22, 12, '#9fe3ff', 'right', 600, 360);
+  text(tx('Learns per trap, per hero type, and spots trap combos. Studies old fights between waves;'), x + 16, y + 46, 12, '#c9c3e6', 'left', 500, w - 32);
+  text(tx('at traps that keep killing them, heroes try brand-new tricks (danger sense).'), x + 16, y + 64, 12, '#c9c3e6', 'left', 500, w - 32);
   BRAIN_KINDS.forEach((k, i) => {
     const col = i < half ? 0 : 1, row = i % half;
     const xx = x + 12 + col * (colW + 4), yy = y + 92 + row * rowH;
     iconTrap(k, xx + 14, yy + 14, 0.42);
     const m = brain.mastery[k];
-    text(t(TRAPS[k].name), xx + 34, yy + 2, 12, '#fff', 'left', 700, 104);
+    text(tx(TRAPS[k].name), xx + 34, yy + 2, 12, '#fff', 'left', 700, 104);
     const pct = m ? m.ema : 0;
     g.fillStyle = '#2c2645'; roundRect(xx + 140, yy - 2, 70, 8, 4); g.fill();
     g.fillStyle = pct > 0.7 ? '#ff6b6b' : pct > 0.35 ? '#ffc04d' : '#6ee7b7';
     roundRect(xx + 140, yy - 2, Math.max(4, 70 * pct), 8, 4); g.fill();
-    text(m ? `${Math.round(pct * 100)}% ${brain.favourite(k) ? t(brain.favourite(k)) : ''}` : t('unseen'), xx + colW - 10, yy + 2, 11, '#c9c3e6', 'right', 500);
+    text(m ? `${Math.round(pct * 100)}% ${brain.favourite(k) ? tx(brain.favourite(k)) : ''}` : tx('unseen'), xx + colW - 10, yy + 2, 11, '#c9c3e6', 'right', 500);
   });
-  button('resetbrain', x + 16, y + h - 44, w - 32, 32, t('Wipe hero memory'), { size: 13, color: '#3a2440' });
+  button('resetbrain', x + 16, y + h - 44, w - 32, 32, tx('Wipe hero memory'), { size: 13, color: '#3a2440' });
 }
 
 function drawToasts() {
@@ -3001,9 +3001,9 @@ function drawOverlay(title, sub, btns, color = '#ffd7a8') {
 }
 
 function drawPause() {
-  drawOverlay(t('Paused'), null, [{ id: 'resume', label: t('Resume'), color: '#e8641a' }, { id: 'retry', label: t('Restart level') }, { id: 'quit', label: t('Main menu') }]);
-  button('music', W / 2 - 150, 540, 145, 46, t(sound.music ? 'Music: ON' : 'Music: OFF'), { size: 15, active: sound.music });
-  button('sfx', W / 2 + 5, 540, 145, 46, t(sound.sfx ? 'Sound: ON' : 'Sound: OFF'), { size: 15, active: sound.sfx });
+  drawOverlay(tx('Paused'), null, [{ id: 'resume', label: tx('Resume'), color: '#e8641a' }, { id: 'retry', label: tx('Restart level') }, { id: 'quit', label: tx('Main menu') }]);
+  button('music', W / 2 - 150, 540, 145, 46, tx(sound.music ? 'Music: ON' : 'Music: OFF'), { size: 15, active: sound.music });
+  button('sfx', W / 2 + 5, 540, 145, 46, tx(sound.sfx ? 'Sound: ON' : 'Sound: OFF'), { size: 15, active: sound.sfx });
 }
 
 function drawSummary() {
@@ -3011,22 +3011,22 @@ function drawSummary() {
   g.fillStyle = 'rgba(30,40,110,.86)'; g.fillRect(0, TOP, W, VIEW_H);
   const e = Math.min(1, S.summaryT * 3);
   g.save(); g.translate(W / 2, TOP + 90); g.scale(0.6 + e * 0.4, 0.6 + e * 0.4);
-  text(t('WAVE COMPLETE'), 0, 0, 72, '#fff', 'center', 700, 1000);
+  text(tx('WAVE COMPLETE'), 0, 0, 72, '#fff', 'center', 700, 1000);
   g.restore();
   text(`${Math.round(st.rate * 100 * Math.min(1, S.summaryT * 1.5))}%`, 330, TOP + 240, 110, '#ffd34d');
-  text(t('KILL RATE'), 330, TOP + 320, 22, '#fff');
-  if (st.better != null) text(t('{n}% vs last wave', { n: `${st.better >= 0 ? '+' : ''}${Math.round(st.better * 100)}` }), 330, TOP + 354, 18, st.better >= 0 ? '#9dff9d' : '#ff9d9d', 'center', 600);
-  text(t('{n} Killed', { n: st.killed }), W / 2, TOP + 215, 32, '#fff');
+  text(tx('KILL RATE'), 330, TOP + 320, 22, '#fff');
+  if (st.better != null) text(tx('{n}% vs last wave', { n: `${st.better >= 0 ? '+' : ''}${Math.round(st.better * 100)}` }), 330, TOP + 354, 18, st.better >= 0 ? '#9dff9d' : '#ff9d9d', 'center', 600);
+  text(tx('{n} Killed', { n: st.killed }), W / 2, TOP + 215, 32, '#fff');
   g.fillStyle = '#fff'; g.fillRect(W / 2 - 110, TOP + 240, 220, 3);
-  text(t('{n} Total', { n: st.total }), W / 2, TOP + 268, 32, '#fff');
+  text(tx('{n} Total', { n: st.total }), W / 2, TOP + 268, 32, '#fff');
   text(String(st.damage), 950, TOP + 240, 110, st.damage ? '#ff6b6b' : '#9dff9d');
-  text(t('DAMAGE TAKEN'), 950, TOP + 320, 22, '#fff');
-  text(t(st.perfect ? 'PERFECT WAVE! +8' : 'Lost perfect wave'), 950, TOP + 354, 18, st.perfect ? '#9dff9d' : '#ff9d9d', 'center', 600);
-  text(t('Payout +{n} coins', { n: st.payout * (S.doubled ? 2 : 1) }) + (S.doubled ? t('  (doubled!)') : ''), W / 2, TOP + 350, 22, '#ffe07a');
-  if (S.replayed) text(t('🧠 The hero guild studied {n} old fights', { n: S.replayed }), W / 2, TOP + 388, 15, '#9fe3ff', 'center', 600);
+  text(tx('DAMAGE TAKEN'), 950, TOP + 320, 22, '#fff');
+  text(tx(st.perfect ? 'PERFECT WAVE! +8' : 'Lost perfect wave'), 950, TOP + 354, 18, st.perfect ? '#9dff9d' : '#ff9d9d', 'center', 600);
+  text(tx('Payout +{n} coins', { n: st.payout * (S.doubled ? 2 : 1) }) + (S.doubled ? tx('  (doubled!)') : ''), W / 2, TOP + 350, 22, '#ffe07a');
+  if (S.replayed) text(tx('🧠 The hero guild studied {n} old fights', { n: S.replayed }), W / 2, TOP + 388, 15, '#9fe3ff', 'center', 600);
   if (S.summaryT > 0.8) {
-    if (!S.doubled) { button('ad:double', W / 2 - 290, TOP + 420, 280, 60, t('Double payout +{n}', { n: st.payout }), { color: '#6b3fb0', size: 19 }); adBadge(W / 2 - 60, TOP + 410); }
-    button('continue', S.doubled ? W / 2 - 140 : W / 2 + 10, TOP + 420, 280, 60, t('Continue ▶'), { color: '#e8641a', size: 22 });
+    if (!S.doubled) { button('ad:double', W / 2 - 290, TOP + 420, 280, 60, tx('Double payout +{n}', { n: st.payout }), { color: '#6b3fb0', size: 19 }); adBadge(W / 2 - 60, TOP + 410); }
+    button('continue', S.doubled ? W / 2 - 140 : W / 2 + 10, TOP + 420, 280, 60, tx('Continue ▶'), { color: '#e8641a', size: 22 });
   }
 }
 
@@ -3041,9 +3041,9 @@ function drawLoading() {
   const grd2 = g.createLinearGradient(W / 2 - 220, 0, W / 2 + 220, 0);
   grd2.addColorStop(0, '#ffad5c'); grd2.addColorStop(1, '#ff6a00');
   g.fillStyle = grd2; roundRect(W / 2 - 220, 450, Math.max(22, 440 * S.loadP), 22, 11); g.fill();
-  text(t('Loading the dungeon… {n}%', { n: Math.round(S.loadP * 100) }), W / 2, 500, 18, '#e8e3ff', 'center', 600);
+  text(tx('Loading the dungeon… {n}%', { n: Math.round(S.loadP * 100) }), W / 2, 500, 18, '#e8e3ff', 'center', 600);
   const tips = ['Tip: a Spring right before a pit sends heroes flying.', 'Tip: heroes learn — swap your traps when they get smart.', 'Tip: Spike Balls can float anywhere in the air.', 'Tip: the Croc snaps at heroes who try to jump over it.'];
-  text(t(tips[Math.floor(S.time / 2.5) % tips.length]), W / 2, 560, 16, '#9fe3ff', 'center', 500);
+  text(tx(tips[Math.floor(S.time / 2.5) % tips.length]), W / 2, 560, 16, '#9fe3ff', 'center', 500);
 }
 
 function drawTitle() {
@@ -3081,20 +3081,20 @@ function drawTitle() {
   text('TINY DUNGEON', 0, -34, 70, '#ff8a2a');
   text('KEEPER', 0, 36, 84, '#ffd34d');
   g.restore();
-  text(t('Build the traps. The heroes learn. Outsmart them.'), 470, 240, 19, INK, 'center', 600, 620);
+  text(tx('Build the traps. The heroes learn. Outsmart them.'), 470, 240, 19, INK, 'center', 600, 620);
   // seasonal ribbon
   g.save();
   g.translate(150, 40); g.rotate(-0.08 + Math.sin(S.time * 3) * 0.02);
   g.fillStyle = '#ff7a1a'; g.strokeStyle = INK; g.lineWidth = 3;
   roundRect(-118, -20, 236, 40, 12); g.fill(); g.stroke();
-  text(t('🎃 NEW: Halloween Night!'), 0, 0, 17, '#fff', 'center', 700, 220);
+  text(tx('🎃 NEW: Halloween Night!'), 0, 0, 17, '#fff', 'center', 700, 220);
   g.restore();
   const next = Math.min(progress.unlocked - 1, LEVELS.length - 1);
-  button('play', 320, 290, 300, 72, t('▶  PLAY  ·  Level {n}', { n: next + 1 }), { color: '#e8641a', size: 26 });
-  button('menu:levels', 320, 376, 300, 54, t('Levels'), { color: '#3a2a5a', size: 20 });
-  button('menu:settings', 320, 442, 145, 50, t('Settings'), { color: '#2c2645', size: 17 });
-  button('menu:credits', 475, 442, 145, 50, t('Credits'), { color: '#2c2645', size: 17 });
-  text(t('Hero Brain IQ {n} · heroes remember your traps', { n: brain.iq(BRAIN_KINDS.length) }), 470, 520, 15, INK, 'center', 600);
+  button('play', 320, 290, 300, 72, tx('▶  PLAY  ·  Level {n}', { n: next + 1 }), { color: '#e8641a', size: 26 });
+  button('menu:levels', 320, 376, 300, 54, tx('Levels'), { color: '#3a2a5a', size: 20 });
+  button('menu:settings', 320, 442, 145, 50, tx('Settings'), { color: '#2c2645', size: 17 });
+  button('menu:credits', 475, 442, 145, 50, tx('Credits'), { color: '#2c2645', size: 17 });
+  text(tx('Hero Brain IQ {n} · heroes remember your traps', { n: brain.iq(BRAIN_KINDS.length) }), 470, 520, 15, INK, 'center', 600);
   if (S.menu === 'levels') drawLevelSelect();
   if (S.menu === 'settings') drawSettings();
   if (S.menu === 'credits') drawCredits();
@@ -3171,13 +3171,13 @@ function drawLevelSelect() {
   g.fillStyle = 'rgba(8,6,16,.72)'; g.fillRect(0, 0, W, H);
   const fx = 70, fy = 40, fw = W - 140, fh = 650;
   woodFrame(fx, fy, fw, fh);
-  ribbon(W / 2, fy + 8, 380, t('Choose a level'));
+  ribbon(W / 2, fy + 8, 380, tx('Choose a level'));
   const cardW = 200, cardH = 140, gap = 14, x0 = W / 2 - (5 * cardW + 4 * gap) / 2;
   WORLDS.forEach((wd, wi) => {
     const ids = LEVELS.map((L, i) => (L.world === wi ? i : -1)).filter((i) => i >= 0);
     const y = fy + 62 + wi * 184;
     g.fillStyle = wd.color; roundRect(x0, y - 12, 230, 24, 12); g.fill();
-    text(t('World {n} · {name}', { n: wi + 1, name: t(wd.name) }), x0 + 12, y, 15, '#fff', 'left', 700, 210);
+    text(tx('World {n} · {name}', { n: wi + 1, name: tx(wd.name) }), x0 + 12, y, 15, '#fff', 'left', 700, 210);
     ids.forEach((i, k) => {
       const L = LEVELS[i];
       const open = i < progress.unlocked;
@@ -3195,35 +3195,35 @@ function drawLevelSelect() {
       g.beginPath(); g.arc(x + 14, by + 12, 15, 0, 7); g.fill(); g.stroke();
       text(String(i + 1), x + 14, by + 12, 16, open ? '#3a1e0a' : '#fff');
       if (!open) text('🔒', x + cardW / 2, by + 45, 26, '#fff');
-      text(open ? t(L.name) : t('Locked'), x + cardW / 2, by + 96, 15, open ? '#fff' : '#9a95b5', 'center', 700, cardW - 16);
+      text(open ? tx(L.name) : tx('Locked'), x + cardW / 2, by + 96, 15, open ? '#fff' : '#9a95b5', 'center', 700, cardW - 16);
       const st = starsOf(i);
       if (open) text('★★★'.slice(0, st) + '☆☆☆'.slice(0, 3 - st), x + cardW / 2, by + 118, 18, '#ffe07a');
       if (L.theme === 'snow' || L.theme === 'halloween') {
-        const tag = t(L.theme === 'snow' ? '❄ ICE' : '🎃 NEW');
+        const tag = tx(L.theme === 'snow' ? '❄ ICE' : '🎃 NEW');
         g.fillStyle = L.theme === 'snow' ? '#5ab8ff' : '#ff7a1a'; roundRect(x + cardW - 64, by + 4, 58, 20, 10); g.fill();
         text(tag, x + cardW - 35, by + 14, 11, '#fff');
       }
     });
   });
-  button('menu:close', W / 2 - 110, fy + fh - 54, 220, 50, t('◀  Back'), { size: 20, color: '#f2b233', dark: true });
+  button('menu:close', W / 2 - 110, fy + fh - 54, 220, 50, tx('◀  Back'), { size: 20, color: '#f2b233', dark: true });
 }
 
 function drawSettings() {
   g.fillStyle = 'rgba(8,6,16,.7)'; g.fillRect(0, 0, W, H);
   panel(W / 2 - 220, 120, 440, 450);
-  text(t('Settings'), W / 2, 160, 30, '#ffad5c');
+  text(tx('Settings'), W / 2, 160, 30, '#ffad5c');
   const L = LANGS.find((l) => l.code === getLang());
-  button('lang', W / 2 - 160, 440, 320, 56, `🌐 ${t('Language')}: ${L.name}`, { size: 18, color: '#2f6a8a' });
-  button('music', W / 2 - 160, 200, 320, 56, t(sound.music ? 'Music: ON' : 'Music: OFF'), { size: 19, active: sound.music });
-  button('sfx', W / 2 - 160, 280, 320, 56, t(sound.sfx ? 'Sound effects: ON' : 'Sound effects: OFF'), { size: 19, active: sound.sfx });
-  button('resetbrain', W / 2 - 160, 360, 320, 56, t('Wipe hero memory'), { size: 17, color: '#5a2440' });
-  button('menu:close', W / 2 - 100, 512, 200, 46, t('Back'), { size: 18 });
+  button('lang', W / 2 - 160, 440, 320, 56, `🌐 ${tx('Language')}: ${L.name}`, { size: 18, color: '#2f6a8a' });
+  button('music', W / 2 - 160, 200, 320, 56, tx(sound.music ? 'Music: ON' : 'Music: OFF'), { size: 19, active: sound.music });
+  button('sfx', W / 2 - 160, 280, 320, 56, tx(sound.sfx ? 'Sound effects: ON' : 'Sound effects: OFF'), { size: 19, active: sound.sfx });
+  button('resetbrain', W / 2 - 160, 360, 320, 56, tx('Wipe hero memory'), { size: 17, color: '#5a2440' });
+  button('menu:close', W / 2 - 100, 512, 200, 46, tx('Back'), { size: 18 });
 }
 
 function drawCredits() {
   g.fillStyle = 'rgba(8,6,16,.7)'; g.fillRect(0, 0, W, H);
   panel(W / 2 - 330, 110, 660, 470);
-  text(t('Credits'), W / 2, 150, 30, '#ffad5c');
+  text(tx('Credits'), W / 2, 150, 30, '#ffad5c');
   const lines = [
     ['Game, code & design', 'Loopkind'],
     ['Characters & traps art', 'Loopkind'],
@@ -3234,21 +3234,21 @@ function drawCredits() {
     ['Font', 'Space Grotesk (SIL OFL)'],
   ];
   lines.forEach(([a, b], i) => {
-    text(t(a), W / 2 - 290, 210 + i * 40, 17, '#c9c3e6', 'left', 600, 260);
+    text(tx(a), W / 2 - 290, 210 + i * 40, 17, '#c9c3e6', 'left', 600, 260);
     text(b, W / 2 + 290, 210 + i * 40, 17, '#fff', 'right', 600);
   });
-  button('menu:close', W / 2 - 100, 508, 200, 46, t('Back'), { size: 18 });
+  button('menu:close', W / 2 - 100, 508, 200, 46, tx('Back'), { size: 18 });
 }
 
 function drawTutorial() {
   if (!S.tutorial || S.screen !== 'build' || S.levelIndex !== 0 || S.wave !== 0) return;
   const x = 300, y = TOP + 120, w = 680, h = 180;
   panel(x, y, w, h);
-  text(t('How to play'), x + w / 2, y + 26, 22, '#ffad5c');
-  text(t('1. Pick a trap below (or press 1–5), then click a glowing cell.'), x + 24, y + 62, 15, '#fff', 'left', 500, w - 40);
-  text(t('2. Spike Balls & cannons float in mid-air · Rocks, Axes, Crushers hang under ceilings and platforms.'), x + 24, y + 88, 14, '#fff', 'left', 500, w - 40);
-  text(t('3. Press START WAVE and watch the crowd come. Drag to look around.'), x + 24, y + 114, 15, '#fff', 'left', 500, w - 40);
-  text(t('4. Heroes LEARN from every trap — keep changing your plan!'), x + 24, y + 140, 15, '#fff', 'left', 500, w - 40);
+  text(tx('How to play'), x + w / 2, y + 26, 22, '#ffad5c');
+  text(tx('1. Pick a trap below (or press 1–5), then click a glowing cell.'), x + 24, y + 62, 15, '#fff', 'left', 500, w - 40);
+  text(tx('2. Spike Balls & cannons float in mid-air · Rocks, Axes, Crushers hang under ceilings and platforms.'), x + 24, y + 88, 14, '#fff', 'left', 500, w - 40);
+  text(tx('3. Press START WAVE and watch the crowd come. Drag to look around.'), x + 24, y + 114, 15, '#fff', 'left', 500, w - 40);
+  text(tx('4. Heroes LEARN from every trap — keep changing your plan!'), x + 24, y + 140, 15, '#fff', 'left', 500, w - 40);
 }
 
 function render() {
@@ -3267,12 +3267,12 @@ function render() {
   if (S.paused) drawPause();
   if (S.screen === 'win') {
     const last = S.levelIndex >= LEVELS.length - 1;
-    drawOverlay(`${'★'.repeat(S.winStars)}${'☆'.repeat(3 - S.winStars)}  ${t('Level complete!')}`, t('{k} heroes defeated · Castle {hp}/100 · Hero Brain IQ {iq}', { k: S.kills, hp: S.hp, iq: brain.iq(BRAIN_KINDS.length) }),
-      last ? [{ id: 'retry', label: t('Play again'), color: '#e8641a' }, { id: 'quit', label: t('Main menu') }]
-           : [{ id: 'next', label: t('Next level ▶'), color: '#e8641a' }, { id: 'retry', label: t('Replay') }, { id: 'quit', label: t('Main menu') }], '#ffe07a');
+    drawOverlay(`${'★'.repeat(S.winStars)}${'☆'.repeat(3 - S.winStars)}  ${tx('Level complete!')}`, tx('{k} heroes defeated · Castle {hp}/100 · Hero Brain IQ {iq}', { k: S.kills, hp: S.hp, iq: brain.iq(BRAIN_KINDS.length) }),
+      last ? [{ id: 'retry', label: tx('Play again'), color: '#e8641a' }, { id: 'quit', label: tx('Main menu') }]
+           : [{ id: 'next', label: tx('Next level ▶'), color: '#e8641a' }, { id: 'retry', label: tx('Replay') }, { id: 'quit', label: tx('Main menu') }], '#ffe07a');
   }
-  if (S.screen === 'lose') drawOverlay(t('The castle fell!'), t('The heroes got smarter. Try new trap combos! (wave {n})', { n: S.wave }), [{ id: 'retry', label: t('Try again'), color: '#e8641a' }, { id: 'quit', label: t('Main menu') }], '#ff9d9d');
-  if (S.adBusy) { g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, W, H); text(t('Loading ad…'), W / 2, H / 2, 26, '#fff'); }
+  if (S.screen === 'lose') drawOverlay(tx('The castle fell!'), tx('The heroes got smarter. Try new trap combos! (wave {n})', { n: S.wave }), [{ id: 'retry', label: tx('Try again'), color: '#e8641a' }, { id: 'quit', label: tx('Main menu') }], '#ff9d9d');
+  if (S.adBusy) { g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, W, H); text(tx('Loading ad…'), W / 2, H / 2, 26, '#fff'); }
 }
 
 /* ═════════════════════════ input ═════════════════════════ */
@@ -3344,13 +3344,13 @@ canvas.addEventListener('pointerup', (e) => {
   }
   if (!S.selected) return;
   if (!canPlace(S.selected, c, r)) {
-    if (crowdedAt(S.selected, c, r)) toast(t('Max 2 {name} traps close together — spread them out!', { name: t(TRAPS[S.selected].name) }), 2);
+    if (crowdedAt(S.selected, c, r)) toast(tx('Max 2 {name} traps close together — spread them out!', { name: tx(TRAPS[S.selected].name) }), 2);
     play('error');
     return;
   }
   const price = priceOf(S.selected);
-  if (S.coins < price) { toast(t('Not enough coins'), 1); play('error'); return; }
-  if (S.traps.length >= maxTraps()) { toast(t('Trap limit reached ({n}). Sell one or start the wave.', { n: maxTraps() }), 1.6); play('error'); return; }
+  if (S.coins < price) { toast(tx('Not enough coins'), 1); play('error'); return; }
+  if (S.traps.length >= maxTraps()) { toast(tx('Trap limit reached ({n}). Sell one or start the wave.', { n: maxTraps() }), 1.6); play('error'); return; }
   S.coins -= price;
   S.traps.push(makeTrap(S.selected, c, r));
   if (S.selected === 'block') { placeBlock(c, r); play('block'); } else play('place');
@@ -3388,10 +3388,10 @@ async function onButton(id) {
     case 'retry': S.paused = false; await showInterstitial(); loadLevel(S.levelIndex); break;
     case 'next': await showInterstitial(); loadLevel(Math.min(LEVELS.length - 1, S.levelIndex + 1)); break;
     case 'ad:double':
-      if (!S.doubled && await showRewarded()) { S.doubled = true; S.coins += S.waveStats.payout; play('reward'); toast(t('+{n} coins!', { n: S.waveStats.payout }), 1.5); }
+      if (!S.doubled && await showRewarded()) { S.doubled = true; S.coins += S.waveStats.payout; play('reward'); toast(tx('+{n} coins!', { n: S.waveStats.payout }), 1.5); }
       break;
     case 'ad:slots':
-      if (!S.slotsAdUsed && await showRewarded()) { S.slotsAdUsed = true; S.bonusSlots += 2; play('reward'); toast(t('+2 trap slots for this level!'), 1.8); }
+      if (!S.slotsAdUsed && await showRewarded()) { S.slotsAdUsed = true; S.bonusSlots += 2; play('reward'); toast(tx('+2 trap slots for this level!'), 1.8); }
       break;
     case 'ad:crate':
       if (!S.crateUsed && await showRewarded()) {
@@ -3399,11 +3399,11 @@ async function onButton(id) {
         S.freeTrap = PREMIUM[(Math.random() * PREMIUM.length) | 0];
         S.selected = S.freeTrap;
         play('reward');
-        toast(t('Lucky Crate: a FREE {name}! Place it anywhere it fits.', { name: t(TRAPS[S.freeTrap].name) }), 2.6);
+        toast(tx('Lucky Crate: a FREE {name}! Place it anywhere it fits.', { name: tx(TRAPS[S.freeTrap].name) }), 2.6);
       }
       break;
     case 'resetbrain':
-      if (confirm(t("Wipe the heroes' memory? They will forget everything they learned."))) { brain.reset(); toast(t('Hero memory wiped'), 1.5); }
+      if (confirm(tx("Wipe the heroes' memory? They will forget everything they learned."))) { brain.reset(); toast(tx('Hero memory wiped'), 1.5); }
       break;
   }
 }
@@ -3457,7 +3457,7 @@ window.__tdk = { S, brain, CLASSES, spawnHero, makeBridge, progress, loadLevel, 
 /** The few HTML texts outside the canvas. */
 function localizePage() {
   const r = document.getElementById('rotate');
-  if (r) r.textContent = t('Turn your phone sideways to play 🔄');
+  if (r) r.textContent = tx('Turn your phone sideways to play 🔄');
 }
 
 (async function boot() {
