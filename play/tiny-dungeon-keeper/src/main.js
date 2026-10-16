@@ -336,7 +336,13 @@ const priceOf = (k) => (k === S.freeTrap ? 0 : TRAPS[k].price);
 
 /** No spamming: at most 2 traps of the same kind close to each other. */
 const SPREAD = 4;
-const crowdedAt = (kind, c, r) => kind !== 'block' && S.traps.filter((t) => t.kind === kind && Math.abs(t.c - c) <= SPREAD && Math.abs(t.r - r) <= 3).length >= 2;
+// mid-air traps (Spike Ball, Fire/Ice Cannon, Crossbow, Flamethrower) can be stacked anywhere
+// up and down, so for them the whole column band counts, whatever the height
+const crowdedAt = (kind, c, r) => {
+  if (kind === 'block') return false;
+  const air = TRAPS[kind].mount === 'air' || TRAPS[kind].mount === 'any';
+  return S.traps.filter((t) => t.kind === kind && Math.abs(t.c - c) <= SPREAD && (air || Math.abs(t.r - r) <= 3)).length >= 2;
+};
 
 function canPlace(kind, c, r) {
   if (crowdedAt(kind, c, r)) return false;
