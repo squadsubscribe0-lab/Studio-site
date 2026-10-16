@@ -18,7 +18,7 @@ const P = new URLSearchParams(location.search), kind = P.get('k');
 const c = document.getElementById('c');
 const add = (h) => c.insertAdjacentHTML('beforeend', h);
 const S = '../../assets/sprites/';
-const L = { land: [1920, 1080], square: [800, 800], portrait: [1080, 1920] }[kind];
+const L = { land: [1920, 1080], square: [800, 800], portrait: [1080, 1920], tall: [800, 1200] }[kind];
 c.style.width = L[0] + 'px'; c.style.height = L[1] + 'px';
 const heroes = (list, y, h, x0, step) => list.forEach((n, i) => add(`<img class="s" src="${S}${n}.png" style="left:${x0 + i * step}px;bottom:${y}px;height:${h}px">`));
 if (kind === 'land') {
@@ -36,6 +36,14 @@ if (kind === 'land') {
   add(`<img class="s" src="${S}monster_laugh.png" style="left:50%;margin-left:-160px;bottom:150px;height:270px">`);
   heroes(['archer_walk2', 'witch_act1', 'orc_walk1'], 40, 120, 40, 110);
   heroes(['icemage_walk1', 'viking_walk2', 'paladin_walk3'], 40, 120, 450, 110);
+} else if (kind === 'tall') {
+  add(`<div class="bg" style="left:0;right:0;top:0;height:760px;background-image:url(halloween.jpg);background-position:90% 0;background-size:auto 900px"></div>`);
+  add(`<div class="bg" style="left:0;right:0;bottom:0;height:440px;background-image:url(lava.jpg);background-position:30% 100%;background-size:auto 700px;border-top:6px solid #1b1f3b"></div>`);
+  add(`<div class="shade" style="background:linear-gradient(180deg,rgba(12,6,24,.9) 0%,rgba(12,6,24,.2) 30%,rgba(12,6,24,0) 45%)"></div>`);
+  add(`<div class="logo" style="left:0;right:0;top:60px;--sw:9px"><span class="l1" style="font-size:98px">TINY DUNGEON</span><span class="l2" style="font-size:136px">KEEPER</span></div>`);
+  add(`<div class="tag" style="left:50%;top:330px;font-size:31px;padding:12px 26px">The heroes <b>LEARN</b>. Outsmart them!</div>`);
+  add(`<img class="s" src="${S}monster_laugh.png" style="left:50%;margin-left:-150px;top:440px;height:250px">`);
+  heroes(['archer_walk2', 'orc_walk1', 'witch_act1', 'icemage_walk1'], 40, 125, 40, 185);
 } else {
   add(`<div class="bg" style="left:0;right:0;top:0;height:1100px;background-image:url(halloween.jpg);background-position:88% 0;background-size:auto 1300px"></div>`);
   add(`<div class="bg" style="left:0;right:0;bottom:0;height:840px;background-image:url(lava.jpg);background-position:30% 100%;background-size:auto 1300px;border-top:8px solid #1b1f3b"></div>`);
