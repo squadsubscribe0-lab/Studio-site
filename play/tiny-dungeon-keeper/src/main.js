@@ -227,7 +227,7 @@ const S = {
   cam: { x: 0, y: 0, z: 1, follow: true },
   shake: 0, mood: 'idle', moodT: 0, speech: null, laughT: 0, time: 0, hover: null, tutorial: true, minimap: null,
   clouds: [], stars: [], summaryT: 0, winStars: 0, doubled: false,
-  killBy: {}, pits: [], pitAt: [], bridges: [], smashed: [], bats: [], flakes: [], replayed: 0,
+  killBy: {}, crates: [], walls: {}, wallMemory: new Set(), pits: [], pitAt: [], bridges: [], smashed: [], bats: [], flakes: [], replayed: 0,
 };
 let nextId = 1;
 
@@ -254,7 +254,7 @@ function loadLevel(i) {
     }));
   });
   S.traps = []; S.heroes = []; S.balls = []; S.particles = []; S.coinsFly = []; S.floaters = [];
-  S.bridges = []; S.smashed = [];
+  S.bridges = []; S.smashed = []; S.crates = []; S.walls = {}; S.wallMemory = new Set();
   findPits();
   S.coins = 45 + Math.min(i, 8) * 10 + (L.hard?.coins || 0);
   S.hp = S.maxHp = 100;
@@ -434,6 +434,7 @@ function planWave() {
 
 function startWave() {
   if (S.screen !== 'build') return;
+  S.builtToast = false;
   S.wave++;
   S.screen = 'wave';
   S.selected = null; S.sellMode = false; S.tutorial = false;
@@ -479,7 +480,8 @@ function restoreLevel() {
   let changed = false;
   for (const b of S.bridges) for (const [c, r] of b.cells) { if (S.grid[r][c] === 4) S.grid[r][c] = 0; changed = true; }
   for (const { c, r } of S.smashed) { S.grid[r][c] = 2; changed = true; }
-  S.bridges = []; S.smashed = [];
+  for (const [c, r] of S.crates) { if (S.grid[r][c] === 5) S.grid[r][c] = 0; changed = true; }
+  S.bridges = []; S.smashed = []; S.crates = []; S.walls = {};
   if (changed) refreshTraps();
 }
 
@@ -732,6 +734,7 @@ function navigate(h, air) {
     if (!s2 && headClear) return jump(h, -640, air);
     if (s2 && !s3 && headClear && !solidAt(pc, footRow - 3)) return jump(h, -770, air);
     if (smashBlocks(h, pc, footRow)) return;
+    if (buildStep(h, pc, footRow)) return;
     h.dir = -h.dir; h.vx = 0; h.lastKey = null;
     return;
   }
@@ -771,6 +774,48 @@ function smashBlocks(h, c, footRow) {
   floater(h.x + h.w / 2, h.y - 14, 'SMASH!', '#ffd34d', 15);
   refreshTraps();
   return true;
+}
+
+/**
+ * Teamwork: when a wall is too tall and keeps sending heroes back, a hero
+ * builds a crate step in front of it and climbs on; for a 4-tall wall a second
+ * hero adds another. The guild remembers such walls (for this level), so in
+ * later waves the first hero to reach one starts building right away.
+ */
+function buildStep(h, pc, footRow) {
+  let top = footRow;
+  while (top - 1 >= 0 && solidAt(pc, top - 1)) top--;
+  const tall = footRow - top + 1;
+  if (tall < 3 || tall > 4 || top < 1) return false;
+  const key = `${pc},${footRow},${h.dir}`;
+  const n = (S.walls[key] = (S.walls[key] || 0) + 1);
+  if (n < (S.wallMemory.has(key) ? 1 : 3)) return false;
+  const bc = pc - h.dir;
+  if (bc < 1 || bc >= S.cols - 1) return false;
+  let r = footRow;
+  while (r >= footRow - 1 && S.grid[r][bc]) r--;
+  if (footRow - r >= tall - 2 || r < footRow - 1 || solidAt(bc, r - 1) || solidAt(bc, r - 2)) return false;
+  S.grid[r][bc] = 5;
+  S.crates.push([bc, r]);
+  S.wallMemory.add(key);
+  S.walls[key] = 0;
+  // everyone standing there climbs on top of the new crate
+  for (const o of S.heroes) if (o.alive && rectHit(o, bc * T, r * T, T, T)) { o.y = r * T - o.h - 0.01; o.vy = 0; }
+  h.castT = 0.6; h.actT = 0.6;
+  floater(h.x + h.w / 2, h.y - 14, 'BUILD!', '#ffd34d', 15);
+  for (let i = 0; i < 6; i++) shard(bc * T + T / 2, r * T + 10, '#c98a4b');
+  play('block');
+  if (!S.builtToast) { S.builtToast = true; toast('The heroes are building steps over your wall!', 2.4); mood('angry', 1.5, 3); }
+  refreshTraps();
+  return true;
+}
+
+function drawCrate(c, r) {
+  const x = c * T, y = r * T;
+  g.fillStyle = '#c98a4b'; g.strokeStyle = INK; g.lineWidth = 3;
+  g.fillRect(x + 1, y + 1, T - 2, T - 2); g.strokeRect(x + 2.5, y + 2.5, T - 5, T - 5);
+  g.strokeStyle = '#8b5a2b'; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(x + 5, y + 5); g.lineTo(x + T - 5, y + T - 5); g.moveTo(x + T - 5, y + 5); g.lineTo(x + 5, y + T - 5); g.stroke();
 }
 
 /** Lay a temporary bridge over a pit (Druid vines / Ice Mage ice). */
@@ -1877,6 +1922,7 @@ function drawTile(v, c, r) {
   const th = S.theme;
   const x = c * T, y = r * T;
   if (v === 4) return drawBridgeTile(c, r);
+  if (v === 5) return drawCrate(c, r);
   if (th.sprites) {
     const top = r > 0 && !solidAt(c, r - 1);
     const im = IMG[top || v === 2 ? 'tile_floor' : 'tile_wall'];
