@@ -1,7 +1,7 @@
 import { Brain, ACTIONS } from './brain.js';
 import { LEVELS, THEMES, WORLDS } from './levels.js';
 import { t as tx, detectLang, setLang, getLang, LANGS } from './i18n.js';
-import { play, sound, loadAudio, unlockAudio, setMusic, setSfx, duck } from './audio.js';
+import { play, sound, loadAudio, unlockAudio, setMusic, setSfx, duck, setSdkMute } from './audio.js';
 
 /* ═════════════════════════ constants ═════════════════════════ */
 const W = 1280, H = 720;
@@ -89,6 +89,7 @@ const pcall = (fn, ...a) => { try { return P()[fn]?.(...a); } catch (e) { return
 // portal adapters call these
 window.Game = {
   mute(on) { duck(on); },
+  setSdkMute(on) { setSdkMute(on); },
   pause() { if (S.screen !== 'title') S.adPause = true; },
   resume() { S.adPause = false; },
 };

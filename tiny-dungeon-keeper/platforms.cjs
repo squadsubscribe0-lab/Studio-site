@@ -79,23 +79,32 @@ Platform.hasRewarded = false;
 Platform.name = "crazygames";
 Platform.hasRewarded = true;
 
-var CG = null;
+var CG = null, cgReady = false, cgInit = Promise.resolve();
+// the player's "mute audio" setting on CrazyGames
+var cgMute = function(settings){
+  Platform._safe(function(){ if(settings && window.Game && window.Game.setSdkMute) window.Game.setSdkMute(!!settings.muteAudio); });
+};
 Platform._safe(function(){
   if(window.CrazyGames && window.CrazyGames.SDK){
     CG = window.CrazyGames.SDK;
-    CG.init();
+    cgInit = Promise.resolve(CG.init()).then(function(){
+      cgReady = true;
+      cgMute(CG.game.settings);
+      CG.game.addSettingsChangeListener(cgMute);
+    }, function(){});
   }
 });
-
-Platform.loadingStart  = function(){ Platform._safe(function(){ CG.game.loadingStart(); }); };
-Platform.loadingStop   = function(){ Platform._safe(function(){ CG.game.loadingStop(); }); };
-Platform.gameplayStart = function(){ Platform._safe(function(){ CG.game.gameplayStart(); }); };
-Platform.gameplayStop  = function(){ Platform._safe(function(){ CG.game.gameplayStop(); }); };
-Platform.happyTime     = function(){ Platform._safe(function(){ CG.game.happytime(); }); };
+// every SDK call waits for init() (SDK v3 rejects calls made before it)
+var cg = function(fn){ cgInit.then(function(){ if(cgReady) Platform._safe(fn); }); };
+Platform.loadingStart  = function(){ cg(function(){ CG.game.loadingStart(); }); };
+Platform.loadingStop   = function(){ cg(function(){ CG.game.loadingStop(); }); };
+Platform.gameplayStart = function(){ cg(function(){ CG.game.gameplayStart(); }); };
+Platform.gameplayStop  = function(){ cg(function(){ CG.game.gameplayStop(); }); };
+Platform.happyTime     = function(){ cg(function(){ CG.game.happytime(); }); };
 
 function cgAd(type){
   return new Promise(function(resolve){
-    if(!CG || !CG.ad){ resolve(false); return; }
+    if(!CG || !cgReady || !CG.ad){ resolve(false); return; }
     var settled = false;
     var finish = function(ok){
       if(settled) return;

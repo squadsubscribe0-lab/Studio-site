@@ -101,8 +101,9 @@ export function setSfx(on) {
   if (sfxGain) sfxGain.gain.value = on ? 1 : 0;
 }
 
-/** Silence everything while an ad plays (portal requirement). */
-export function duck(on) {
+let adDuck = false, sdkMuted = false;
+function applySilence() {
+  const on = adDuck || sdkMuted;
   sound.ducked = on;
   if (master) master.gain.value = on ? 0 : 1;
   if (musicEl) {
@@ -110,3 +111,7 @@ export function duck(on) {
     else if (prefs.music) musicEl.play().catch(() => {});
   }
 }
+/** Silence everything while an ad plays (portal requirement). */
+export function duck(on) { adDuck = on; applySilence(); }
+/** The portal's own mute setting (CrazyGames "mute audio"), independent of ads. */
+export function setSdkMute(on) { sdkMuted = on; applySilence(); }
