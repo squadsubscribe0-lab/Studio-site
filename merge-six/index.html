@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Merge Six: Dice Blast</title>
+<link rel="stylesheet" href="style.css">
+<script>
+window.GAME_CFG={portal:'web',interstitialGap:45};document.documentElement.classList.add('noads');
+</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="loading" class="ov show">
+  <div class="spin"></div>
+  <p>LOADING</p>
+</div>
+
+<div id="menu" class="ov">
+  <canvas id="logo" width="900" height="520"></canvas>
+  <div class="best">BEST <b id="menuBest">0</b></div>
+  <button class="btn big green" id="bPlay">PLAY</button>
+  <div class="row">
+    <button class="btn blue" id="bSkins">DICE SKINS</button>
+    <button class="btn gray" id="bSound">SOUND: ON</button>
+  </div>
+  <div class="help">Drag dice onto the board &middot; Tap a piece to rotate<br>Match 3 to merge up &middot; Make a <b>6</b> to BURST its row &amp; column</div>
+</div>
+
+<div id="shop" class="ov">
+  <div class="panel wide">
+    <h2>DICE SKINS</h2>
+    <div class="coins"><i class="coin"></i><b id="shopCoins">0</b></div>
+    <div id="skinGrid"></div>
+    <div class="row">
+      <button class="btn purple ad" id="bFreeCoins">FREE +100 COINS</button>
+      <button class="btn gray" id="bShopBack">BACK</button>
+    </div>
+  </div>
+</div>
+
+<div id="pause" class="ov">
+  <div class="panel">
+    <h2>PAUSED</h2>
+    <button class="btn big green" id="bResume">RESUME</button>
+    <button class="btn blue" id="bRestart">RESTART</button>
+    <button class="btn gray" id="bPSound">SOUND: ON</button>
+    <button class="btn gray" id="bHome">HOME</button>
+  </div>
+</div>
+
+<div id="revive" class="ov">
+  <div class="panel">
+    <h2>OUT OF SPACE!</h2>
+    <p class="sub">Watch a short ad to clear space and keep going</p>
+    <div class="score" id="revScore">0</div>
+    <button class="btn big purple ad" id="bRevive">REVIVE</button>
+    <button class="btn gray" id="bNoRevive">NO THANKS</button>
+  </div>
+</div>
+
+<div id="over" class="ov">
+  <div class="panel">
+    <h2>GAME OVER</h2>
+    <div class="nb" id="newBest">NEW BEST!</div>
+    <div class="label">SCORE</div>
+    <div class="score" id="ovScore">0</div>
+    <div class="label">BEST <b id="ovBest">0</b></div>
+    <div class="earn"><i class="coin"></i>+<b id="ovCoins">0</b></div>
+    <button class="btn purple ad" id="bDouble">2X COINS</button>
+    <button class="btn big green" id="bAgain">PLAY AGAIN</button>
+    <button class="btn gray" id="bOverHome">HOME</button>
+  </div>
+</div>
+
+<div id="adfake"><div><b>TEST AD</b><span>Ads appear here on the portal</span></div></div>
+<div id="toast"></div>
+
+<script src="ads.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
