@@ -67,3 +67,13 @@ Tiny Dungeon Keeper
 url: play/tiny-dungeon-keeper/
 tags: Strategy, Tower Defense
 You are the monster: build a dungeon full of traps. The heroes learn from every trap that gets them, so keep outsmarting them.
+
+Merge Six
+url: play/merge-six/
+tags: Puzzle, Merge
+Drag dice onto the board and match three of a kind to merge them. Reach a six and it bursts the whole row and column.
+
+Dune Devourer
+url: play/dune-devourer/
+tags: Action, Arcade
+Rule the desert as a giant sand worm: burst out of the dunes, swallow zombie hordes and grow bigger with every bite.
