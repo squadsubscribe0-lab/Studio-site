@@ -50,6 +50,7 @@ const fmtDate = (iso) =>
 const STATUS = {
   live: 'Live',
   development: 'In Development',
+  testing: 'In Testing',
   prototype: 'Prototype',
   soon: 'Coming Soon',
 };
